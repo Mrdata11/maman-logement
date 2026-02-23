@@ -10,7 +10,8 @@ export default function Home() {
         Recherche Habitat Group&eacute;
       </h1>
       <p className="text-gray-600 mb-6">
-        Annonces d&apos;habitats group&eacute;s en Belgique, &eacute;valu&eacute;es automatiquement selon tes crit&egrave;res.
+        Annonces d&apos;habitats group&eacute;s en Belgique, &eacute;valu&eacute;es
+        automatiquement selon tes crit&egrave;res.
       </p>
       <Dashboard initialItems={items} />
     </div>

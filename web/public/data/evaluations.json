@@ -1,0 +1,926 @@
+[
+  {
+    "listing_id": "f62a3c291ad0",
+    "overall_score": 45,
+    "match_summary": "Cette colocation familiale présente une approche communautaire intéressante avec jardinage et projets partagés, mais reste trop petite (7 personnes vs 50 recherchées) et ne correspond pas au profil d'habitat groupé mature souhaité. L'absence d'informations sur le prix et la salle pour biodanse sont également problématiques.",
+    "criteria_scores": {
+      "community_size_and_maturity": 3,
+      "values_alignment": 7,
+      "common_projects": 6,
+      "large_hall_biodanza": 2,
+      "rental_price": 5,
+      "unit_type": 7,
+      "parking": 5,
+      "spiritual_alignment": 5,
+      "charter_openness": 6,
+      "community_meals": 8,
+      "location_brussels": 4,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Vraie vie collective avec repas partagés, jardinage et projets communs",
+      "Valeurs de partage, solidarité et réflexion collective sur l'éducation et la propriété"
+    ],
+    "concerns": [
+      "Communauté très petite (7 personnes dont 3 enfants) vs 50 personnes recherchées",
+      "Pas d'information sur le prix de location ni sur une grande salle pour activités",
+      "Projet encore en développement, pas une communauté mature établie"
+    ],
+    "date_evaluated": "2026-02-23T08:43:18.480303"
+  },
+  {
+    "listing_id": "7a3c07451eb6",
+    "overall_score": 45,
+    "match_summary": "Brutopia est un habitat groupé mature à Forest (Bruxelles) avec 30 appartements et des espaces communs. Le logement proposé est trop grand (3 chambres vs studio/2 pièces recherché) et le prix n'est pas précisé. Manque d'informations sur les valeurs, projets communs et la grande salle pour biodanse.",
+    "criteria_scores": {
+      "community_size_and_maturity": 6,
+      "values_alignment": 5,
+      "common_projects": 4,
+      "large_hall_biodanza": 3,
+      "rental_price": 0,
+      "unit_type": 2,
+      "parking": 4,
+      "spiritual_alignment": 5,
+      "charter_openness": 5,
+      "community_meals": 5,
+      "location_brussels": 10,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Habitat groupé existant à Forest (Bruxelles) avec environ 30 logements",
+      "Espaces communs: jardin partagé, salle d'activité, laverie commune, terrasse sur toit",
+      "Localisation excellente à Bruxelles près du Wiels"
+    ],
+    "concerns": [
+      "Logement trop grand: 3 chambres alors que recherche studio ou 2 pièces maximum",
+      "Prix de location non précisé (critère primordial entre 500-750€)",
+      "Aucune information sur les valeurs communautaires, projets communs ou repas partagés",
+      "Pas d'information sur la taille de la salle d'activité commune ni si adaptée à la biodanse"
+    ],
+    "date_evaluated": "2026-02-23T08:45:50.001490"
+  },
+  {
+    "listing_id": "654aa3d7e6f8",
+    "overall_score": 35,
+    "match_summary": "Ce projet d'habitat groupé à Hoeilaart présente certains éléments intéressants comme une communauté établie et des espaces communs, mais il s'agit d'une vente à 860 000€ et non d'une location. La communauté de 8 familles reste petite comparée aux 50 personnes recherchées.",
+    "criteria_scores": {
+      "community_size_and_maturity": 6,
+      "values_alignment": 7,
+      "common_projects": 6,
+      "large_hall_biodanza": 5,
+      "rental_price": 0,
+      "unit_type": 8,
+      "parking": 8,
+      "spiritual_alignment": 5,
+      "charter_openness": 7,
+      "community_meals": 5,
+      "location_brussels": 9,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Très bien situé à Hoeilaart, proche de Bruxelles (critère géographique idéal)",
+      "Maison passive moderne avec jardin privé et espaces communs bien pensés",
+      "Communauté mature de 7 ans avec charte établie et vision claire du vivre-ensemble"
+    ],
+    "concerns": [
+      "Vente à 860 000€ au lieu d'une location entre 500-750€",
+      "Communauté de seulement 8 familles, bien loin des 50 personnes recherchées",
+      "Aucune mention d'activités spirituelles, biodanse ou projets créatifs spécifiques",
+      "Pas d'information sur une grande salle de 180-250m² pour la biodanse"
+    ],
+    "date_evaluated": "2026-02-23T08:44:17.081931"
+  },
+  {
+    "listing_id": "92e675ed0137",
+    "overall_score": 35,
+    "match_summary": "Cette annonce présente une maison individuelle avec potentiel de colocation et quelques éléments communautaires (potager collectif, jardin partagé). La proximité avec l'habitat associatif du château-ferme de Fisenne est intéressante mais reste vague. Le prix dépasse le budget et il manque les critères essentiels d'habitat groupé mature.",
+    "criteria_scores": {
+      "community_size_and_maturity": 3,
+      "values_alignment": 5,
+      "common_projects": 4,
+      "large_hall_biodanza": 1,
+      "rental_price": 2,
+      "unit_type": 7,
+      "parking": 5,
+      "spiritual_alignment": 5,
+      "charter_openness": 3,
+      "community_meals": 2,
+      "location_brussels": 6,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Potager collectif et jardin partagé avec 'chouettes voisins'",
+      "Proximité possible avec l'habitat associatif du château-ferme de Fisenne",
+      "Maison spacieuse (3 chambres, 3 SDB) permettant colocation"
+    ],
+    "concerns": [
+      "Prix de 887€ + charges dépasse largement le budget (500-750€)",
+      "Pas d'habitat groupé constitué, juste une maison individuelle",
+      "Aucune mention de communauté mature, salle commune, ou activités partagées",
+      "Informations très vagues sur le lien avec l'habitat associatif mentionné"
+    ],
+    "date_evaluated": "2026-02-23T08:46:08.090113"
+  },
+  {
+    "listing_id": "b6ed4abd117d",
+    "overall_score": 35,
+    "match_summary": "Habitat groupé Abbeyfield avec valeurs de bienveillance et activités communes intéressantes, mais réservé aux 60+ et manque d'informations cruciales sur la taille, le prix et les équipements spécifiques recherchés.",
+    "criteria_scores": {
+      "community_size_and_maturity": 3,
+      "values_alignment": 8,
+      "common_projects": 6,
+      "large_hall_biodanza": 2,
+      "rental_price": 3,
+      "unit_type": 7,
+      "parking": 5,
+      "spiritual_alignment": 6,
+      "charter_openness": 7,
+      "community_meals": 8,
+      "location_brussels": 8,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Valeurs alignées : autonomie, vivre-ensemble, projets collectifs partagés",
+      "Activités communes variées : cuisine collective, jardinage, activités culturelles",
+      "Localisation en Brabant Wallon, proche de Bruxelles"
+    ],
+    "concerns": [
+      "Restriction d'âge 60+ incompatible avec recherche de communauté mixte",
+      "Aucune information sur le prix de location",
+      "Taille de la communauté non précisée, probablement très petite pour Abbeyfield",
+      "Pas de mention d'une grande salle pour la biodanse"
+    ],
+    "date_evaluated": "2026-02-23T08:46:24.649333"
+  },
+  {
+    "listing_id": "51391921e3cc",
+    "overall_score": 35,
+    "match_summary": "Cette annonce présente un habitat groupé intergénérationnel à Villers-la-Ville avec potager bio, mais le loyer dépasse le budget (815€+95€) et manque d'informations cruciales sur la taille de la communauté, les activités communes et les infrastructures recherchées.",
+    "criteria_scores": {
+      "community_size_and_maturity": 3,
+      "values_alignment": 6,
+      "common_projects": 7,
+      "large_hall_biodanza": 2,
+      "rental_price": 2,
+      "unit_type": 8,
+      "parking": 5,
+      "spiritual_alignment": 6,
+      "charter_openness": 5,
+      "community_meals": 3,
+      "location_brussels": 8,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Habitat groupé intergénérationnel existant",
+      "Potager bio et environnement boisé naturel",
+      "Bon type de logement (chambre, cuisine, séjour)",
+      "Localisation proche de Bruxelles (Brabant Wallon)"
+    ],
+    "concerns": [
+      "Loyer trop élevé (910€ total vs budget 500-750€)",
+      "Aucune information sur la taille de la communauté",
+      "Pas de mention d'activités communes ou repas partagés",
+      "Aucune information sur une grande salle pour la biodanse",
+      "Manque d'infos sur le parking et les valeurs spirituelles"
+    ],
+    "date_evaluated": "2026-02-23T08:47:14.613469"
+  },
+  {
+    "listing_id": "46d98e37120f",
+    "overall_score": 25,
+    "match_summary": "Cette péniche fait partie d'une petite communauté de 5 bateaux avec gestion collective, mais ne correspond pas aux critères principaux recherchés. C'est une vente à 295k€, pas une location, et la communauté est trop petite (5 unités vs 50 personnes recherchées).",
+    "criteria_scores": {
+      "community_size_and_maturity": 2,
+      "values_alignment": 6,
+      "common_projects": 3,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 8,
+      "parking": 3,
+      "spiritual_alignment": 5,
+      "charter_openness": 5,
+      "community_meals": 2,
+      "location_brussels": 8,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Localisation proche de Bruxelles (Brabant Wallon, 4km d'Ittre)",
+      "Logement spacieux et bien aménagé (120m² avec terrasse de 40m²)",
+      "Environnement naturel exceptionnel au bord de l'eau avec faune"
+    ],
+    "concerns": [
+      "C'est une vente (295k€) et non une location dans la fourchette recherchée",
+      "Communauté très petite (5 bateaux) vs 50 personnes recherchées",
+      "Aucune salle commune mentionnée pour activités de biodanse",
+      "Pas d'informations sur les repas communautaires ou projets partagés"
+    ],
+    "date_evaluated": "2026-02-23T08:43:28.134853"
+  },
+  {
+    "listing_id": "292abf62e9b8",
+    "overall_score": 25,
+    "match_summary": "Projet d'habitat groupé à Anderlecht avec 10 foyers et jardin partagé, mais c'est une vente et non une location. Taille de communauté très petite (10 foyers vs 50 personnes recherchées) et manque d'informations sur les valeurs, projets communs et infrastructures spécifiques.",
+    "criteria_scores": {
+      "community_size_and_maturity": 3,
+      "values_alignment": 5,
+      "common_projects": 4,
+      "large_hall_biodanza": 2,
+      "rental_price": 0,
+      "unit_type": 5,
+      "parking": 5,
+      "spiritual_alignment": 5,
+      "charter_openness": 6,
+      "community_meals": 3,
+      "location_brussels": 10,
+      "near_hospital": 7
+    },
+    "highlights": [
+      "Localisation parfaite à Bruxelles dans le quartier Vétérinaire",
+      "Projet avec jardin partagé et philosophie 'rien n'est imposé, tout est proposé'"
+    ],
+    "concerns": [
+      "C'est une vente et non une location (critère prix non respecté)",
+      "Communauté trop petite (10 foyers vs environ 50 personnes recherchées)",
+      "Aucune mention de salle de biodanse de 180-250m²",
+      "Manque d'informations sur les valeurs communes et projets spécifiques",
+      "Pas d'indication sur les repas communautaires ou activités partagées"
+    ],
+    "date_evaluated": "2026-02-23T08:44:07.718989"
+  },
+  {
+    "listing_id": "0973ae386d5e",
+    "overall_score": 25,
+    "match_summary": "Cette annonce propose un habitat partagé très petit (3 personnes) avec quelques activités communes, mais ne correspond pas aux critères d'un habitat groupé mature de 50 personnes. La roulotte ne convient pas au profil recherché et il manque beaucoup d'infrastructures essentielles.",
+    "criteria_scores": {
+      "community_size_and_maturity": 2,
+      "values_alignment": 6,
+      "common_projects": 4,
+      "large_hall_biodanza": 1,
+      "rental_price": 9,
+      "unit_type": 3,
+      "parking": 5,
+      "spiritual_alignment": 7,
+      "charter_openness": 5,
+      "community_meals": 3,
+      "location_brussels": 7,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Prix attractif à 480€ charges comprises",
+      "Activités liées au développement personnel et à la nature",
+      "Présence d'un potager commun"
+    ],
+    "concerns": [
+      "Communauté de seulement 3 personnes, très loin des 50 recherchées",
+      "Logement en roulotte sans domiciliation possible",
+      "Pas de grande salle pour la biodanse (seulement 10 personnes max)",
+      "Pas d'information sur les repas communs réguliers",
+      "Location temporaire jusqu'en mai/juin 2026"
+    ],
+    "date_evaluated": "2026-02-23T08:44:28.258609"
+  },
+  {
+    "listing_id": "199569b64b96",
+    "overall_score": 25,
+    "match_summary": "Cette annonce concerne une simple colocation à 3 personnes dans une maison écologique, pas un habitat groupé communautaire. Bien que la personne soit artiste en danse et valorise la bienveillance, cela ne correspond pas aux critères d'une communauté mature de 50 personnes avec projets communs.",
+    "criteria_scores": {
+      "community_size_and_maturity": 1,
+      "values_alignment": 6,
+      "common_projects": 2,
+      "large_hall_biodanza": 3,
+      "rental_price": 10,
+      "unit_type": 8,
+      "parking": 5,
+      "spiritual_alignment": 7,
+      "charter_openness": 3,
+      "community_meals": 4,
+      "location_brussels": 8,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Prix dans la fourchette recherchée (750€)",
+      "Localisation proche de Bruxelles (LLN/Ottignies)",
+      "Maison écologique avec grand jardin et proximité nature",
+      "Personne créative dans la danse avec valeurs de bienveillance"
+    ],
+    "concerns": [
+      "Simple colocation de 3 personnes, pas un habitat groupé communautaire",
+      "Aucune mention de projets communs structurés",
+      "Pas de grande salle pour biodanza (seulement salon-salle à manger)",
+      "Aucune charte ou organisation communautaire établie"
+    ],
+    "date_evaluated": "2026-02-23T08:44:41.249510"
+  },
+  {
+    "listing_id": "d58846fbe1b4",
+    "overall_score": 25,
+    "match_summary": "Cette annonce concerne une colocation classique de 4 personnes dans une maison, pas un habitat groupé. Bien que l'esprit soit bienveillant et le prix correct, elle ne correspond pas aux critères principaux recherchés (communauté de 50 personnes, projets communs, grande salle pour biodanse).",
+    "criteria_scores": {
+      "community_size_and_maturity": 1,
+      "values_alignment": 6,
+      "common_projects": 2,
+      "large_hall_biodanza": 0,
+      "rental_price": 8,
+      "unit_type": 3,
+      "parking": 7,
+      "spiritual_alignment": 4,
+      "charter_openness": 3,
+      "community_meals": 4,
+      "location_brussels": 6,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Prix de location dans la fourchette recherchée (550€)",
+      "Esprit respectueux et bienveillant entre colocataires",
+      "Parking disponible sur la place de l'église"
+    ],
+    "concerns": [
+      "Simple colocation de 4 personnes, pas un habitat groupé",
+      "Aucune grande salle pour activités de biodanse",
+      "Pas de projets communs type potager, poulailler, etc.",
+      "Animaux supplémentaires non acceptés"
+    ],
+    "date_evaluated": "2026-02-23T08:45:23.439132"
+  },
+  {
+    "listing_id": "95990994b03e",
+    "overall_score": 25,
+    "match_summary": "Cette annonce est une demande de location d'une personne cherchant un habitat groupé, pas une offre. Elle partage des valeurs écologiques et spirituelles similaires mais recherche un logement individuel dans une communauté, ce qui ne correspond pas à l'offre recherchée.",
+    "criteria_scores": {
+      "community_size_and_maturity": 3,
+      "values_alignment": 7,
+      "common_projects": 6,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 0,
+      "parking": 0,
+      "spiritual_alignment": 8,
+      "charter_openness": 5,
+      "community_meals": 7,
+      "location_brussels": 6,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Valeurs écologiques et spirituelles très alignées (massage, musique sacrée, plantes médicinales)",
+      "Désir explicite de partager des repas et jardiner ensemble dans une communauté"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande de location, pas d'une offre d'habitat groupé",
+      "Recherche un logement individuel (petite maison) avec 3 chambres, pas une place dans une communauté existante",
+      "Budget maximum de 1000€/mois alors que les critères recherchés sont 500-750€",
+      "Aucune information sur une communauté existante ou ses infrastructures"
+    ],
+    "date_evaluated": "2026-02-23T08:45:32.142600"
+  },
+  {
+    "listing_id": "e7a80223e9a7",
+    "overall_score": 25,
+    "match_summary": "Cette annonce propose une cohabitation familiale à 4-5 personnes dans une maison à Schaerbeek, mais ne correspond pas aux critères d'un habitat groupé de 50 personnes. Il s'agit d'une colocation avec une famille, sans communauté mature ni grande salle pour la biodanse.",
+    "criteria_scores": {
+      "community_size_and_maturity": 2,
+      "values_alignment": 6,
+      "common_projects": 4,
+      "large_hall_biodanza": 1,
+      "rental_price": 0,
+      "unit_type": 3,
+      "parking": 6,
+      "spiritual_alignment": 5,
+      "charter_openness": 3,
+      "community_meals": 5,
+      "location_brussels": 10,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Excellente localisation à Bruxelles (Schaerbeek) avec tous les services à proximité",
+      "Maison spacieuse (200m2) avec salon de 90m2, cour, potager et garage pour vélos"
+    ],
+    "concerns": [
+      "Communauté de seulement 4-5 personnes maximum, loin des 50 personnes recherchées",
+      "Aucun prix de location mentionné",
+      "Pas de grande salle dédiée à la biodanse (salon de 90m2 occupé par la famille)",
+      "Logement limité à une chambre de 9m2 seulement"
+    ],
+    "date_evaluated": "2026-02-23T08:45:40.642119"
+  },
+  {
+    "listing_id": "cb627776054d",
+    "overall_score": 25,
+    "match_summary": "Cette annonce présente une maison en vente dans un très petit habitat groupé de seulement 3 lots, ce qui ne correspond pas du tout à l'objectif d'une communauté d'environ 50 personnes. Il s'agit d'une vente à 445.000€ et non d'une location dans la fourchette recherchée.",
+    "criteria_scores": {
+      "community_size_and_maturity": 2,
+      "values_alignment": 6,
+      "common_projects": 3,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 0,
+      "parking": 8,
+      "spiritual_alignment": 4,
+      "charter_openness": 5,
+      "community_meals": 3,
+      "location_brussels": 7,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Localisation à Braine-le-Comte, relativement proche de Bruxelles",
+      "Parking disponible et garage à partager mentionnés"
+    ],
+    "concerns": [
+      "Communauté de seulement 3 lots, très loin des 50 personnes recherchées",
+      "Vente à 445.000€, pas de location dans la fourchette 500-750€",
+      "Aucune mention d'une grande salle pour la biodanse",
+      "Pas d'informations sur les projets communs concrets",
+      "Taille de la communauté trop petite pour les activités recherchées"
+    ],
+    "date_evaluated": "2026-02-23T08:46:40.575550"
+  },
+  {
+    "listing_id": "1e475fee4555",
+    "overall_score": 25,
+    "match_summary": "Cette annonce concerne une colocation classique de 3-4 personnes dans une maison avec jardin, pas un habitat groupé de 50 personnes. Malgré de beaux espaces verts et des projets de potager, l'absence de communauté mature et de valeurs partagées clairement définies ne correspond pas aux critères recherchés.",
+    "criteria_scores": {
+      "community_size_and_maturity": 2,
+      "values_alignment": 3,
+      "common_projects": 6,
+      "large_hall_biodanza": 1,
+      "rental_price": 10,
+      "unit_type": 8,
+      "parking": 7,
+      "spiritual_alignment": 4,
+      "charter_openness": 2,
+      "community_meals": 5,
+      "location_brussels": 6,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Prix très attractif à 350€/mois, bien en dessous du budget",
+      "Beau terrain de 10 ares avec potager, verger, mare et biodiversité",
+      "Proximité nature (bois à 5 min, rivière à 4 min) et localisation accessible"
+    ],
+    "concerns": [
+      "Simple colocation de quelques personnes, pas un habitat groupé de 50 personnes",
+      "Aucune mention de communauté mature avec valeurs partagées et charte",
+      "Pas de grande salle pour la biodanse ni d'activités communautaires organisées",
+      "Aucune information sur l'esprit communautaire ou les repas partagés"
+    ],
+    "date_evaluated": "2026-02-23T08:46:57.546393"
+  },
+  {
+    "listing_id": "3ea30014206e",
+    "overall_score": 25,
+    "match_summary": "Cette annonce est une demande de location d'une personne cherchant un logement, pas une offre d'habitat groupé existant. Bien que la personne mentionne qu'elle 'adorerait' un habitat groupé, il n'y a aucune information sur une communauté concrète avec les critères recherchés.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 6,
+      "common_projects": 0,
+      "large_hall_biodanza": 0,
+      "rental_price": 8,
+      "unit_type": 7,
+      "parking": 0,
+      "spiritual_alignment": 5,
+      "charter_openness": 0,
+      "community_meals": 0,
+      "location_brussels": 8,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Budget compatible (750€ max)",
+      "Localisation Brabant Wallon proche de Bruxelles",
+      "Profil bienveillant avec expérience d'accompagnement et goût pour les arts"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande de location, pas d'une offre d'habitat groupé",
+      "Aucune information sur une communauté existante",
+      "Pas de mention d'activités communes, projets partagés ou salle communautaire",
+      "Aucune information sur le parking"
+    ],
+    "date_evaluated": "2026-02-23T08:47:06.100902"
+  },
+  {
+    "listing_id": "3f8160c8950d",
+    "overall_score": 25,
+    "match_summary": "Cette annonce propose une simple colocation à 3 personnes (4 avec le nouveau colocataire) et non un habitat groupé d'environ 50 personnes. Bien que les valeurs de respect et bienveillance soient présentes, il manque complètement l'aspect communautaire recherché, les projets communs, et la grande salle pour la biodanse.",
+    "criteria_scores": {
+      "community_size_and_maturity": 2,
+      "values_alignment": 7,
+      "common_projects": 1,
+      "large_hall_biodanza": 0,
+      "rental_price": 8,
+      "unit_type": 5,
+      "parking": 5,
+      "spiritual_alignment": 6,
+      "charter_openness": 5,
+      "community_meals": 3,
+      "location_brussels": 8,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Prix de 600€ dans la fourchette recherchée",
+      "Localisation en Brabant Wallon proche de Bruxelles",
+      "Valeurs de respect et bienveillance mentionnées"
+    ],
+    "concerns": [
+      "Seulement 3-4 personnes au lieu de 50",
+      "Aucun projet commun mentionné",
+      "Pas de grande salle pour biodanse",
+      "Simple colocation temporaire (mars-octobre 2026)",
+      "Pas de domiciliation possible"
+    ],
+    "date_evaluated": "2026-02-23T08:47:22.639278"
+  },
+  {
+    "listing_id": "760bb1b303c9",
+    "overall_score": 15,
+    "match_summary": "Cette annonce est une demande de recherche d'habitat groupé, pas une offre. Sarah et Thibault cherchent à rejoindre un habitat groupé existant, mais ne proposent aucun logement correspondant aux critères recherchés.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 6,
+      "common_projects": 2,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 2,
+      "parking": 0,
+      "spiritual_alignment": 3,
+      "charter_openness": 0,
+      "community_meals": 0,
+      "location_brussels": 7,
+      "near_hospital": 0
+    },
+    "highlights": [
+      "Valeurs partiellement alignées (partage, convivialité, entraide)",
+      "Zone géographique proche de Bruxelles (max 1h)"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande de recherche, pas d'une offre d'habitat groupé",
+      "Aucune information sur un habitat groupé existant proposé",
+      "Recherchent 120m² à acheter/louer, pas adapté au budget recherché",
+      "Pas d'information sur les installations communautaires recherchées"
+    ],
+    "date_evaluated": "2026-02-23T08:43:37.569314"
+  },
+  {
+    "listing_id": "f561e2ed8e14",
+    "overall_score": 15,
+    "match_summary": "Cette annonce concerne une simple colocation intergénérationnelle entre un jeune couple avec bébé et des personnes âgées, pas un habitat groupé communautaire. Il s'agit d'une demande de location classique sans dimension collective ou projets communs.",
+    "criteria_scores": {
+      "community_size_and_maturity": 1,
+      "values_alignment": 6,
+      "common_projects": 2,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 5,
+      "parking": 0,
+      "spiritual_alignment": 4,
+      "charter_openness": 2,
+      "community_meals": 3,
+      "location_brussels": 7,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Valeurs humaines positives: bienveillance, entraide, respect",
+      "Localisation en Brabant Wallon proche de Bruxelles"
+    ],
+    "concerns": [
+      "Il s'agit d'une simple colocation, pas d'un habitat groupé communautaire",
+      "Aucun projet collectif ou infrastructure communautaire mentionné",
+      "Pas de prix spécifié",
+      "Aucune information sur parking, salle commune ou activités de groupe"
+    ],
+    "date_evaluated": "2026-02-23T08:43:44.835363"
+  },
+  {
+    "listing_id": "d10f47c4bf36",
+    "overall_score": 15,
+    "match_summary": "Cette annonce est une DEMANDE de location, pas une offre d'habitat groupé. Le couple cherche à intégrer un habitat groupé existant, ce qui ne correspond pas aux critères de recherche qui visent à trouver un logement dans un habitat groupé déjà établi.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 7,
+      "common_projects": 6,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 0,
+      "parking": 0,
+      "spiritual_alignment": 8,
+      "charter_openness": 0,
+      "community_meals": 0,
+      "location_brussels": 7,
+      "near_hospital": 0
+    },
+    "highlights": [
+      "Profil spirituel et écologique compatible avec les valeurs recherchées",
+      "Expérience de vie communautaire en Cévennes pendant 22 ans"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande de location, pas d'une offre d'habitat groupé",
+      "Aucune information sur un habitat groupé existant à intégrer",
+      "Budget de 1300€ dépasse la fourchette recherchée (500-750€)",
+      "Pas d'information sur les infrastructures communautaires disponibles"
+    ],
+    "date_evaluated": "2026-02-23T08:43:51.869474"
+  },
+  {
+    "listing_id": "5b3197704294",
+    "overall_score": 15,
+    "match_summary": "Cette annonce est une demande de location d'une personne cherchant un habitat collectif, pas une offre d'habitat groupé. Emma recherche elle-même un lieu avec les valeurs recherchées mais ne propose pas d'habitat existant correspondant aux critères.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 6,
+      "common_projects": 0,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 0,
+      "parking": 0,
+      "spiritual_alignment": 5,
+      "charter_openness": 0,
+      "community_meals": 0,
+      "location_brussels": 8,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Localisation dans le Brabant Wallon",
+      "Valeurs de bienveillance et conscience mentionnées"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande de location, pas d'une offre d'habitat groupé",
+      "Aucune communauté existante proposée",
+      "Aucun détail sur les infrastructures ou projets communs",
+      "Pas de prix ou logement spécifique mentionné"
+    ],
+    "date_evaluated": "2026-02-23T08:43:58.955120"
+  },
+  {
+    "listing_id": "d71302874312",
+    "overall_score": 15,
+    "match_summary": "Cette annonce concerne un projet d'écolieu qui n'existe pas encore et est en recherche de financement/partenaires. Il s'agit d'une vente de tiny house et non d'une location dans un habitat groupé existant. Le projet est encore à l'état d'esquisse sans lieu géographique défini.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 6,
+      "common_projects": 2,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 3,
+      "parking": 0,
+      "spiritual_alignment": 7,
+      "charter_openness": 2,
+      "community_meals": 0,
+      "location_brussels": 0,
+      "near_hospital": 0
+    },
+    "highlights": [
+      "Valeurs écologiques et spirituelles ('Harmonie et Équilibre avec la Nature')",
+      "Projet innovant avec tiny house en dôme géodésique"
+    ],
+    "concerns": [
+      "Projet inexistant - encore à l'état d'esquisse",
+      "Vente d'une tiny house, pas de location d'habitat",
+      "Pas de communauté existante ni de lieu défini",
+      "Pas d'informations sur les activités communautaires",
+      "Aucune information sur la localisation géographique"
+    ],
+    "date_evaluated": "2026-02-23T08:44:50.465497"
+  },
+  {
+    "listing_id": "aa466dacb981",
+    "overall_score": 15,
+    "match_summary": "Cette annonce n'offre pas un habitat groupé existant mais représente une personne cherchant à rejoindre une communauté. Elle présente un profil intéressant avec des valeurs alignées (végane, spiritualité, engagement social), mais ne correspond pas aux critères de recherche car il s'agit d'une demande et non d'une offre de logement dans un habitat groupé fonctionnel.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 8,
+      "common_projects": 3,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 0,
+      "parking": 0,
+      "spiritual_alignment": 7,
+      "charter_openness": 5,
+      "community_meals": 5,
+      "location_brussels": 3,
+      "near_hospital": 0
+    },
+    "highlights": [
+      "Profil très engagé avec valeurs fortes (végane, action sociale, générosité)",
+      "Expérience internationale et ouverture d'esprit, capacité d'investissement"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande de logement et non d'une offre d'habitat groupé",
+      "Aucune information sur un habitat existant, ses infrastructures ou sa communauté",
+      "Pas de détails sur prix, logement, équipements ou activités communes disponibles"
+    ],
+    "date_evaluated": "2026-02-23T08:44:58.555592"
+  },
+  {
+    "listing_id": "f8697997c62b",
+    "overall_score": 15,
+    "match_summary": "Cette annonce ne correspond pas du tout aux critères recherchés. Il s'agit d'une demande de location émanant d'une personne seule cherchant à intégrer un habitat groupé, et non d'une offre d'habitat groupé existant. Aucun des critères spécifiques recherchés n'est satisfait.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 3,
+      "common_projects": 0,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 0,
+      "parking": 0,
+      "spiritual_alignment": 2,
+      "charter_openness": 0,
+      "community_meals": 0,
+      "location_brussels": 3,
+      "near_hospital": 0
+    },
+    "highlights": [
+      "Personne avec un tempérament ouvert et tolérant",
+      "Recherche dans des villes belges (Hainaut)"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande et non d'une offre d'habitat groupé",
+      "Aucune information sur une communauté existante",
+      "Pas de mention de projets communs ou d'activités partagées",
+      "Aucune information sur le type de logement, prix ou équipements",
+      "Ne correspond pas aux critères de recherche d'habitat groupé mature"
+    ],
+    "date_evaluated": "2026-02-23T08:45:07.871822"
+  },
+  {
+    "listing_id": "7d3fa7d93aa5",
+    "overall_score": 15,
+    "match_summary": "Cette annonce n'est pas du tout pertinente car il s'agit d'une demande temporaire de séjour (1 mois) et non d'une offre d'habitat groupé. La personne cherche un lieu calme pour travailler, pas une communauté établie.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 3,
+      "common_projects": 0,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 0,
+      "parking": 0,
+      "spiritual_alignment": 2,
+      "charter_openness": 0,
+      "community_meals": 0,
+      "location_brussels": 0,
+      "near_hospital": 0
+    },
+    "highlights": [
+      "Personne qui valorise la nature et le calme",
+      "Approche respectueuse de l'environnement (eco friendly)"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande temporaire, pas d'une offre d'habitat groupé",
+      "Aucune communauté ou projet collectif mentionné",
+      "Durée très courte (1 mois seulement)",
+      "Aucune information sur la localisation précise",
+      "Pas de prix ni de logement proposé"
+    ],
+    "date_evaluated": "2026-02-23T08:45:15.450385"
+  },
+  {
+    "listing_id": "9716472cbd46",
+    "overall_score": 15,
+    "match_summary": "Cette annonce concerne un projet immobilier de division de terrain pour construire des maisons individuelles, pas un habitat groupé communautaire. Il s'agit d'un simple regroupement d'achat sans dimension de vie commune ou de partage de valeurs.",
+    "criteria_scores": {
+      "community_size_and_maturity": 1,
+      "values_alignment": 2,
+      "common_projects": 1,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 3,
+      "parking": 5,
+      "spiritual_alignment": 1,
+      "charter_openness": 1,
+      "community_meals": 0,
+      "location_brussels": 6,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Région proche de Bruxelles (Boussu dans le Hainaut)",
+      "Démarche collaborative pour l'achat de terrain"
+    ],
+    "concerns": [
+      "Projet d'achat/construction, pas de location",
+      "Aucune dimension communautaire ou de vie partagée",
+      "Pas d'habitat groupé mais maisons individuelles séparées",
+      "Aucun projet commun mentionné",
+      "Pas de grande salle pour activités",
+      "Pas de repas communautaires ou activités ensemble"
+    ],
+    "date_evaluated": "2026-02-23T08:45:58.459808"
+  },
+  {
+    "listing_id": "712c764d88e2",
+    "overall_score": 15,
+    "match_summary": "Cette annonce est une demande de recherche d'habitat groupé et non une offre d'habitat. La personne cherche elle-même un projet pour y participer, ce qui ne correspond pas aux besoins de quelqu'un qui recherche un logement dans un habitat groupé existant.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 3,
+      "common_projects": 0,
+      "large_hall_biodanza": 0,
+      "rental_price": 2,
+      "unit_type": 0,
+      "parking": 0,
+      "spiritual_alignment": 2,
+      "charter_openness": 0,
+      "community_meals": 0,
+      "location_brussels": 5,
+      "near_hospital": 0
+    },
+    "highlights": [
+      "Personne sociable et accommodante",
+      "Située en Brabant Wallon"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande de recherche et non d'une offre d'habitat",
+      "Aucun habitat groupé existant n'est proposé",
+      "Préfère acheter plutôt que louer",
+      "Aucune information sur les critères recherchés (salle, projets communs, etc.)"
+    ],
+    "date_evaluated": "2026-02-23T08:46:15.458446"
+  },
+  {
+    "listing_id": "a0a4eaffd1c7",
+    "overall_score": 15,
+    "match_summary": "Cette annonce concerne la vente d'une tiny house individuelle, pas un habitat groupé communautaire. Elle ne correspond pas aux critères de recherche qui portent sur l'intégration dans une communauté mature d'environ 50 personnes.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 0,
+      "common_projects": 0,
+      "large_hall_biodanza": 0,
+      "rental_price": 0,
+      "unit_type": 7,
+      "parking": 5,
+      "spiritual_alignment": 3,
+      "charter_openness": 0,
+      "community_meals": 0,
+      "location_brussels": 5,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Tiny house autonome et écologique avec panneaux solaires",
+      "Conception ergonomique par architecte d'intérieur avec nombreux rangements"
+    ],
+    "concerns": [
+      "Il s'agit d'une vente, pas d'une location",
+      "Aucune communauté ou habitat groupé mentionné",
+      "Pas d'informations sur des activités communes ou valeurs partagées",
+      "Aucune mention de salle commune pour biodanse"
+    ],
+    "date_evaluated": "2026-02-23T08:46:31.841877"
+  },
+  {
+    "listing_id": "81f2ec6e141e",
+    "overall_score": 15,
+    "match_summary": "Cette annonce est une demande de logement individuel par une infirmière de 51 ans, pas une offre d'habitat groupé. Elle cherche un appartement de 60m² dans la région de Gembloux, ce qui ne correspond pas du tout aux critères de recherche d'une communauté mature.",
+    "criteria_scores": {
+      "community_size_and_maturity": 0,
+      "values_alignment": 0,
+      "common_projects": 0,
+      "large_hall_biodanza": 0,
+      "rental_price": 8,
+      "unit_type": 7,
+      "parking": 0,
+      "spiritual_alignment": 0,
+      "charter_openness": 0,
+      "community_meals": 0,
+      "location_brussels": 6,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Budget compatible (750€ charges comprises)",
+      "Localisation en Brabant Wallon proche de Bruxelles"
+    ],
+    "concerns": [
+      "Il s'agit d'une demande individuelle, pas d'un habitat groupé",
+      "Aucune mention de communauté ou de vie collective",
+      "Aucun des critères communautaires n'est rempli",
+      "Recherche d'un logement classique type kangourou"
+    ],
+    "date_evaluated": "2026-02-23T08:46:48.490924"
+  },
+  {
+    "listing_id": "95fdb71d39ca",
+    "overall_score": 15,
+    "match_summary": "Cette annonce propose une simple colocation dans une maison privée avec une seule autre personne, ce qui ne correspond absolument pas à la recherche d'un habitat groupé communautaire d'environ 50 personnes. Il s'agit d'une location de chambre classique sans dimension collective ou projets communs.",
+    "criteria_scores": {
+      "community_size_and_maturity": 1,
+      "values_alignment": 3,
+      "common_projects": 2,
+      "large_hall_biodanza": 0,
+      "rental_price": 4,
+      "unit_type": 3,
+      "parking": 8,
+      "spiritual_alignment": 3,
+      "charter_openness": 1,
+      "community_meals": 2,
+      "location_brussels": 7,
+      "near_hospital": 5
+    },
+    "highlights": [
+      "Parking disponible dans le jardin",
+      "Localisation proche de Wavre (région de Bruxelles)",
+      "Possibilité de potager dans le grand jardin"
+    ],
+    "concerns": [
+      "Simple colocation à 2 personnes, pas un habitat groupé",
+      "Aucune communauté ni projets collectifs",
+      "Pas de grande salle pour activités",
+      "Prix total 635€ (525€ + 110€ charges) dépasse légèrement le budget",
+      "Présence d'animaux domestiques non mentionnée comme critère recherché"
+    ],
+    "date_evaluated": "2026-02-23T08:47:30.914609"
+  }
+]

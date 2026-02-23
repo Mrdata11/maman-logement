@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cp -r data web/public/data && cd web && npm install && npm run build",
-  "outputDirectory": "web/.next",
   "framework": "nextjs",
-  "installCommand": "cd web && npm install"
+  "installCommand": "cd web && npm install",
+  "buildCommand": "cp -r data web/public/data && cd web && npm run build",
+  "outputDirectory": "web/.next"
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ListingWithEval, ListingStatus } from "@/lib/types";
 import { ListingCard } from "./ListingCard";
 
@@ -16,6 +16,13 @@ export function Dashboard({
   const [filter, setFilter] = useState<FilterType>("all");
   const [sort, setSort] = useState<SortType>("score");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
+
+  // Sync items when initialItems prop changes (async data loading)
+  useEffect(() => {
+    if (initialItems.length > 0) {
+      setItems(initialItems);
+    }
+  }, [initialItems]);
 
   // Get unique sources
   const sources = useMemo(() => {
@@ -87,21 +94,19 @@ export function Dashboard({
   };
 
   // Load states from localStorage on mount
-  useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = JSON.parse(
-        localStorage.getItem("listing_states") || "{}"
+  useEffect(() => {
+    const saved = JSON.parse(
+      localStorage.getItem("listing_states") || "{}"
+    );
+    if (Object.keys(saved).length > 0) {
+      setItems((prev) =>
+        prev.map((item) => ({
+          ...item,
+          status: (saved[item.listing.id] as ListingStatus) || item.status,
+        }))
       );
-      if (Object.keys(saved).length > 0) {
-        setItems((prev) =>
-          prev.map((item) => ({
-            ...item,
-            status: saved[item.listing.id] || item.status,
-          }))
-        );
-      }
     }
-  });
+  }, []);
 
   return (
     <div>

@@ -26,3 +26,4 @@ Thumbs.db
 
 # Playwright
 scraper/playwright-cache/
+.vercel
