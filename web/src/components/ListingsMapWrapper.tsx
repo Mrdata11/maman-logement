@@ -6,7 +6,7 @@ import type { ListingWithEval } from "@/lib/types";
 const ListingsMap = dynamic(() => import("./ListingsMap"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full min-h-[400px] bg-gray-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-gray-400">
+    <div className="w-full h-full min-h-[400px] bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
       Chargement de la carte...
     </div>
   ),

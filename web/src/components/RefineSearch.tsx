@@ -230,11 +230,11 @@ export function RefineSearch({
 
   return (
     <div className="mb-6">
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-        <label className="block text-lg font-semibold text-amber-900 dark:text-amber-200 mb-1">
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
+        <label className="block text-lg font-semibold text-amber-900 mb-1">
           Paufini la recherche
         </label>
-        <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">
+        <p className="text-sm text-amber-700 mb-3">
           Dis-moi ce qui est important pour toi. Je repasse toute la liste en
           revue : j&apos;ajuste le classement ET je filtre les annonces qui ne
           correspondent pas.
@@ -247,7 +247,7 @@ export function RefineSearch({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             placeholder="Ex: Que des locations en Wallonie, max 800\u20ac, avec un jardin..."
-            className="flex-1 px-3 py-2 border border-amber-300 dark:border-amber-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white dark:bg-slate-800 dark:text-gray-200"
+            className="flex-1 px-3 py-2 border border-amber-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white"
             disabled={isLoading}
           />
           <button
@@ -260,7 +260,7 @@ export function RefineSearch({
         </div>
 
         {isLoading && (
-          <div className="mt-3 flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+          <div className="mt-3 flex items-center gap-2 text-sm text-amber-700">
             <div className="animate-spin h-4 w-4 border-2 border-amber-600 border-t-transparent rounded-full" />
             <span>
               Je repasse toute la liste en revue selon tes crit\u00e8res...
@@ -275,13 +275,13 @@ export function RefineSearch({
             {/* Active indicators */}
             <div className="flex items-center gap-2 flex-wrap">
               {weightChangeCount > 0 && (
-                <span className="text-xs bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 px-2 py-1 rounded-full font-medium">
+                <span className="text-xs bg-amber-200 text-amber-800 px-2 py-1 rounded-full font-medium">
                   {weightChangeCount} poids ajust\u00e9
                   {weightChangeCount > 1 ? "s" : ""}
                 </span>
               )}
               {activeFilterCount > 0 && (
-                <span className="text-xs bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full font-medium">
+                <span className="text-xs bg-amber-200 text-amber-800 px-2 py-1 rounded-full font-medium">
                   {activeFilterCount} filtre
                   {activeFilterCount > 1 ? "s" : ""} actif
                   {activeFilterCount > 1 ? "s" : ""}
@@ -293,7 +293,7 @@ export function RefineSearch({
             {activeFilterCount > 0 && (
               <div className="flex flex-wrap gap-1">
                 {filters.listing_types_include.length > 0 && (
-                  <span className="text-xs bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-700">
+                  <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
                     Types:{" "}
                     {filters.listing_types_include
                       .map((t) => TYPE_LABELS[t] || t)
@@ -301,7 +301,7 @@ export function RefineSearch({
                   </span>
                 )}
                 {filters.listing_types_exclude.length > 0 && (
-                  <span className="text-xs bg-red-50 dark:bg-red-900/40 text-red-700 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-700">
+                  <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">
                     Exclure:{" "}
                     {filters.listing_types_exclude
                       .map((t) => TYPE_LABELS[t] || t)
@@ -309,32 +309,32 @@ export function RefineSearch({
                   </span>
                 )}
                 {filters.locations_include.length > 0 && (
-                  <span className="text-xs bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-700">
+                  <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
                     Lieux: {filters.locations_include.join(", ")}
                   </span>
                 )}
                 {filters.locations_exclude.length > 0 && (
-                  <span className="text-xs bg-red-50 dark:bg-red-900/40 text-red-700 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-700">
+                  <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">
                     Exclure lieux: {filters.locations_exclude.join(", ")}
                   </span>
                 )}
                 {filters.max_price !== null && (
-                  <span className="text-xs bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-700">
+                  <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
                     Max {filters.max_price}&euro;
                   </span>
                 )}
                 {filters.min_score !== null && (
-                  <span className="text-xs bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-700">
+                  <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
                     Score min {filters.min_score}/100
                   </span>
                 )}
                 {filters.keywords_include.length > 0 && (
-                  <span className="text-xs bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-700">
+                  <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
                     Avec: {filters.keywords_include.join(", ")}
                   </span>
                 )}
                 {filters.keywords_exclude.length > 0 && (
-                  <span className="text-xs bg-red-50 dark:bg-red-900/40 text-red-700 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-700">
+                  <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-200">
                     Sans: {filters.keywords_exclude.join(", ")}
                   </span>
                 )}
@@ -345,7 +345,7 @@ export function RefineSearch({
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowHistory(!showHistory)}
-                className="text-xs text-amber-700 dark:text-amber-400 underline hover:text-amber-900 dark:hover:text-amber-200"
+                className="text-xs text-amber-700 underline hover:text-amber-900:text-amber-200"
               >
                 {showHistory
                   ? "Masquer l\u0027historique"
@@ -353,13 +353,13 @@ export function RefineSearch({
               </button>
               <button
                 onClick={onUndo}
-                className="text-xs text-amber-700 dark:text-amber-400 underline hover:text-amber-900 dark:hover:text-amber-200"
+                className="text-xs text-amber-700 underline hover:text-amber-900:text-amber-200"
               >
                 Annuler le dernier
               </button>
               <button
                 onClick={onReset}
-                className="text-xs text-red-600 dark:text-red-400 underline hover:text-red-800 dark:hover:text-red-300"
+                className="text-xs text-red-600 underline hover:text-red-800:text-red-300"
               >
                 Tout r\u00e9initialiser
               </button>
@@ -369,8 +369,8 @@ export function RefineSearch({
       </div>
 
       {showHistory && history.length > 0 && (
-        <div className="mt-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        <div className="mt-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-4">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">
             Historique des ajustements
           </h3>
           <div className="space-y-3">
@@ -386,12 +386,12 @@ export function RefineSearch({
               return (
                 <div
                   key={entry.id}
-                  className="border-l-2 border-amber-300 dark:border-amber-600 pl-3 py-1"
+                  className="border-l-2 border-amber-300 pl-3 py-1"
                 >
-                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                  <p className="text-sm font-medium text-[var(--foreground)]">
                     &laquo; {entry.userMessage} &raquo;
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  <p className="text-xs text-[var(--muted)] mt-0.5">
                     {entry.explanation}
                   </p>
 
@@ -403,8 +403,8 @@ export function RefineSearch({
                           key={key}
                           className={`text-xs px-1.5 py-0.5 rounded ${
                             after > before
-                              ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                              : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+                              ? "bg-green-50 text-green-700"
+                              : "bg-red-50 text-red-700"
                           }`}
                         >
                           {CRITERIA_LABELS[key]}: {before.toFixed(1)} &rarr;{" "}
@@ -420,7 +420,7 @@ export function RefineSearch({
                       {filterChanges.map((change, i) => (
                         <span
                           key={i}
-                          className="text-xs px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                          className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700"
                         >
                           {change}
                         </span>
@@ -428,7 +428,7 @@ export function RefineSearch({
                     </div>
                   )}
 
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  <p className="text-xs text-[var(--muted-light)] mt-1">
                     {new Date(entry.timestamp).toLocaleString("fr-BE")}
                   </p>
                 </div>

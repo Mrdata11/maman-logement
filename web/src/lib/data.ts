@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { Listing, Evaluation, ListingWithEval, ListingStatus } from "./types";
+import { Listing, Evaluation, ListingTags, ListingWithEval, ListingStatus } from "./types";
 
 function findDataDir(): string {
   const candidates = [
@@ -35,14 +35,21 @@ export function getEvaluations(): Evaluation[] {
   return readJSON<Evaluation>("evaluations.json", []);
 }
 
+export function getTags(): ListingTags[] {
+  return readJSON<ListingTags>("tags.json", []);
+}
+
 export function getListingsWithEvals(): ListingWithEval[] {
   const listings = getListings();
   const evaluations = getEvaluations();
+  const tags = getTags();
   const evalMap = new Map(evaluations.map((e) => [e.listing_id, e]));
+  const tagsMap = new Map(tags.map((t) => [t.listing_id, t]));
 
   return listings.map((listing) => ({
     listing,
     evaluation: evalMap.get(listing.id) || null,
+    tags: tagsMap.get(listing.id) || null,
     status: "new" as ListingStatus,
     notes: "",
   }));

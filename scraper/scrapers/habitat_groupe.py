@@ -131,19 +131,28 @@ class HabitatGroupeScraper(BaseScraper):
             # Format: "2026-02-22T14:43:21+00:00"
             date_published = meta_date["content"][:10]  # Keep YYYY-MM-DD
 
-        # 2. Try Stackable post-date block
+        # 2. Try div.date element (habitat-groupe.be specific, very reliable)
+        if not date_published:
+            date_div = soup.select_one("div.date")
+            if date_div:
+                date_text = date_div.get_text(strip=True)
+                date_published = self._parse_french_date(date_text)
+                if not date_published:
+                    date_published = self._parse_numeric_date(date_text)
+
+        # 3. Try Stackable post-date block
         if not date_published:
             date_block = soup.select_one(".stk-block-post-date")
             if date_block:
                 date_published = self._parse_french_date(date_block.get_text(strip=True))
 
-        # 3. Try WordPress time element
+        # 4. Try WordPress time element
         if not date_published:
             time_el = soup.select_one("time[datetime]")
             if time_el and time_el.get("datetime"):
                 date_published = time_el["datetime"][:10]
 
-        # 4. Try French date in content (before noise cleanup)
+        # 5. Try French date in content
         if not date_published and content_el:
             raw_text = content_el.get_text()
             date_published = self._parse_french_date(raw_text)
@@ -266,6 +275,14 @@ class HabitatGroupeScraper(BaseScraper):
             month = month_map.get(month_fr.lower())
             if month:
                 return f"{year}-{month:02d}-{int(day):02d}"
+        return None
+
+    def _parse_numeric_date(self, text: str) -> Optional[str]:
+        """Parse numeric date like '05/03/2026' or 'Du 19/03/2026 ...' and return YYYY-MM-DD."""
+        match = re.search(r"(\d{2})/(\d{2})/(\d{4})", text)
+        if match:
+            day, month, year = match.groups()
+            return f"{year}-{month}-{day}"
         return None
 
     def _extract_location_from_text(self, text: str) -> Optional[str]:

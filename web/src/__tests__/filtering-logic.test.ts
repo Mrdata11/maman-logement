@@ -137,6 +137,7 @@ function makeItem(
   return {
     listing,
     evaluation: score !== undefined ? makeEvaluation(listing.id, score) : null,
+    tags: null,
     status: "new",
     notes: "",
   };

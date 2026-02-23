@@ -56,3 +56,49 @@ class Evaluation(BaseModel):
     def model_post_init(self, __context) -> None:
         if not self.date_evaluated:
             self.date_evaluated = datetime.utcnow().isoformat()
+
+
+class ListingTags(BaseModel):
+    listing_id: str
+
+    # Composition du groupe
+    group_size: Optional[int] = None
+    age_range: List[str] = Field(default_factory=list)
+    has_children: Optional[bool] = None
+    family_types: List[str] = Field(default_factory=list)
+
+    # Type de projet
+    project_types: List[str] = Field(default_factory=list)
+
+    # Animaux
+    pets_allowed: Optional[bool] = None
+    pet_details: List[str] = Field(default_factory=list)
+
+    # Logement
+    surface_m2: Optional[int] = None
+    num_bedrooms: Optional[int] = None
+    unit_type: Optional[str] = None
+    furnished: Optional[bool] = None
+    accessible_pmr: Optional[bool] = None
+
+    # Espaces partagés
+    shared_spaces: List[str] = Field(default_factory=list)
+
+    # Valeurs et activités
+    values: List[str] = Field(default_factory=list)
+
+    # Vie communautaire
+    shared_meals: Optional[str] = None
+    has_charter: Optional[bool] = None
+    governance: Optional[str] = None
+
+    # Cadre
+    environment: Optional[str] = None
+    near_nature: Optional[bool] = None
+    near_transport: Optional[bool] = None
+
+    date_extracted: str = ""
+
+    def model_post_init(self, __context) -> None:
+        if not self.date_extracted:
+            self.date_extracted = datetime.utcnow().isoformat()

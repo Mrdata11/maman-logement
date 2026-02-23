@@ -42,15 +42,15 @@ export function ComparePanel({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl max-h-[90vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col">
+      <div className="bg-[var(--card-bg)] w-full max-w-6xl max-h-[90vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-slate-700">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+          <h2 className="text-lg font-bold text-[var(--foreground)]">
             Comparaison ({items.length} annonces)
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700"
+            className="p-2 text-[var(--muted-light)] hover:text-[var(--foreground)] rounded-full hover:bg-[var(--surface)]"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -65,7 +65,7 @@ export function ComparePanel({
               {/* Listing headers */}
               <thead>
                 <tr>
-                  <th className="text-left p-2 w-48 text-gray-500 dark:text-gray-400 font-medium sticky left-0 bg-white dark:bg-slate-900">
+                  <th className="text-left p-2 w-48 text-[var(--muted)] font-medium sticky left-0 bg-[var(--card-bg)]">
                     Critere
                   </th>
                   {items.map((item) => (
@@ -86,16 +86,16 @@ export function ComparePanel({
                           )}
                           <Link
                             href={`/listing/${item.listing.id}`}
-                            className="text-sm font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 line-clamp-2"
+                            className="text-sm font-semibold text-[var(--foreground)] hover:text-[var(--primary)] line-clamp-2"
                           >
                             {item.listing.title}
                           </Link>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <div className="text-xs text-[var(--muted)] mt-1">
                             {item.listing.location && (
                               <span>{item.listing.location}</span>
                             )}
                             {item.listing.price && (
-                              <span className="ml-2 font-medium text-gray-700 dark:text-gray-300">
+                              <span className="ml-2 font-medium text-[var(--foreground)]">
                                 {item.listing.price}
                               </span>
                             )}
@@ -106,10 +106,10 @@ export function ComparePanel({
                               <span
                                 className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
                                   (adjustedScores.get(item.listing.id) ?? item.evaluation.overall_score) >= 70
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
+                                    ? "bg-green-100 text-green-800"
                                     : (adjustedScores.get(item.listing.id) ?? item.evaluation.overall_score) >= 40
-                                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300"
-                                      : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-red-100 text-red-800"
                                 }`}
                               >
                                 {adjustedScores.get(item.listing.id) ??
@@ -121,7 +121,7 @@ export function ComparePanel({
                         </div>
                         <button
                           onClick={() => onRemove(item.listing.id)}
-                          className="shrink-0 p-1 text-gray-300 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400"
+                          className="shrink-0 p-1 text-[var(--muted-light)] hover:text-red-500"
                           title="Retirer de la comparaison"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,14 +136,14 @@ export function ComparePanel({
 
               <tbody>
                 {/* Summary row */}
-                <tr className="border-t border-gray-100 dark:border-slate-800">
-                  <td className="p-2 text-xs font-medium text-gray-500 dark:text-gray-400 sticky left-0 bg-white dark:bg-slate-900">
+                <tr className="border-t border-[var(--border-color)]/50">
+                  <td className="p-2 text-xs font-medium text-[var(--muted)] sticky left-0 bg-[var(--card-bg)]">
                     Resume IA
                   </td>
                   {items.map((item) => (
                     <td
                       key={item.listing.id}
-                      className="p-2 text-xs text-gray-600 dark:text-gray-400"
+                      className="p-2 text-xs text-[var(--muted)]"
                     >
                       {item.evaluation?.match_summary ?? "Pas d'evaluation"}
                     </td>
@@ -154,9 +154,9 @@ export function ComparePanel({
                 {criteriaKeys.map((key) => (
                   <tr
                     key={key}
-                    className="border-t border-gray-100 dark:border-slate-800"
+                    className="border-t border-[var(--border-color)]/50"
                   >
-                    <td className="p-2 text-xs font-medium text-gray-600 dark:text-gray-400 sticky left-0 bg-white dark:bg-slate-900">
+                    <td className="p-2 text-xs font-medium text-[var(--muted)] sticky left-0 bg-[var(--card-bg)]">
                       {CRITERIA_LABELS[key]}
                     </td>
                     {items.map((item) => {
@@ -168,12 +168,12 @@ export function ComparePanel({
                       return (
                         <td
                           key={item.listing.id}
-                          className={`p-2 ${isBest ? "bg-green-50 dark:bg-green-900/10" : ""}`}
+                          className={`p-2 ${isBest ? "bg-green-50" : ""}`}
                         >
                           {item.evaluation ? (
                             <ScoreBar score={score} max={10} />
                           ) : (
-                            <span className="text-xs text-gray-400">-</span>
+                            <span className="text-xs text-[var(--muted-light)]">-</span>
                           )}
                         </td>
                       );
@@ -182,8 +182,8 @@ export function ComparePanel({
                 ))}
 
                 {/* Highlights row */}
-                <tr className="border-t border-gray-200 dark:border-slate-700">
-                  <td className="p-2 text-xs font-medium text-green-700 dark:text-green-400 sticky left-0 bg-white dark:bg-slate-900">
+                <tr className="border-t border-[var(--border-color)]">
+                  <td className="p-2 text-xs font-medium text-green-700 sticky left-0 bg-[var(--card-bg)]">
                     Points forts
                   </td>
                   {items.map((item) => (
@@ -192,7 +192,7 @@ export function ComparePanel({
                         {item.evaluation?.highlights.map((h, i) => (
                           <span
                             key={i}
-                            className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded"
+                            className="text-xs bg-green-50 text-green-700 px-1.5 py-0.5 rounded"
                           >
                             {h}
                           </span>
@@ -203,8 +203,8 @@ export function ComparePanel({
                 </tr>
 
                 {/* Concerns row */}
-                <tr className="border-t border-gray-100 dark:border-slate-800">
-                  <td className="p-2 text-xs font-medium text-red-700 dark:text-red-400 sticky left-0 bg-white dark:bg-slate-900">
+                <tr className="border-t border-[var(--border-color)]/50">
+                  <td className="p-2 text-xs font-medium text-red-700 sticky left-0 bg-[var(--card-bg)]">
                     Points d&apos;attention
                   </td>
                   {items.map((item) => (
@@ -213,7 +213,7 @@ export function ComparePanel({
                         {item.evaluation?.concerns.map((c, i) => (
                           <span
                             key={i}
-                            className="text-xs bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-1.5 py-0.5 rounded"
+                            className="text-xs bg-red-50 text-red-700 px-1.5 py-0.5 rounded"
                           >
                             {c}
                           </span>

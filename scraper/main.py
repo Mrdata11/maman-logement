@@ -9,13 +9,14 @@ from typing import Dict
 # Add parent directory to path so we can import scraper package
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from scraper.config import DATA_DIR, LISTINGS_FILE, EVALUATIONS_FILE
-from scraper.models import Listing, Evaluation
+from scraper.config import DATA_DIR, LISTINGS_FILE, EVALUATIONS_FILE, TAGS_FILE
+from scraper.models import Listing, Evaluation, ListingTags
 from scraper.scrapers.habitat_groupe import HabitatGroupeScraper
 from scraper.scrapers.ic_org import ICOrgScraper
 from scraper.scrapers.ecovillage import EcovillageScraper
 from scraper.scrapers.samenhuizen import SamenhuizenScraper
 from scraper.evaluator import evaluate_all
+from scraper.tag_extractor import extract_all_tags
 from scraper.quality_filter import pre_filter, post_filter_evaluations
 
 
@@ -43,6 +44,23 @@ def save_listings(listings: Dict[str, Listing]):
     with open(LISTINGS_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     print(f"Saved {len(data)} listings to {LISTINGS_FILE}")
+
+
+def load_existing_tags() -> Dict[str, ListingTags]:
+    if os.path.exists(TAGS_FILE):
+        with open(TAGS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return {item["listing_id"]: ListingTags(**item) for item in data}
+    return {}
+
+
+def save_tags(tags: Dict[str, ListingTags]):
+    os.makedirs(DATA_DIR, exist_ok=True)
+    data = [t.model_dump() for t in tags.values()]
+    data.sort(key=lambda x: x.get("date_extracted", ""), reverse=True)
+    with open(TAGS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    print(f"Saved {len(data)} tags to {TAGS_FILE}")
 
 
 def save_evaluations(evaluations: Dict[str, Evaluation]):
@@ -112,6 +130,15 @@ def main():
 
     save_evaluations(existing_evaluations)
 
+    # Extract structured tags
+    print(f"\n--- Tag Extraction ---")
+    existing_tags = load_existing_tags()
+    print(f"Existing: {len(existing_tags)} tags")
+    new_tags = extract_all_tags(filtered_listings, existing_tags)
+    for tag in new_tags:
+        existing_tags[tag.listing_id] = tag
+    save_tags(existing_tags)
+
     # Post-filter: remove low-scoring listings from display
     print(f"\n--- Post-filter Quality ---")
     quality_listings, removed_count = post_filter_evaluations(
@@ -129,7 +156,8 @@ def main():
     print(f"  Total evaluations: {len(existing_evaluations)}")
     print(f"  Post-filtered out: {removed_count}")
     print(f"  Quality listings: {len(quality_listings)}")
-    print(f"  New this run: {len(all_new_listings)} listings, {len(new_evaluations)} evaluations")
+    print(f"  Total tags: {len(existing_tags)}")
+    print(f"  New this run: {len(all_new_listings)} listings, {len(new_evaluations)} evaluations, {len(new_tags)} tags")
 
     # Show top matches
     if existing_evaluations:

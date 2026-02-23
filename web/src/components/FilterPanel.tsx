@@ -10,6 +10,7 @@ interface FilterPanelProps {
   availableProvinces: { value: string; count: number }[];
   availableListingTypes: { value: string; count: number }[];
   priceRange: { min: number; max: number };
+  children?: React.ReactNode;
 }
 
 export function FilterPanel({
@@ -19,6 +20,7 @@ export function FilterPanel({
   availableProvinces,
   availableListingTypes,
   priceRange,
+  children,
 }: FilterPanelProps) {
   // Debounced text search - use refs to avoid stale closures
   const [localSearch, setLocalSearch] = useState(filters.searchText);
@@ -70,12 +72,12 @@ export function FilterPanel({
     filters.scoreMin !== null;
 
   return (
-    <div className="mb-6 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4">
+    <div className="mb-6 bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-4">
       {/* Text search */}
       <div className="mb-4">
         <label
           htmlFor="filter-search"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          className="block text-sm font-medium text-[var(--foreground)] mb-1"
         >
           Recherche
         </label>
@@ -85,7 +87,7 @@ export function FilterPanel({
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
           placeholder="Rechercher dans les titres et descriptions..."
-          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-[var(--input-border)] rounded-md text-sm bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
         />
       </div>
 
@@ -93,13 +95,13 @@ export function FilterPanel({
         {/* Province / Region */}
         <fieldset>
           <div className="flex items-center justify-between mb-2">
-            <legend className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <legend className="text-sm font-medium text-[var(--foreground)]">
               Province / Région
             </legend>
             {filters.provinces.length > 0 && (
               <button
                 onClick={() => onChange({ ...filters, provinces: [] })}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-xs text-[var(--primary)] hover:underline"
               >
                 Toutes
               </button>
@@ -109,16 +111,16 @@ export function FilterPanel({
             {availableProvinces.map(({ value, count }) => (
               <label
                 key={value}
-                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 px-2 py-1 rounded"
+                className="flex items-center gap-2 text-sm text-[var(--foreground)] cursor-pointer hover:bg-[var(--surface)] px-2 py-1 rounded"
               >
                 <input
                   type="checkbox"
                   checked={filters.provinces.includes(value)}
                   onChange={() => toggleProvince(value)}
-                  className="rounded border-gray-300 dark:border-slate-600 accent-blue-600"
+                  className="rounded border-[var(--input-border)] accent-[var(--primary)]"
                 />
                 <span className="flex-1">{value}</span>
-                <span className="text-xs text-gray-400 dark:text-gray-500">
+                <span className="text-xs text-[var(--muted-light)]">
                   {count}
                 </span>
               </label>
@@ -129,13 +131,13 @@ export function FilterPanel({
         {/* Listing type */}
         <fieldset>
           <div className="flex items-center justify-between mb-2">
-            <legend className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <legend className="text-sm font-medium text-[var(--foreground)]">
               {"Type d'annonce"}
             </legend>
             {filters.listingTypes.length > 0 && (
               <button
                 onClick={() => onChange({ ...filters, listingTypes: [] })}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-xs text-[var(--primary)] hover:underline"
               >
                 Tous
               </button>
@@ -145,18 +147,18 @@ export function FilterPanel({
             {availableListingTypes.map(({ value, count }) => (
               <label
                 key={value}
-                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 px-2 py-1 rounded"
+                className="flex items-center gap-2 text-sm text-[var(--foreground)] cursor-pointer hover:bg-[var(--surface)] px-2 py-1 rounded"
               >
                 <input
                   type="checkbox"
                   checked={filters.listingTypes.includes(value)}
                   onChange={() => toggleListingType(value)}
-                  className="rounded border-gray-300 dark:border-slate-600 accent-blue-600"
+                  className="rounded border-[var(--input-border)] accent-[var(--primary)]"
                 />
                 <span className="flex-1">
                   {LISTING_TYPE_LABELS[value] || value}
                 </span>
-                <span className="text-xs text-gray-400 dark:text-gray-500">
+                <span className="text-xs text-[var(--muted-light)]">
                   {count}
                 </span>
               </label>
@@ -166,7 +168,7 @@ export function FilterPanel({
 
         {/* Price range */}
         <fieldset>
-          <legend className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <legend className="block text-sm font-medium text-[var(--foreground)] mb-2">
             Fourchette de prix
           </legend>
           <div className="flex items-center gap-2">
@@ -183,9 +185,9 @@ export function FilterPanel({
               placeholder={`Min (${priceRange.min}€)`}
               step={50}
               min={0}
-              className="w-full px-2 py-1.5 border border-gray-300 dark:border-slate-600 rounded-md text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+              className="w-full px-2 py-1.5 border border-[var(--input-border)] rounded-md text-sm bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)]"
             />
-            <span className="text-gray-400" aria-hidden="true">
+            <span className="text-[var(--muted-light)]" aria-hidden="true">
               —
             </span>
             <input
@@ -201,17 +203,17 @@ export function FilterPanel({
               placeholder={`Max (${priceRange.max}€)`}
               step={50}
               min={0}
-              className="w-full px-2 py-1.5 border border-gray-300 dark:border-slate-600 rounded-md text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+              className="w-full px-2 py-1.5 border border-[var(--input-border)] rounded-md text-sm bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)]"
             />
           </div>
-          <label className="flex items-center gap-2 mt-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+          <label className="flex items-center gap-2 mt-2 text-sm text-[var(--muted)] cursor-pointer">
             <input
               type="checkbox"
               checked={filters.includeNullPrice}
               onChange={(e) =>
                 onChange({ ...filters, includeNullPrice: e.target.checked })
               }
-              className="rounded border-gray-300 dark:border-slate-600 accent-blue-600"
+              className="rounded border-[var(--input-border)] accent-[var(--primary)]"
             />
             Inclure les annonces sans prix
           </label>
@@ -221,7 +223,7 @@ export function FilterPanel({
         <fieldset>
           <label
             htmlFor="filter-score-min"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-[var(--foreground)] mb-2"
           >
             Score minimum
           </label>
@@ -239,31 +241,34 @@ export function FilterPanel({
             min={0}
             max={100}
             step={5}
-            className="w-full px-2 py-1.5 border border-gray-300 dark:border-slate-600 rounded-md text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            className="w-full px-2 py-1.5 border border-[var(--input-border)] rounded-md text-sm bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)]"
           />
-          <label className="flex items-center gap-2 mt-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+          <label className="flex items-center gap-2 mt-2 text-sm text-[var(--muted)] cursor-pointer">
             <input
               type="checkbox"
               checked={filters.includeUnscored}
               onChange={(e) =>
                 onChange({ ...filters, includeUnscored: e.target.checked })
               }
-              className="rounded border-gray-300 dark:border-slate-600 accent-blue-600"
+              className="rounded border-[var(--input-border)] accent-[var(--primary)]"
             />
             {"Inclure les annonces non évaluées"}
           </label>
         </fieldset>
       </div>
 
+      {/* Tag filters (passed as children) */}
+      {children}
+
       {/* Reset button */}
       {hasActiveFilters && (
-        <div className="mt-4 pt-3 border-t border-gray-200 dark:border-slate-700 flex items-center justify-between">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-4 pt-3 border-t border-[var(--border-color)] flex items-center justify-between">
+          <span className="text-sm text-[var(--muted)]">
             Filtres actifs
           </span>
           <button
             onClick={onReset}
-            className="text-sm px-3 py-1.5 border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+            className="text-sm px-3 py-1.5 border border-[var(--border-color)] text-[var(--muted)] rounded-md hover:bg-[var(--surface)] transition-colors"
           >
             Réinitialiser les filtres
           </button>

@@ -6,10 +6,10 @@ export default function Home() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-2">
+      <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">
         Recherche Habitat Group&eacute;
       </h1>
-      <p className="text-gray-600 mb-6">
+      <p className="text-[var(--muted)] mb-6 text-base">
         Annonces d&apos;habitats group&eacute;s en Belgique, &eacute;valu&eacute;es
         automatiquement selon tes crit&egrave;res.
       </p>

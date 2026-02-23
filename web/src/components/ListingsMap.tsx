@@ -195,7 +195,7 @@ export default function ListingsMap({
   );
 
   return (
-    <div className="relative w-full h-full min-h-[400px] rounded-lg overflow-hidden border border-gray-200 dark:border-slate-700">
+    <div className="relative w-full h-full min-h-[400px] rounded-xl overflow-hidden border border-[var(--border-color)]">
       <MapContainer
         center={[BELGIUM_CENTER.lat, BELGIUM_CENTER.lng]}
         zoom={DEFAULT_ZOOM}
@@ -248,7 +248,7 @@ export default function ListingsMap({
       </MapContainer>
 
       {unmappableCount > 0 && (
-        <div className="absolute bottom-2 left-2 bg-white/90 dark:bg-slate-800/90 text-xs text-gray-500 dark:text-gray-400 px-2 py-1 rounded shadow">
+        <div className="absolute bottom-2 left-2 bg-[var(--card-bg)]/90 text-xs text-[var(--muted)] px-2 py-1 rounded shadow">
           {unmappableCount} annonce{unmappableCount > 1 ? "s" : ""} sans
           localisation pr\u00e9cise
         </div>

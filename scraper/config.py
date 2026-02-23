@@ -11,6 +11,7 @@ REQUEST_TIMEOUT = 15  # seconds
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 LISTINGS_FILE = os.path.join(DATA_DIR, "listings.json")
 EVALUATIONS_FILE = os.path.join(DATA_DIR, "evaluations.json")
+TAGS_FILE = os.path.join(DATA_DIR, "tags.json")
 
 CRITERIA_PROMPT = """Tu es un assistant spécialisé dans l'habitat groupé en Belgique.
 Tu dois évaluer si une annonce de logement correspond aux critères d'une personne

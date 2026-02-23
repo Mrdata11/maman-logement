@@ -11,6 +11,8 @@ import {
   DEFAULT_FILTERS,
   UIFilterState,
   DEFAULT_UI_FILTERS,
+  UITagFilters,
+  DEFAULT_TAG_FILTERS,
   calculateRefinedScore,
   applyRefinementFilters,
 } from "@/lib/types";
@@ -22,11 +24,16 @@ import {
 import { ListingCard } from "./ListingCard";
 import { RefineSearch } from "./RefineSearch";
 import { FilterPanel } from "./FilterPanel";
+import { TagFilterPanel, TagFilterCounts } from "./TagFilterPanel";
 import { ListingsMapWrapper } from "./ListingsMapWrapper";
 import { ListingPreview } from "./ListingPreview";
 import { ComparePanel } from "./ComparePanel";
-import { SearchProfiles } from "./SearchProfiles";
-import { ScoreBadge } from "./ScoreBar";
+import { QuestionnaireBanner } from "./QuestionnaireBanner";
+import {
+  QuestionnaireState,
+  QUESTIONNAIRE_STORAGE_KEY,
+} from "@/lib/questionnaire-types";
+import { mapQuestionnaireToFilters } from "@/lib/questionnaire-mapping";
 
 type FilterType = "all" | "new" | "favorite" | "active" | "in_discussion" | "archived";
 type SortType = "score" | "date" | "price" | "distance";
@@ -48,6 +55,7 @@ export function Dashboard({
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [uiFilters, setUiFilters] = useState<UIFilterState>({ ...DEFAULT_UI_FILTERS });
+  const [tagFilters, setTagFilters] = useState<UITagFilters>({ ...DEFAULT_TAG_FILTERS });
   const [showFilters, setShowFilters] = useState(false);
   const [showRefine, setShowRefine] = useState(false);
   const [previewItem, setPreviewItem] = useState<ListingWithEval | null>(null);
@@ -58,11 +66,17 @@ export function Dashboard({
   const [weights, setWeights] = useState<RefinementWeights>({ ...DEFAULT_WEIGHTS });
   const [filters, setFilters] = useState<RefinementFilters>({ ...DEFAULT_FILTERS });
   const [history, setHistory] = useState<RefinementEntry[]>([]);
-  const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
+
+  // Questionnaire-derived filter state
+  const [questionnaireFilterActive, setQuestionnaireFilterActive] = useState(false);
+  const [questionnaireSummary, setQuestionnaireSummary] = useState<string[]>([]);
 
   // Compare state
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [showCompare, setShowCompare] = useState(false);
+
+  // Questionnaire state
+  const [questionnaireState, setQuestionnaireState] = useState<QuestionnaireState | null>(null);
 
   // New listings detection
   const [lastVisitDate, setLastVisitDate] = useState<string | null>(null);
@@ -87,7 +101,18 @@ export function Dashboard({
           setHistory(parsed.history);
           if (parsed.history.length > 0) setShowRefine(true);
         }
-        if (parsed.activeProfileId) setActiveProfileId(parsed.activeProfileId);
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }, []);
+
+  // Load questionnaire state from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(QUESTIONNAIRE_STORAGE_KEY);
+      if (saved) {
+        setQuestionnaireState(JSON.parse(saved));
       }
     } catch {
       // Ignore parse errors
@@ -115,16 +140,16 @@ export function Dashboard({
 
   // Save refinement state to localStorage
   const saveRefinementState = useCallback(
-    (w: RefinementWeights, f: RefinementFilters, h: RefinementEntry[], profileId: string | null) => {
+    (w: RefinementWeights, f: RefinementFilters, h: RefinementEntry[]) => {
       localStorage.setItem(
         REFINEMENT_STORAGE_KEY,
-        JSON.stringify({ weights: w, filters: f, history: h, activeProfileId: profileId })
+        JSON.stringify({ weights: w, filters: f, history: h })
       );
     },
     []
   );
 
-  const isRefined = history.length > 0 || activeProfileId !== null;
+  const isRefined = history.length > 0 || questionnaireFilterActive;
 
   // Calculate adjusted scores
   const adjustedScores = useMemo(() => {
@@ -176,12 +201,6 @@ export function Dashboard({
     };
   }, [items]);
 
-  // Favorites
-  const favorites = useMemo(
-    () => items.filter((i) => i.status === "favorite"),
-    [items]
-  );
-
   // Available provinces with counts
   const availableProvinces = useMemo(() => {
     const map = new Map<string, number>();
@@ -217,7 +236,54 @@ export function Dashboard({
     };
   }, [items]);
 
-  // Active UI filter count
+  // Available tag values with counts
+  const availableTags = useMemo((): TagFilterCounts => {
+    const projectTypes = new Map<string, number>();
+    const environments = new Map<string, number>();
+    const sharedSpaces = new Map<string, number>();
+    const values = new Map<string, number>();
+    const sharedMeals = new Map<string, number>();
+    const unitTypes = new Map<string, number>();
+    let petsYes = 0, petsNo = 0;
+    let childrenYes = 0, childrenNo = 0;
+    let charterYes = 0, charterNo = 0;
+
+    for (const item of items) {
+      const t = item.tags;
+      if (!t) continue;
+      for (const v of t.project_types) projectTypes.set(v, (projectTypes.get(v) || 0) + 1);
+      if (t.environment) environments.set(t.environment, (environments.get(t.environment) || 0) + 1);
+      for (const v of t.shared_spaces) sharedSpaces.set(v, (sharedSpaces.get(v) || 0) + 1);
+      for (const v of t.values) values.set(v, (values.get(v) || 0) + 1);
+      if (t.shared_meals) sharedMeals.set(t.shared_meals, (sharedMeals.get(t.shared_meals) || 0) + 1);
+      if (t.unit_type) unitTypes.set(t.unit_type, (unitTypes.get(t.unit_type) || 0) + 1);
+      if (t.pets_allowed === true) petsYes++;
+      else if (t.pets_allowed === false) petsNo++;
+      if (t.has_children === true) childrenYes++;
+      else if (t.has_children === false) childrenNo++;
+      if (t.has_charter === true) charterYes++;
+      else if (t.has_charter === false) charterNo++;
+    }
+
+    const toSorted = (m: Map<string, number>) =>
+      Array.from(m.entries())
+        .map(([value, count]) => ({ value, count }))
+        .sort((a, b) => b.count - a.count);
+
+    return {
+      projectTypes: toSorted(projectTypes),
+      environments: toSorted(environments),
+      sharedSpaces: toSorted(sharedSpaces),
+      values: toSorted(values),
+      sharedMeals: toSorted(sharedMeals),
+      unitTypes: toSorted(unitTypes),
+      petsAllowed: { yes: petsYes, no: petsNo },
+      hasChildren: { yes: childrenYes, no: childrenNo },
+      hasCharter: { yes: charterYes, no: charterNo },
+    };
+  }, [items]);
+
+  // Active UI filter count (includes tag filters)
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (uiFilters.searchText.trim()) count++;
@@ -225,8 +291,20 @@ export function Dashboard({
     if (uiFilters.listingTypes.length > 0) count++;
     if (uiFilters.priceMin !== null || uiFilters.priceMax !== null) count++;
     if (uiFilters.scoreMin !== null) count++;
+    // Tag filters
+    if (tagFilters.projectTypes.length > 0) count++;
+    if (tagFilters.environments.length > 0) count++;
+    if (tagFilters.sharedSpaces.length > 0) count++;
+    if (tagFilters.valuesTags.length > 0) count++;
+    if (tagFilters.petsAllowed !== null) count++;
+    if (tagFilters.hasChildren !== null) count++;
+    if (tagFilters.hasCharter !== null) count++;
+    if (tagFilters.sharedMeals.length > 0) count++;
+    if (tagFilters.unitTypes.length > 0) count++;
+    if (tagFilters.minBedrooms !== null) count++;
+    if (tagFilters.minSurface !== null || tagFilters.maxSurface !== null) count++;
     return count;
-  }, [uiFilters]);
+  }, [uiFilters, tagFilters]);
 
   // Filter and sort
   const filtered = useMemo(() => {
@@ -250,12 +328,13 @@ export function Dashboard({
       result = result.filter((i) => i.listing.source === sourceFilter);
     }
 
-    // Quality mode: hide demand-type listings and low-scoring evaluated listings
+    // Quality mode: only show relevant listing types (collaborative housing offers)
     if (qualityMode) {
+      const RELEVANT_TYPES = new Set(["offre-location", "creation-groupe", "habitat-leger"]);
       result = result.filter((i) => {
         const lt = i.listing.listing_type;
-        // Hide demand listings (people searching, not offering)
-        if (lt === "demande-location" || lt === "demande-vente") return false;
+        // Only keep listing types that are actual collaborative housing offers
+        if (!lt || !RELEVANT_TYPES.has(lt)) return false;
         // Hide low-scoring evaluated listings (score < 15)
         if (i.evaluation && i.evaluation.overall_score < 15) return false;
         return true;
@@ -326,6 +405,62 @@ export function Dashboard({
       });
     }
 
+    // Tag-based filters
+    if (tagFilters.projectTypes.length > 0) {
+      result = result.filter((i) =>
+        i.tags && tagFilters.projectTypes.some((t) => i.tags!.project_types.includes(t))
+      );
+    }
+    if (tagFilters.environments.length > 0) {
+      result = result.filter((i) =>
+        i.tags?.environment && tagFilters.environments.includes(i.tags.environment)
+      );
+    }
+    if (tagFilters.sharedSpaces.length > 0) {
+      result = result.filter((i) =>
+        i.tags && tagFilters.sharedSpaces.some((s) => i.tags!.shared_spaces.includes(s))
+      );
+    }
+    if (tagFilters.valuesTags.length > 0) {
+      result = result.filter((i) =>
+        i.tags && tagFilters.valuesTags.some((v) => i.tags!.values.includes(v))
+      );
+    }
+    if (tagFilters.petsAllowed !== null) {
+      result = result.filter((i) => i.tags?.pets_allowed === tagFilters.petsAllowed);
+    }
+    if (tagFilters.hasChildren !== null) {
+      result = result.filter((i) => i.tags?.has_children === tagFilters.hasChildren);
+    }
+    if (tagFilters.hasCharter !== null) {
+      result = result.filter((i) => i.tags?.has_charter === tagFilters.hasCharter);
+    }
+    if (tagFilters.sharedMeals.length > 0) {
+      result = result.filter((i) =>
+        i.tags?.shared_meals && tagFilters.sharedMeals.includes(i.tags.shared_meals)
+      );
+    }
+    if (tagFilters.unitTypes.length > 0) {
+      result = result.filter((i) =>
+        i.tags?.unit_type && tagFilters.unitTypes.includes(i.tags.unit_type)
+      );
+    }
+    if (tagFilters.minBedrooms !== null) {
+      result = result.filter((i) =>
+        i.tags?.num_bedrooms !== null && i.tags!.num_bedrooms !== undefined && i.tags!.num_bedrooms >= tagFilters.minBedrooms!
+      );
+    }
+    if (tagFilters.minSurface !== null) {
+      result = result.filter((i) =>
+        i.tags?.surface_m2 !== null && i.tags!.surface_m2 !== undefined && i.tags!.surface_m2 >= tagFilters.minSurface!
+      );
+    }
+    if (tagFilters.maxSurface !== null) {
+      result = result.filter((i) =>
+        i.tags?.surface_m2 !== null && i.tags!.surface_m2 !== undefined && i.tags!.surface_m2 <= tagFilters.maxSurface!
+      );
+    }
+
     // Sort
     result.sort((a, b) => {
       if (sort === "score") {
@@ -350,9 +485,10 @@ export function Dashboard({
     });
 
     return result;
-  }, [items, filter, sort, sourceFilter, qualityMode, isRefined, adjustedScores, filters, uiFilters, searchText, distances]);
+  }, [items, filter, sort, sourceFilter, qualityMode, isRefined, adjustedScores, filters, uiFilters, tagFilters, searchText, distances]);
 
   const handleStatusChange = (id: string, newStatus: ListingStatus) => {
+    const prevStatus = items.find((i) => i.listing.id === id)?.status;
     setItems((prev) =>
       prev.map((item) =>
         item.listing.id === id ? { ...item, status: newStatus } : item
@@ -361,6 +497,12 @@ export function Dashboard({
     const savedStates = JSON.parse(localStorage.getItem("listing_states") || "{}");
     savedStates[id] = newStatus;
     localStorage.setItem("listing_states", JSON.stringify(savedStates));
+    // Notify nav heart icon
+    if (newStatus === "favorite" && prevStatus !== "favorite") {
+      window.dispatchEvent(new CustomEvent("favorite-added"));
+    } else if (newStatus !== "favorite" && prevStatus === "favorite") {
+      window.dispatchEvent(new CustomEvent("favorite-removed"));
+    }
   };
 
   const handleNotesChange = (id: string, newNotes: string) => {
@@ -403,6 +545,21 @@ export function Dashboard({
     [items, compareIds]
   );
 
+  // Apply questionnaire filters when questionnaire is completed
+  useEffect(() => {
+    if (questionnaireState?.completedAt) {
+      const result = mapQuestionnaireToFilters(questionnaireState.answers);
+      if (result.isActive) {
+        setWeights(result.weights);
+        setFilters(result.filters);
+        setTagFilters(result.tagFilters);
+        setQuestionnaireFilterActive(true);
+        setQuestionnaireSummary(result.summary);
+        saveRefinementState(result.weights, result.filters, []);
+      }
+    }
+  }, [questionnaireState, saveRefinementState]);
+
   // Refinement handlers
   const handleRefine = (
     newWeights: RefinementWeights,
@@ -411,10 +568,9 @@ export function Dashboard({
   ) => {
     setWeights(newWeights);
     setFilters(newFilters);
-    setActiveProfileId(null);
     const newHistory = [...history, entry];
     setHistory(newHistory);
-    saveRefinementState(newWeights, newFilters, newHistory, null);
+    saveRefinementState(newWeights, newFilters, newHistory);
   };
 
   const handleUndo = () => {
@@ -424,27 +580,25 @@ export function Dashboard({
     setWeights(lastEntry.weightsBefore);
     setFilters(lastEntry.filtersBefore);
     setHistory(newHistory);
-    saveRefinementState(lastEntry.weightsBefore, lastEntry.filtersBefore, newHistory, activeProfileId);
+    saveRefinementState(lastEntry.weightsBefore, lastEntry.filtersBefore, newHistory);
   };
 
   const handleReset = () => {
-    setWeights({ ...DEFAULT_WEIGHTS });
-    setFilters({ ...DEFAULT_FILTERS });
-    setHistory([]);
-    setActiveProfileId(null);
-    localStorage.removeItem(REFINEMENT_STORAGE_KEY);
-  };
-
-  const handleProfileApply = (
-    newWeights: RefinementWeights,
-    newFilters: RefinementFilters,
-    profileId: string | null
-  ) => {
-    setWeights(newWeights);
-    setFilters(newFilters);
-    setActiveProfileId(profileId);
-    setHistory([]);
-    saveRefinementState(newWeights, newFilters, [], profileId);
+    // Reset to questionnaire baseline if active, otherwise to defaults
+    if (questionnaireState?.completedAt) {
+      const result = mapQuestionnaireToFilters(questionnaireState.answers);
+      setWeights(result.weights);
+      setFilters(result.filters);
+      setTagFilters(result.tagFilters);
+      setHistory([]);
+      saveRefinementState(result.weights, result.filters, []);
+    } else {
+      setWeights({ ...DEFAULT_WEIGHTS });
+      setFilters({ ...DEFAULT_FILTERS });
+      setTagFilters({ ...DEFAULT_TAG_FILTERS });
+      setHistory([]);
+      localStorage.removeItem(REFINEMENT_STORAGE_KEY);
+    }
   };
 
   // Check if a listing is new since last visit
@@ -472,10 +626,29 @@ export function Dashboard({
 
   return (
     <div>
+      {/* Questionnaire banner */}
+      <QuestionnaireBanner
+        state={questionnaireState}
+        matchCount={questionnaireFilterActive ? filtered.length : undefined}
+        onReset={() => {
+          // Clear questionnaire from localStorage
+          localStorage.removeItem(QUESTIONNAIRE_STORAGE_KEY);
+          setQuestionnaireState(null);
+          // Reset all filters derived from questionnaire
+          setQuestionnaireFilterActive(false);
+          setQuestionnaireSummary([]);
+          setWeights({ ...DEFAULT_WEIGHTS });
+          setFilters({ ...DEFAULT_FILTERS });
+          setTagFilters({ ...DEFAULT_TAG_FILTERS });
+          setHistory([]);
+          localStorage.removeItem(REFINEMENT_STORAGE_KEY);
+        }}
+      />
+
       {/* New listings notification */}
       {newCount > 0 && (
-        <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg flex items-center justify-between print:hidden">
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium text-sm">
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between print:hidden">
+          <span className="text-emerald-600 font-medium text-sm">
             {newCount} nouvelle{newCount > 1 ? "s" : ""} annonce{newCount > 1 ? "s" : ""} depuis ta derniere visite !
           </span>
           <button
@@ -487,88 +660,55 @@ export function Dashboard({
         </div>
       )}
 
-      {/* Favorites "Mes Coups de Coeur" */}
-      {favorites.length > 0 && (
-        <div className="mb-6 print:mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-              <svg className="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      {/* Questionnaire filter indicator */}
+      {questionnaireFilterActive && questionnaireSummary.length > 0 && (
+        <div className="mb-4 px-4 py-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg print:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <svg className="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-              Mes Coups de Coeur ({favorites.length})
-            </h2>
-            <button
-              onClick={() => window.print()}
-              className="text-sm px-3 py-1.5 border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 print:hidden"
-            >
-              <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              Imprimer
-            </button>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 print:flex-wrap print:overflow-visible">
-            {favorites.map((item) => (
-              <div
-                key={item.listing.id}
-                className="shrink-0 w-[280px] print:w-full print:break-inside-avoid bg-white dark:bg-slate-800 rounded-lg border border-pink-200 dark:border-pink-800 p-3 hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => setPreviewItem(item)}
-              >
-                {item.listing.images.length > 0 && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.listing.images[0]}
-                    alt=""
-                    className="w-full h-32 object-cover rounded-md mb-2"
-                    loading="lazy"
-                  />
-                )}
-                <div className="flex items-center gap-1.5 mb-1">
-                  {item.evaluation && (
-                    <ScoreBadge score={adjustedScores.get(item.listing.id) ?? item.evaluation.overall_score} />
-                  )}
-                  {item.listing.price && (
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      {item.listing.price}
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
-                  {item.listing.title}
-                </p>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {item.listing.location || item.listing.province}
-                  {distances.get(item.listing.id) != null && (
-                    <span className="ml-2 text-sky-600 dark:text-sky-400">
-                      ~{Math.round(distances.get(item.listing.id)!)} km
-                    </span>
-                  )}
-                </div>
-                {item.notes && (
-                  <div className="mt-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded line-clamp-2">
-                    {item.notes}
-                  </div>
-                )}
+              <span className="text-sm font-medium text-violet-700 dark:text-violet-300">Filtrage actif</span>
+              <div className="flex flex-wrap gap-1.5">
+                {questionnaireSummary.map((s, i) => (
+                  <span key={i} className="text-xs px-2 py-0.5 bg-violet-100 dark:bg-violet-800/40 text-violet-700 dark:text-violet-300 rounded-full">
+                    {s}
+                  </span>
+                ))}
               </div>
-            ))}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href="/questionnaire"
+                className="text-xs px-2.5 py-1 text-violet-700 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-800/30 rounded-md transition-colors font-medium"
+              >
+                Modifier
+              </a>
+              <button
+                onClick={() => {
+                  setQuestionnaireFilterActive(false);
+                  setQuestionnaireSummary([]);
+                  setWeights({ ...DEFAULT_WEIGHTS });
+                  setFilters({ ...DEFAULT_FILTERS });
+                  setTagFilters({ ...DEFAULT_TAG_FILTERS });
+                  setHistory([]);
+                  localStorage.removeItem(REFINEMENT_STORAGE_KEY);
+                }}
+                className="text-xs px-2.5 py-1 text-violet-500 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-800/30 rounded-md transition-colors"
+              >
+                Tout voir
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Search profiles */}
-      <div className="print:hidden">
-        <SearchProfiles
-          activeProfileId={activeProfileId}
-          onApply={handleProfileApply}
-        />
-      </div>
-
       {/* Sticky toolbar */}
-      <div className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-gray-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-gray-200/80 dark:border-slate-700/80 print:hidden">
+      <div className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 print:hidden">
         {/* Row 1: Search + View toggle */}
         <div className="flex items-center gap-3 mb-2.5">
           <div className="relative flex-1">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -576,12 +716,12 @@ export function Dashboard({
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder="Rechercher par titre, description, lieu..."
-              className="w-full pl-10 pr-8 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-8 py-2.5 border border-[var(--input-border)] rounded-xl text-base bg-[var(--input-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
             />
             {searchText && (
               <button
                 onClick={() => setSearchText("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -591,7 +731,7 @@ export function Dashboard({
           </div>
 
           {/* View mode toggle */}
-          <div className="flex gap-0.5 bg-gray-100 dark:bg-slate-700 p-0.5 rounded-lg shrink-0">
+          <div className="flex gap-0.5 bg-[var(--surface)] p-0.5 rounded-xl shrink-0">
             {([
               ["list", "M4 6h16M4 10h16M4 14h16M4 18h16", "Liste"],
               ["map", "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z", "Carte"],
@@ -604,8 +744,8 @@ export function Dashboard({
                   mode === "split" ? "hidden md:block" : ""
                 } ${
                   viewMode === mode
-                    ? "bg-white dark:bg-slate-600 text-gray-900 dark:text-gray-100 shadow-sm"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                    ? "bg-[var(--card-bg)] text-[var(--foreground)] shadow-sm"
+                    : "text-[var(--muted)] hover:text-[var(--foreground)]"
                 }`}
                 title={title}
               >
@@ -631,17 +771,17 @@ export function Dashboard({
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                   filter === key
                     ? key === "favorite"
-                      ? "bg-pink-600 text-white"
-                      : "bg-blue-600 text-white"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700"
+                      ? "bg-rose-600 text-white"
+                      : "bg-[var(--primary)] text-white"
+                    : "text-[var(--muted)] hover:bg-[var(--surface)]"
                 }`}
               >
                 {label}
                 {count > 0 && (
-                  <span className={`ml-1 ${filter === key ? "text-blue-200" : "text-gray-400 dark:text-gray-500"}`}>
+                  <span className={`ml-1 ${filter === key ? "opacity-70" : "text-[var(--muted-light)]"}`}>
                     {count}
                   </span>
                 )}
@@ -649,15 +789,15 @@ export function Dashboard({
             ))}
           </div>
 
-          <div className="w-px h-5 bg-gray-300 dark:bg-slate-600 shrink-0" />
+          <div className="w-px h-5 bg-[var(--border-color)] shrink-0" />
 
           {/* Sort */}
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortType)}
-            className="px-2 py-1 border border-gray-300 dark:border-slate-600 rounded-md text-xs bg-white dark:bg-slate-800 dark:text-gray-300 shrink-0"
+            className="px-3 py-1.5 border border-[var(--input-border)] rounded-lg text-sm bg-[var(--input-bg)] text-[var(--foreground)] shrink-0"
           >
-            <option value="score">{isRefined ? "Score paufine" : "Score"}</option>
+            <option value="score">{history.length > 0 ? "Score paufine" : questionnaireFilterActive ? "Score personnalise" : "Score"}</option>
             <option value="date">Date</option>
             <option value="price">Prix</option>
             <option value="distance">Distance (Bruxelles)</option>
@@ -667,7 +807,7 @@ export function Dashboard({
             <select
               value={sourceFilter}
               onChange={(e) => setSourceFilter(e.target.value)}
-              className="px-2 py-1 border border-gray-300 dark:border-slate-600 rounded-md text-xs bg-white dark:bg-slate-800 dark:text-gray-300 shrink-0"
+              className="px-3 py-1.5 border border-[var(--input-border)] rounded-lg text-sm bg-[var(--input-bg)] text-[var(--foreground)] shrink-0"
             >
               <option value="all">Toutes sources</option>
               {sources.map((s) => (
@@ -681,8 +821,8 @@ export function Dashboard({
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-1 px-2 py-1 border rounded-md text-xs transition-colors shrink-0 ${
               showFilters || activeFilterCount > 0
-                ? "border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                : "border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700"
+                ? "border-[var(--primary)] text-[var(--primary)] bg-[var(--primary)]/10"
+                : "border-[var(--border-color)] text-[var(--muted)] hover:bg-[var(--surface)]"
             }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -690,7 +830,7 @@ export function Dashboard({
             </svg>
             Filtres
             {activeFilterCount > 0 && (
-              <span className="bg-blue-600 text-white text-[10px] px-1 py-0.5 rounded-full min-w-[16px] text-center leading-none">
+              <span className="bg-[var(--primary)] text-white text-[11px] px-1.5 py-0.5 rounded-full min-w-[16px] text-center leading-none">
                 {activeFilterCount}
               </span>
             )}
@@ -701,8 +841,8 @@ export function Dashboard({
             onClick={() => setShowRefine(!showRefine)}
             className={`flex items-center gap-1 px-2 py-1 border rounded-md text-xs transition-colors shrink-0 ${
               showRefine || isRefined
-                ? "border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20"
-                : "border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700"
+                ? "border-amber-500 text-amber-700 bg-amber-50"
+                : "border-[var(--border-color)] text-[var(--muted)] hover:bg-[var(--surface)]"
             }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -721,8 +861,8 @@ export function Dashboard({
             onClick={() => setQualityMode(!qualityMode)}
             className={`flex items-center gap-1 px-2 py-1 border rounded-md text-xs transition-colors shrink-0 ${
               qualityMode
-                ? "border-green-500 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20"
-                : "border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700"
+                ? "border-green-500 text-green-700 bg-green-50"
+                : "border-[var(--border-color)] text-[var(--muted)] hover:bg-[var(--surface)]"
             }`}
             title={qualityMode ? "Mode qualite actif : masque les annonces peu pertinentes" : "Afficher toutes les annonces"}
           >
@@ -733,7 +873,7 @@ export function Dashboard({
           </button>
 
           {/* Result count */}
-          <span className="text-xs text-gray-400 dark:text-gray-500 ml-auto shrink-0">
+          <span className="text-sm text-[var(--muted-light)] ml-auto shrink-0">
             {filtered.length} resultat{filtered.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -756,25 +896,28 @@ export function Dashboard({
           <FilterPanel
             filters={uiFilters}
             onChange={setUiFilters}
-            onReset={() => setUiFilters({ ...DEFAULT_UI_FILTERS })}
+            onReset={() => { setUiFilters({ ...DEFAULT_UI_FILTERS }); setTagFilters({ ...DEFAULT_TAG_FILTERS }); }}
             availableProvinces={availableProvinces}
             availableListingTypes={availableListingTypes}
             priceRange={priceRange}
-          />
+          >
+            <TagFilterPanel
+              filters={tagFilters}
+              onChange={setTagFilters}
+              availableTags={availableTags}
+            />
+          </FilterPanel>
         )}
       </div>
 
-      {/* Refined indicator (when panel is closed) */}
-      {isRefined && !showRefine && (
-        <div className="mt-2 flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400 print:hidden">
+      {/* Refined indicator (when panel is closed and manual refinements exist) */}
+      {history.length > 0 && !showRefine && (
+        <div className="mt-2 flex items-center gap-2 text-xs text-amber-700 print:hidden">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          {activeProfileId
-            ? `Profil actif: ${activeProfileId}`
-            : `Classement paufine actif (${history.length} ajustement${history.length > 1 ? "s" : ""})`
-          }
-          <button onClick={() => setShowRefine(true)} className="underline hover:text-amber-900 dark:hover:text-amber-200">
+          Classement paufine actif ({history.length} ajustement{history.length > 1 ? "s" : ""})
+          <button onClick={() => setShowRefine(true)} className="underline hover:text-amber-900">
             Modifier
           </button>
         </div>
@@ -785,7 +928,7 @@ export function Dashboard({
         <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2 print:hidden">
           <button
             onClick={() => setCompareIds([])}
-            className="p-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-full shadow-lg text-gray-400 hover:text-red-500"
+            className="p-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-full shadow-lg text-[var(--muted)] hover:text-red-500"
             title="Vider la selection"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -794,7 +937,7 @@ export function Dashboard({
           </button>
           <button
             onClick={() => setShowCompare(true)}
-            className="px-5 py-3 bg-blue-600 text-white rounded-full shadow-xl hover:bg-blue-700 font-medium text-sm flex items-center gap-2 transition-all"
+            className="px-5 py-3 bg-[var(--primary)] text-white rounded-full shadow-xl hover:bg-[var(--primary-hover)] font-medium text-sm flex items-center gap-2 transition-all"
           >
             Comparer ({compareIds.length})
           </button>
@@ -846,11 +989,11 @@ export function Dashboard({
 
             {filtered.length === 0 && (
               <div className="text-center py-12">
-                <svg className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-12 h-12 mx-auto text-[var(--muted-light)] mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <p className="text-gray-500 dark:text-gray-400 mb-1">Aucune annonce ne correspond</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500">Essaie de modifier tes filtres ou ta recherche</p>
+                <p className="text-[var(--muted)] mb-1">Aucune annonce ne correspond</p>
+                <p className="text-sm text-[var(--muted-light)]">Essaie de modifier tes filtres ou ta recherche</p>
               </div>
             )}
           </div>
@@ -885,6 +1028,7 @@ export function Dashboard({
           adjustedScore={adjustedScores.get(previewItem.listing.id)}
         />
       )}
+
     </div>
   );
 }

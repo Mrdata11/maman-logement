@@ -10,8 +10,8 @@ from typing import List, Optional, Tuple
 
 from scraper.models import Listing
 
-# Listings of these types are people SEARCHING, not offering housing
-SKIP_TYPES = {"demande-location", "demande-vente"}
+# Only these listing types are relevant: collaborative housing offering a spot
+RELEVANT_TYPES = {"offre-location", "creation-groupe", "habitat-leger"}
 
 # Pure sale listings (unless they also mention rental)
 SALE_TYPES = {"offre-vente"}
@@ -73,9 +73,9 @@ def post_filter_evaluations(listings, evaluations):
 def _should_skip(listing: Listing, seen_hashes: set) -> Optional[str]:
     """Returns rejection reason string, or None if listing should be kept."""
 
-    # 1. Skip "demande" listings (people looking, not offering)
-    if listing.listing_type in SKIP_TYPES:
-        return f"Type '{listing.listing_type}' = demande, pas une offre"
+    # 1. Skip listing types that are not relevant (divers, autre, demande-*, etc.)
+    if listing.listing_type not in RELEVANT_TYPES and listing.listing_type not in SALE_TYPES:
+        return f"Type '{listing.listing_type}' non pertinent (pas une offre de logement collaboratif)"
 
     # 2. Skip pure sale listings that don't mention rental
     if listing.listing_type in SALE_TYPES:

@@ -41,6 +41,7 @@ function makeItem(
   return {
     listing: makeListing(listingOverrides),
     evaluation,
+    tags: null,
     status: "new",
     notes: "",
   };

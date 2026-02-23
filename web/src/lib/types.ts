@@ -42,6 +42,107 @@ export interface Evaluation {
   date_evaluated: string;
 }
 
+export interface ListingTags {
+  listing_id: string;
+  group_size: number | null;
+  age_range: string[];
+  has_children: boolean | null;
+  family_types: string[];
+  project_types: string[];
+  pets_allowed: boolean | null;
+  pet_details: string[];
+  surface_m2: number | null;
+  num_bedrooms: number | null;
+  unit_type: string | null;
+  furnished: boolean | null;
+  accessible_pmr: boolean | null;
+  shared_spaces: string[];
+  values: string[];
+  shared_meals: string | null;
+  has_charter: boolean | null;
+  governance: string | null;
+  environment: string | null;
+  near_nature: boolean | null;
+  near_transport: boolean | null;
+  date_extracted: string;
+}
+
+export const TAG_LABELS: Record<string, Record<string, string>> = {
+  project_types: {
+    habitat_groupe: "Habitat group\u00e9",
+    ecolieu: "\u00c9colieu",
+    cooperative: "Coop\u00e9rative",
+    habitat_leger: "Habitat l\u00e9ger",
+    colocation: "Colocation",
+    intergenerational: "Interg\u00e9n\u00e9rationnel",
+    community_creation: "Cr\u00e9ation de groupe",
+  },
+  shared_spaces: {
+    garden: "Jardin",
+    vegetable_garden: "Potager",
+    kitchen: "Cuisine commune",
+    common_room: "Salle commune",
+    laundry: "Buanderie",
+    workshop: "Atelier",
+    parking: "Parking",
+    coworking: "Coworking",
+    play_area: "Aire de jeux",
+  },
+  values: {
+    ecological: "\u00c9cologique",
+    permaculture: "Permaculture",
+    spiritual: "Spirituel",
+    solidarity: "Solidarit\u00e9",
+    artistic: "Artistique",
+    self_sufficiency: "Autosuffisance",
+    biodanza: "Biodanza",
+    meditation: "M\u00e9ditation",
+    organic: "Bio",
+  },
+  environment: {
+    rural: "Rural",
+    urban: "Urbain",
+    suburban: "P\u00e9riurbain",
+  },
+  unit_type: {
+    studio: "Studio",
+    apartment: "Appartement",
+    house: "Maison",
+    room: "Chambre",
+    tiny_house: "Tiny house",
+    other: "Autre",
+  },
+  shared_meals: {
+    daily: "Quotidien",
+    weekly: "Hebdomadaire",
+    occasional: "Occasionnel",
+  },
+  age_range: {
+    intergenerational: "Interg\u00e9n\u00e9rationnel",
+    seniors: "Seniors",
+    families: "Familles",
+    young_adults: "Jeunes adultes",
+  },
+  family_types: {
+    singles: "C\u00e9libataires",
+    couples: "Couples",
+    families: "Familles",
+    retirees: "Retrait\u00e9s",
+  },
+  governance: {
+    consensus: "Consensus",
+    sociocracy: "Sociocratie",
+    association: "Association",
+  },
+  pet_details: {
+    dogs: "Chiens",
+    cats: "Chats",
+    poultry: "Volaille",
+    horses: "Chevaux",
+    farm_animals: "Animaux de ferme",
+  },
+};
+
 export type ListingStatus =
   | "new"
   | "favorite"
@@ -58,45 +159,45 @@ export const STATUS_CONFIG: Record<
 > = {
   new: {
     label: "Nouveau",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+    color: "bg-sky-100 text-sky-800",
     icon: "sparkles",
   },
   favorite: {
     label: "Coup de coeur",
-    color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300",
+    color: "bg-rose-100 text-rose-800",
     icon: "heart",
   },
   contacted: {
     label: "Contacté",
     color:
-      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300",
+      "bg-amber-100 text-amber-800",
     icon: "phone",
   },
   visit_planned: {
     label: "Visite prévue",
     color:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
+      "bg-orange-100 text-orange-800",
     icon: "calendar",
   },
   visited: {
     label: "Visité",
-    color: "bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300",
+    color: "bg-emerald-100 text-emerald-800",
     icon: "check",
   },
   in_discussion: {
     label: "En discussion",
     color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+      "bg-violet-100 text-violet-800",
     icon: "chat",
   },
   rejected: {
     label: "Écarté",
-    color: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+    color: "bg-stone-100 text-stone-500",
     icon: "x",
   },
   archived: {
     label: "Archivé",
-    color: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+    color: "bg-stone-100 text-stone-500",
     icon: "archive",
   },
 };
@@ -104,17 +205,9 @@ export const STATUS_CONFIG: Record<
 export interface ListingWithEval {
   listing: Listing;
   evaluation: Evaluation | null;
+  tags: ListingTags | null;
   status: ListingStatus;
   notes: string;
-}
-
-// Search profile presets
-export interface SearchProfile {
-  id: string;
-  name: string;
-  description: string;
-  weights: RefinementWeights;
-  filters: RefinementFilters;
 }
 
 // Refinement types for "Paufini la recherche"
@@ -309,4 +402,35 @@ export const CRITERIA_LABELS: Record<keyof CriteriaScores, string> = {
   community_meals: "Repas & activit\u00e9s communautaires",
   location_brussels: "Proximit\u00e9 Bruxelles (30-45 min)",
   near_hospital: "Proximit\u00e9 h\u00f4pital soins palliatifs",
+};
+
+// Tag-based filter state
+export interface UITagFilters {
+  projectTypes: string[];
+  environments: string[];
+  sharedSpaces: string[];
+  valuesTags: string[];
+  petsAllowed: boolean | null; // true=oui, false=non, null=indifférent
+  hasChildren: boolean | null;
+  hasCharter: boolean | null;
+  sharedMeals: string[];
+  unitTypes: string[];
+  minBedrooms: number | null;
+  minSurface: number | null;
+  maxSurface: number | null;
+}
+
+export const DEFAULT_TAG_FILTERS: UITagFilters = {
+  projectTypes: [],
+  environments: [],
+  sharedSpaces: [],
+  valuesTags: [],
+  petsAllowed: null,
+  hasChildren: null,
+  hasCharter: null,
+  sharedMeals: [],
+  unitTypes: [],
+  minBedrooms: null,
+  minSurface: null,
+  maxSurface: null,
 };

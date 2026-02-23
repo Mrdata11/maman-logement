@@ -1,7 +1,9 @@
 import { getListingById, getListingsWithEvals } from "@/lib/data";
 import { CRITERIA_LABELS, CriteriaScores } from "@/lib/types";
 import { ScoreBar, ScoreBadge } from "@/components/ScoreBar";
-import { ListingChat } from "@/components/ListingChat";
+import { ListingDetailActions } from "@/components/ListingDetailActions";
+import { ImageGallery } from "@/components/ImageGallery";
+import { TagsDisplay } from "@/components/TagsDisplay";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -24,7 +26,7 @@ export default async function ListingPage({
   const item = getListingById(id);
   if (!item) return notFound();
 
-  const { listing, evaluation } = item;
+  const { listing, evaluation, tags } = item;
 
   // Calculate distance from Brussels
   const coords = getListingCoordinates(listing.location, listing.province);
@@ -36,43 +38,67 @@ export default async function ListingPage({
     <div>
       <Link
         href="/"
-        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm mb-4 inline-block"
+        className="text-[var(--primary)] hover:opacity-80 text-sm mb-4 inline-flex items-center gap-1"
       >
-        &larr; Retour au dashboard
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Retour au dashboard
       </Link>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6">
+      <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-6 relative overflow-hidden">
+        {/* Interactive action bar (client component) */}
+        <ListingDetailActions listing={listing} evaluation={evaluation} />
+
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <div className="flex items-start justify-between gap-4 mt-4 mb-4">
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               {listing.title}
             </h1>
-            <div className="flex items-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400 flex-wrap">
-              {listing.location && <span>{listing.location}</span>}
+            <div className="flex items-center gap-3 mt-2 text-sm text-[var(--muted)] flex-wrap">
+              {listing.location && (
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {listing.location}
+                </span>
+              )}
               {listing.province && listing.province !== listing.location && (
                 <span>{listing.province}</span>
               )}
               {listing.price && (
-                <span className="font-medium text-gray-700 dark:text-gray-300">
+                <span className="font-semibold text-[var(--foreground)] text-base">
                   {listing.price}
                 </span>
               )}
-              <span>{listing.source}</span>
+              <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
+                {listing.source}
+              </span>
+              {listing.date_published && (
+                <span className="flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {new Date(listing.date_published).toLocaleDateString("fr-BE", { day: "numeric", month: "long", year: "numeric" })}
+                </span>
+              )}
               {distance !== null && (
-                <span className="px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 text-xs font-medium">
+                <span className="px-2 py-0.5 rounded bg-sky-50 text-sky-700 text-xs font-medium">
                   ~{distance} km de Bruxelles
                 </span>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {evaluation && <ScoreBadge score={evaluation.overall_score} />}
             {evaluation?.availability_status && evaluation.availability_status !== "unknown" && (
               <span className={`text-xs px-2.5 py-1 rounded-md font-medium ${
                 evaluation.availability_status === "likely_available"
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                  : "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-orange-100 text-orange-700"
               }`}>
                 {evaluation.availability_status === "likely_available" ? "Disponibilite probable" : "Peut-etre expire"}
               </span>
@@ -80,10 +106,10 @@ export default async function ListingPage({
             {evaluation?.data_quality_score !== undefined && (
               <span className={`text-xs px-2.5 py-1 rounded-md font-medium ${
                 evaluation.data_quality_score >= 7
-                  ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+                  ? "bg-purple-100 text-purple-700"
                   : evaluation.data_quality_score >= 4
-                    ? "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-                    : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                    ? "bg-[var(--surface)] text-[var(--muted)]"
+                    : "bg-red-100 text-red-600"
               }`}>
                 Qualite donnees: {evaluation.data_quality_score}/10
               </span>
@@ -91,37 +117,20 @@ export default async function ListingPage({
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-2 mb-6 flex-wrap">
-          <a
-            href={listing.source_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Voir l&apos;annonce originale
-          </a>
-          {listing.contact && (
-            <a
-              href={
-                listing.contact.includes("@")
-                  ? `mailto:${listing.contact}`
-                  : `tel:${listing.contact.replace(/\s/g, "")}`
-              }
-              className="text-sm px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              {listing.contact.includes("@") ? "Envoyer un email" : "Appeler"}
-            </a>
-          )}
-        </div>
+        {/* Images with lightbox */}
+        {listing.images.length > 0 && (
+          <div className="mb-6">
+            <ImageGallery images={listing.images} title={listing.title} />
+          </div>
+        )}
 
         {/* AI Evaluation */}
         {evaluation && (
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+          <div className="mb-6 p-4 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-xl border border-emerald-200 dark:border-emerald-800">
+            <h2 className="text-lg font-semibold text-[var(--foreground)] mb-2">
               Evaluation IA
             </h2>
-            <p className="text-gray-700 dark:text-gray-300 mb-4">{evaluation.match_summary}</p>
+            <p className="text-[var(--foreground)] mb-4">{evaluation.match_summary}</p>
 
             <div className="grid gap-2 mb-4">
               {(
@@ -141,14 +150,14 @@ export default async function ListingPage({
 
             {evaluation.highlights.length > 0 && (
               <div className="mb-2">
-                <span className="text-sm font-medium text-green-700 dark:text-green-400">
+                <span className="text-sm font-medium text-green-700">
                   Points forts :
                 </span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {evaluation.highlights.map((h, i) => (
                     <span
                       key={i}
-                      className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded"
+                      className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded"
                     >
                       {h}
                     </span>
@@ -159,14 +168,14 @@ export default async function ListingPage({
 
             {evaluation.concerns.length > 0 && (
               <div>
-                <span className="text-sm font-medium text-red-700 dark:text-red-400">
+                <span className="text-sm font-medium text-red-700">
                   Points d&apos;attention :
                 </span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {evaluation.concerns.map((c, i) => (
                     <span
                       key={i}
-                      className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-0.5 rounded"
+                      className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded"
                     >
                       {c}
                     </span>
@@ -177,65 +186,42 @@ export default async function ListingPage({
           </div>
         )}
 
+        {/* Structured tags */}
+        {tags && (
+          <div className="mb-6">
+            <TagsDisplay tags={tags} />
+          </div>
+        )}
+
         {/* Contact */}
         {listing.contact && (
-          <div className="mb-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-            <span className="text-sm font-medium text-yellow-800 dark:text-yellow-400">
-              Contact :{" "}
-            </span>
-            <span className="text-sm text-yellow-900 dark:text-yellow-300">{listing.contact}</span>
+          <div className="mb-6 p-3 bg-yellow-50 rounded-lg border border-yellow-200 flex items-center gap-3">
+            <svg className="w-5 h-5 text-yellow-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <div>
+              <span className="text-sm font-medium text-yellow-800">
+                Contact :{" "}
+              </span>
+              <span className="text-sm text-yellow-900 font-mono">
+                {listing.contact}
+              </span>
+            </div>
           </div>
         )}
 
         {/* Description */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+          <h2 className="text-lg font-semibold text-[var(--foreground)] mb-2">
             Description complete
           </h2>
-          <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+          <div className="prose prose-sm max-w-none text-[var(--foreground)] whitespace-pre-wrap">
             {listing.description}
           </div>
         </div>
 
-        {/* Images with lightbox-style grid */}
-        {listing.images.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              Images
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {listing.images.map((src, i) => (
-                <a
-                  key={i}
-                  href={src}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative overflow-hidden rounded-lg"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src}
-                    alt={`Image ${i + 1}`}
-                    className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-slate-700 group-hover:scale-105 transition-transform duration-200"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                    </svg>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* AI Chat */}
-        <div className="mb-6">
-          <ListingChat listing={listing} evaluation={evaluation} />
-        </div>
-
         {/* Metadata */}
-        <div className="text-xs text-gray-400 dark:text-gray-500 mt-6 pt-4 border-t border-gray-100 dark:border-slate-700">
+        <div className="text-xs text-[var(--muted-light)] mt-6 pt-4 border-t border-[var(--border-light)]">
           <p>ID: {listing.id}</p>
           {listing.date_published && <p>Publie : {listing.date_published}</p>}
           <p>Scrape : {listing.date_scraped}</p>
