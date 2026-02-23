@@ -267,7 +267,7 @@ export function ApartmentDashboard({
     // Score min
     if (aptFilters.scoreMin !== null) {
       result = result.filter((i) => {
-        const score = i.evaluation?.overall_score ?? null;
+        const score = i.evaluation?.quality_score ?? null;
         if (score === null) return true; // Keep unevaluated
         return score >= aptFilters.scoreMin!;
       });
@@ -276,7 +276,7 @@ export function ApartmentDashboard({
     // Sort
     result.sort((a, b) => {
       if (sort === "score") {
-        return (b.evaluation?.overall_score ?? -1) - (a.evaluation?.overall_score ?? -1);
+        return (b.evaluation?.quality_score ?? -1) - (a.evaluation?.quality_score ?? -1);
       }
       if (sort === "price") {
         return (a.listing.price_monthly ?? Infinity) - (b.listing.price_monthly ?? Infinity);

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ProfileNav } from "@/components/ProfileNav";
 import { AppModeToggle } from "@/components/AppModeToggle";
 import { CookieConsent } from "@/components/CookieConsent";
+import { Footer } from "@/components/Footer";
 import "./globals.css";
 
 const inter = Inter({
@@ -12,9 +13,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Maman Logement - Recherche Habitat Group\u00e9",
+  title: "Cohabitat Europe - Recherche Habitat Group\u00e9",
   description:
-    "Trouvez votre habitat group\u00e9 en Belgique et en Europe. Annonces \u00e9valu\u00e9es par IA, profils communautaires, et outils de recherche personnalis\u00e9s.",
+    "Trouvez votre habitat group\u00e9 en Europe. Annonces \u00e9valu\u00e9es par IA, profils communautaires, et outils de recherche personnalis\u00e9s.",
   icons: {
     icon: "/favicon_alt_living.png",
     apple: "/favicon_alt_living.png",
@@ -53,22 +54,7 @@ export default function RootLayout({
           </nav>
         </header>
         <main id="main-content" role="main" className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1">{children}</main>
-        <footer className="border-t border-[var(--border-color)] py-6 px-4">
-          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--muted)]">
-            <p>Maman Logement &mdash; Recherche d&apos;habitat group&eacute;</p>
-            <div className="flex items-center gap-4">
-              <a href="/parametres" className="hover:text-[var(--foreground)] transition-colors">
-                Param&egrave;tres
-              </a>
-              <a href="/mentions-legales" className="hover:text-[var(--foreground)] transition-colors">
-                Mentions l&eacute;gales
-              </a>
-              <a href="/cgu" className="hover:text-[var(--foreground)] transition-colors">
-                CGU
-              </a>
-            </div>
-          </div>
-        </footer>
+        <Footer />
         <CookieConsent />
       </body>
     </html>

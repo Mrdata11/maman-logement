@@ -105,7 +105,7 @@ export function TagsDisplay({ tags }: { tags: ListingTags }) {
       </button>
 
       {open && (
-        <div className="px-4 py-4 space-y-3">
+        <div className="px-4 py-4 grid grid-cols-2 gap-x-4 gap-y-3">
           {/* Composition */}
           {hasComposition && (
             <Section title="Composition">

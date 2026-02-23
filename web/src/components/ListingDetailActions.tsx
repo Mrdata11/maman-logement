@@ -20,7 +20,7 @@ type Toast = {
 };
 
 const DEFAULT_PROFILE_CONTEXT =
-  "Je suis une maman qui cherche un habitat groupe en Belgique. Je pratique la biodanza et je cherche une communaute d'environ 50 personnes, avec des valeurs de bienveillance et de solidarite. Mon budget est de 500 a 750 euros charges comprises, idealement proche de Bruxelles (30-45 min). Je cherche un studio ou petit appartement. J'aimerais une communaute avec des repas partages et une grande salle pour la biodanza.";
+  "Je cherche un habitat groupe en Europe. Je cherche une communaute avec des valeurs de bienveillance et de solidarite, des espaces partages et une vie communautaire active.";
 
 const PROFILE_STORAGE_KEY = "user_email_profile";
 

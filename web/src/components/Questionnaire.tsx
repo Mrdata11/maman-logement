@@ -27,15 +27,15 @@ function QuestionSingleChoice({
         <button
           key={opt.id}
           onClick={() => onChange(opt.id)}
-          className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all text-sm ${
+          className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm leading-snug ${
             value === opt.id
               ? "border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--foreground)]"
-              : "border-[var(--border-color)] hover:border-[var(--primary)]/50 text-[var(--foreground)]"
+              : "border-[var(--border-color)] hover:border-[var(--primary)]/40 text-[var(--foreground)]"
           }`}
         >
           <span className="flex items-center gap-3">
             <span
-              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                 value === opt.id
                   ? "border-[var(--primary)] bg-[var(--primary)]"
                   : "border-[var(--border-color)]"
@@ -51,7 +51,7 @@ function QuestionSingleChoice({
                 </svg>
               )}
             </span>
-            {opt.label}
+            <span>{opt.label}</span>
           </span>
         </button>
       ))}
@@ -82,8 +82,8 @@ function QuestionMultiChoice({
   return (
     <div className="space-y-2">
       {question.maxSelections && (
-        <p className="text-xs text-[var(--muted)] mb-1">
-          {selected.length}/{question.maxSelections} selectionnee{question.maxSelections > 1 ? "s" : ""}
+        <p className="text-xs text-[var(--muted)] mb-2">
+          {selected.length}/{question.maxSelections} sélectionnée{question.maxSelections > 1 ? "s" : ""}
         </p>
       )}
       {question.options?.map((opt) => {
@@ -94,17 +94,17 @@ function QuestionMultiChoice({
             key={opt.id}
             onClick={() => toggle(opt.id)}
             disabled={isDisabled}
-            className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all text-sm ${
+            className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm leading-snug ${
               isSelected
                 ? "border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--foreground)]"
                 : isDisabled
-                  ? "border-[var(--border-color)]/50 text-[var(--muted-light)] cursor-not-allowed"
-                  : "border-[var(--border-color)] hover:border-[var(--primary)]/50 text-[var(--foreground)]"
+                  ? "border-[var(--border-color)]/50 text-[var(--muted-light)] cursor-not-allowed opacity-50"
+                  : "border-[var(--border-color)] hover:border-[var(--primary)]/40 text-[var(--foreground)]"
             }`}
           >
             <span className="flex items-center gap-3">
               <span
-                className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border-2 ${
+                className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border-2 transition-colors ${
                   isSelected
                     ? "border-[var(--primary)] bg-[var(--primary)]"
                     : "border-[var(--border-color)]"
@@ -120,7 +120,7 @@ function QuestionMultiChoice({
                   </svg>
                 )}
               </span>
-              {opt.label}
+              <span>{opt.label}</span>
             </span>
           </button>
         );
@@ -144,7 +144,7 @@ function QuestionOpenText({
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value)}
       placeholder={question.placeholder}
-      className="w-full px-4 py-3 border-2 border-[var(--border-color)] rounded-lg text-sm bg-[var(--input-bg)] placeholder-[var(--muted-light)] focus:outline-none focus:border-[var(--primary)] resize-none transition-colors"
+      className="w-full px-4 py-3 border-2 border-[var(--border-color)] rounded-xl text-sm bg-[var(--input-bg)] placeholder-[var(--muted-light)] focus:outline-none focus:border-[var(--primary)] resize-none transition-colors"
     />
   );
 }
@@ -163,14 +163,14 @@ function QuestionSlider({
   const percentage = ((current - config.min) / (config.max - config.min)) * 100;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="text-center">
-        <span className="text-2xl font-bold text-[var(--primary)]">
+        <span className="text-3xl font-bold text-[var(--primary)]">
           {current}
           {config.unit ?? ""}
         </span>
       </div>
-      <div className="px-2">
+      <div className="px-1">
         <input
           type="range"
           min={config.min}
@@ -183,19 +183,11 @@ function QuestionSlider({
             background: `linear-gradient(to right, var(--primary) 0%, var(--primary) ${percentage}%, var(--border-color) ${percentage}%, var(--border-color) 100%)`,
           }}
         />
-        <div className="flex justify-between mt-1">
+        <div className="flex justify-between mt-2 px-0.5">
           {Object.entries(config.labels).map(([pos, label]) => (
             <span
               key={pos}
-              className="text-[11px] text-[var(--muted)]"
-              style={{
-                position: "relative",
-                left: `${((Number(pos) - config.min) / (config.max - config.min)) * 100 - 50}%`,
-                width: "0",
-                whiteSpace: "nowrap",
-                textAlign: "center",
-                display: "inline-block",
-              }}
+              className="text-[11px] text-[var(--muted)] text-center"
             >
               {label}
             </span>
@@ -216,23 +208,19 @@ function ProgressBar({
   totalSteps: number;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       {Array.from({ length: totalSteps }, (_, i) => (
-        <div key={i} className="flex-1 flex items-center gap-1">
-          <div
-            className={`h-2 flex-1 rounded-full transition-colors ${
-              i < currentStep
-                ? "bg-[var(--primary)]"
-                : i === currentStep
-                  ? "bg-[var(--primary)]/70"
-                  : "bg-[var(--border-color)]"
-            }`}
-          />
-        </div>
+        <div
+          key={i}
+          className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+            i < currentStep
+              ? "bg-[var(--primary)]"
+              : i === currentStep
+                ? "bg-[var(--primary)]/60"
+                : "bg-[var(--border-color)]"
+          }`}
+        />
       ))}
-      <span className="text-xs text-[var(--muted)] shrink-0 ml-1">
-        {currentStep + 1}/{totalSteps}
-      </span>
     </div>
   );
 }
@@ -327,7 +315,7 @@ export function Questionnaire() {
 
   if (!loaded) {
     return (
-      <div className="max-w-2xl mx-auto py-12 text-center">
+      <div className="max-w-lg mx-auto py-16 text-center">
         <div className="text-[var(--muted-light)]">Chargement...</div>
       </div>
     );
@@ -335,8 +323,8 @@ export function Questionnaire() {
 
   if (showComplete) {
     return (
-      <div className="max-w-md mx-auto py-16 text-center animate-fadeIn">
-        <div className="w-16 h-16 mx-auto mb-4 bg-[var(--primary)]/10 rounded-full flex items-center justify-center">
+      <div className="max-w-md mx-auto py-20 text-center animate-fadeIn px-4">
+        <div className="w-16 h-16 mx-auto mb-5 bg-[var(--primary)]/10 rounded-full flex items-center justify-center">
           <svg className="w-8 h-8 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
@@ -344,17 +332,17 @@ export function Questionnaire() {
         <h2 className="text-xl font-bold text-[var(--foreground)] mb-2">
           Merci !
         </h2>
-        <p className="text-sm text-[var(--muted)]">
-          Ton profil de recherche est enregistre. Tu vas etre redirigee vers les annonces.
+        <p className="text-sm text-[var(--muted)] leading-relaxed">
+          Ton profil de recherche est enregistré. Tu vas être redirigée vers les annonces.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-lg mx-auto px-4 py-6">
       {/* Back to dashboard link */}
-      <div className="mb-6">
+      <div className="mb-5">
         <a
           href="/"
           className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
@@ -366,29 +354,35 @@ export function Questionnaire() {
         </a>
       </div>
 
-      {/* Header card */}
-      <div className="bg-[var(--card-bg)] rounded-xl shadow-sm border border-[var(--border-color)] overflow-hidden">
-        {/* Step title + progress */}
-        <div className="px-6 pt-5 pb-4 border-b border-[var(--border-color)]/50">
-          <div className="flex items-center justify-between mb-1">
-            <h1 className="text-lg font-bold text-[var(--foreground)]">
-              {step.title}
-            </h1>
-            {previouslyCompleted && (
-              <span className="text-xs text-[var(--primary)] bg-[var(--primary)]/10 px-2 py-0.5 rounded-full">
-                Modification
-              </span>
-            )}
-          </div>
-          <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
-        </div>
+      {/* Progress bar */}
+      <div className="mb-2">
+        <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+      </div>
 
+      {/* Step counter */}
+      <div className="flex items-center justify-between mb-5">
+        <p className="text-xs text-[var(--muted)]">
+          Étape {currentStep + 1} sur {totalSteps}
+        </p>
+        {previouslyCompleted && (
+          <span className="text-xs text-[var(--primary)] bg-[var(--primary)]/10 px-2.5 py-0.5 rounded-full font-medium">
+            Modification
+          </span>
+        )}
+      </div>
+
+      {/* Card */}
+      <div className="bg-[var(--card-bg)] rounded-2xl shadow-sm border border-[var(--border-color)]">
         {/* Questions */}
-        <div className="px-6 py-6">
+        <div className="p-6">
           <div
             key={currentStep}
             className={direction === "forward" ? "animate-step-forward" : "animate-step-backward"}
           >
+            {/* Step title */}
+            <h1 className="text-lg font-bold text-[var(--foreground)] mb-2">
+              {step.title}
+            </h1>
             <p className="text-sm text-[var(--muted)] mb-8 leading-relaxed">
               {step.subtitle}
             </p>
@@ -438,26 +432,26 @@ export function Questionnaire() {
         </div>
 
         {/* Navigation */}
-        <div className="px-6 py-4 border-t border-[var(--border-color)]/50 flex items-center justify-between bg-[var(--surface)]">
+        <div className="px-6 py-4 border-t border-[var(--border-color)]/50 flex items-center justify-between">
           <button
             onClick={goPrev}
             disabled={currentStep === 0}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
               currentStep === 0
                 ? "text-[var(--muted-light)] cursor-not-allowed"
-                : "text-[var(--muted)] hover:bg-[var(--surface)]"
+                : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Precedent
+            Précédent
           </button>
 
           {currentStep < totalSteps - 1 ? (
             <button
               onClick={goNext}
-              className="flex items-center gap-1.5 px-5 py-2 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+              className="flex items-center gap-1.5 px-6 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors shadow-sm"
             >
               Suivant
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -467,7 +461,7 @@ export function Questionnaire() {
           ) : (
             <button
               onClick={handleFinish}
-              className="flex items-center gap-1.5 px-5 py-2 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+              className="flex items-center gap-1.5 px-6 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors shadow-sm"
             >
               Terminer
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -480,7 +474,7 @@ export function Questionnaire() {
 
       {/* Step overview (clickable navigation) */}
       <div className="mt-6 mb-8">
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap gap-1.5 justify-center">
           {QUESTIONNAIRE_STEPS.map((s, i) => (
             <button
               key={s.id}
@@ -489,15 +483,15 @@ export function Questionnaire() {
                 setCurrentStep(i);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 i === currentStep
-                  ? "bg-[var(--primary)] text-white"
+                  ? "bg-[var(--primary)] text-white shadow-sm"
                   : i < currentStep
                     ? "bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20"
-                    : "bg-[var(--surface)] text-[var(--muted)] hover:bg-[var(--surface)]"
+                    : "bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--foreground)]"
               }`}
             >
-              {i + 1}. {s.title}
+              {s.title}
             </button>
           ))}
         </div>

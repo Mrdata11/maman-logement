@@ -8,6 +8,7 @@ import {
   MapPin,
   Euro,
   RotateCcw,
+  Globe,
 } from "lucide-react";
 
 interface FilterModalProps {
@@ -15,8 +16,10 @@ interface FilterModalProps {
   onClose: () => void;
   uiFilters: UIFilterState;
   onUiFiltersChange: (filters: UIFilterState) => void;
+  availableCountries: { value: string; count: number }[];
   availableProvinces: { value: string; count: number }[];
   availableListingTypes: { value: string; count: number }[];
+  availableSources: { value: string; count: number }[];
   priceRange: { min: number; max: number };
   tagFilters: UITagFilters;
   onTagFiltersChange: (filters: UITagFilters) => void;
@@ -33,8 +36,10 @@ export function FilterModal({
   onClose,
   uiFilters,
   onUiFiltersChange,
+  availableCountries,
   availableProvinces,
   availableListingTypes,
+  availableSources,
   priceRange,
   tagFilters,
   onTagFiltersChange,
@@ -62,6 +67,16 @@ export function FilterModal({
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
+  const toggleCountry = useCallback(
+    (country: string) => {
+      const next = uiFilters.countries.includes(country)
+        ? uiFilters.countries.filter((c) => c !== country)
+        : [...uiFilters.countries, country];
+      onUiFiltersChange({ ...uiFilters, countries: next });
+    },
+    [uiFilters, onUiFiltersChange]
+  );
+
   const toggleProvince = useCallback(
     (province: string) => {
       const next = uiFilters.provinces.includes(province)
@@ -78,6 +93,16 @@ export function FilterModal({
         ? uiFilters.listingTypes.filter((t) => t !== type)
         : [...uiFilters.listingTypes, type];
       onUiFiltersChange({ ...uiFilters, listingTypes: next });
+    },
+    [uiFilters, onUiFiltersChange]
+  );
+
+  const toggleSource = useCallback(
+    (source: string) => {
+      const next = uiFilters.sources.includes(source)
+        ? uiFilters.sources.filter((s) => s !== source)
+        : [...uiFilters.sources, source];
+      onUiFiltersChange({ ...uiFilters, sources: next });
     },
     [uiFilters, onUiFiltersChange]
   );
@@ -118,6 +143,44 @@ export function FilterModal({
           {/* Localisation */}
           <section>
             <SectionHeader icon={<MapPin className="w-5 h-5" />} title="Localisation" />
+
+            {/* Country filter */}
+            {availableCountries.length > 1 && (
+              <div className="mt-5 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-semibold text-[var(--foreground)] tracking-tight">Pays</span>
+                  {uiFilters.countries.length > 0 && (
+                    <button
+                      onClick={() => onUiFiltersChange({ ...uiFilters, countries: [] })}
+                      className="text-xs font-medium text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors"
+                    >
+                      Tous
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {availableCountries.map(({ value, count }) => {
+                    const selected = uiFilters.countries.includes(value);
+                    return (
+                      <button
+                        key={value}
+                        onClick={() => toggleCountry(value)}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 border ${
+                          selected
+                            ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                            : "border-[var(--border-light)] bg-[var(--surface)]/30 text-[var(--foreground)] hover:border-[var(--primary)]/40"
+                        }`}
+                      >
+                        <span>{COUNTRY_FLAGS[value] || ""}</span>
+                        <span>{COUNTRY_LABELS[value] || value}</span>
+                        <span className="text-xs text-[var(--muted-light)] ml-0.5">{count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-5">
               <fieldset>
                 <div className="flex items-center justify-between mb-3">
@@ -186,6 +249,45 @@ export function FilterModal({
               </fieldset>
             </div>
           </section>
+
+          {/* Sources */}
+          {availableSources.length > 1 && (
+            <section>
+              <SectionHeader icon={<Globe className="w-5 h-5" />} title="Source" />
+              <div className="mt-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-semibold text-[var(--foreground)] tracking-tight">Site d&apos;origine</span>
+                  {uiFilters.sources.length > 0 && (
+                    <button
+                      onClick={() => onUiFiltersChange({ ...uiFilters, sources: [] })}
+                      className="text-xs font-medium text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors"
+                    >
+                      Toutes
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {availableSources.map(({ value, count }) => {
+                    const selected = uiFilters.sources.includes(value);
+                    return (
+                      <button
+                        key={value}
+                        onClick={() => toggleSource(value)}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 border ${
+                          selected
+                            ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                            : "border-[var(--border-light)] bg-[var(--surface)]/30 text-[var(--foreground)] hover:border-[var(--primary)]/40"
+                        }`}
+                      >
+                        <span>{value}</span>
+                        <span className="text-xs text-[var(--muted-light)] ml-0.5">{count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Prix & Score */}
           <section>

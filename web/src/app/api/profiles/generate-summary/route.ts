@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
 import { ProfileIntroduction } from "@/lib/profile-types";
 import { QuestionnaireAnswers } from "@/lib/questionnaire-types";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/api-auth";
+import { generateSummarySchema } from "@/lib/api-schemas";
 
 function formatQuestionnaireForPrompt(answers: QuestionnaireAnswers): string {
   const lines: string[] = [];
@@ -46,31 +48,50 @@ function formatIntroductionForPrompt(intro: ProfileIntroduction): string {
 }
 
 export async function POST(request: NextRequest) {
+  const user = await getAuthenticatedUser();
+  if (!user) return unauthorizedResponse();
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY not configured" },
-      { status: 500 }
+      { error: "Service IA non configur\u00e9." },
+      { status: 503 }
     );
   }
 
-  const { questionnaireAnswers, introduction } = await request.json();
+  let body;
+  try {
+    body = generateSummarySchema.parse(await request.json());
+  } catch {
+    return NextResponse.json(
+      { error: "Donn\u00e9es invalides." },
+      { status: 400 }
+    );
+  }
+
+  const { questionnaireAnswers, introduction } = body;
 
   const questionnaireText = formatQuestionnaireForPrompt(
-    questionnaireAnswers || {}
+    (questionnaireAnswers as QuestionnaireAnswers) || {}
   );
-  const introText = formatIntroductionForPrompt(introduction || {});
+  const introText = formatIntroductionForPrompt(
+    (introduction as ProfileIntroduction) || {}
+  );
 
-  const prompt = `Tu es un assistant qui cree des resumes de profil pour des personnes cherchant un habitat groupe en Belgique.
+  const prompt = `Tu es un assistant qui cree des resumes de profil pour des personnes cherchant un habitat groupe en Europe.
 A partir des informations suivantes, tu dois generer:
 1. Un resume en 2-3 phrases qui donne envie de decouvrir cette personne (chaleureux, humain, engageant)
 2. 5-8 tags courts (2-3 mots max chacun) qui resument les aspects cles du profil
 
 ## REPONSES AU QUESTIONNAIRE
+<user_input>
 ${questionnaireText || "(aucune)"}
+</user_input>
 
 ## PRESENTATION PERSONNELLE
+<user_input>
 ${introText || "(aucune)"}
+</user_input>
 
 ## REGLES
 - Le resume doit etre a la 3eme personne ("Elle cherche...", "Il souhaite...")
@@ -98,10 +119,10 @@ Reponds UNIQUEMENT avec un JSON valide:
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      console.error("Anthropic API error [generate-summary]:", response.status, await response.text());
       return NextResponse.json(
-        { error: `Anthropic API error: ${errorText}` },
-        { status: response.status }
+        { error: "Erreur du service IA. Veuillez r\u00e9essayer." },
+        { status: 502 }
       );
     }
 
@@ -116,8 +137,9 @@ Reponds UNIQUEMENT avec un JSON valide:
         : [],
     });
   } catch (error) {
+    console.error("Route error [generate-summary]:", error);
     return NextResponse.json(
-      { error: `Failed to generate summary: ${error}` },
+      { error: "Une erreur interne est survenue." },
       { status: 500 }
     );
   }

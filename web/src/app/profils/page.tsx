@@ -58,7 +58,7 @@ const DEMO_PROFILES: ProfileCardType[] = [
   {
     id: "demo-1",
     display_name: "Marie",
-    avatar_url: null,
+    avatar_url: "https://randomuser.me/api/portraits/women/65.jpg",
     location: "Ixelles, Bruxelles",
     age: 62,
     gender: "femme",
@@ -88,7 +88,7 @@ const DEMO_PROFILES: ProfileCardType[] = [
   {
     id: "demo-2",
     display_name: "Jean-Pierre",
-    avatar_url: null,
+    avatar_url: "https://randomuser.me/api/portraits/men/72.jpg",
     location: "Namur",
     age: 68,
     gender: "homme",
@@ -118,7 +118,7 @@ const DEMO_PROFILES: ProfileCardType[] = [
   {
     id: "demo-3",
     display_name: "Sofia",
-    avatar_url: null,
+    avatar_url: "https://randomuser.me/api/portraits/women/44.jpg",
     location: "Li\u00e8ge",
     age: 45,
     gender: "femme",
@@ -148,7 +148,7 @@ const DEMO_PROFILES: ProfileCardType[] = [
   {
     id: "demo-4",
     display_name: "Thomas & Claire",
-    avatar_url: null,
+    avatar_url: "https://randomuser.me/api/portraits/men/32.jpg",
     location: "Louvain-la-Neuve",
     age: 33,
     gender: null,
@@ -729,25 +729,12 @@ export default function ProfilsPage() {
               </svg>
             </button>
 
-            {/* Filter button — opens modal */}
-            <button
-              onClick={() => setShowFilterModal(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
-                activeFilterCount > 0
-                  ? "border-[var(--primary)] text-[var(--primary)] bg-[var(--primary)]/5"
-                  : "border-[var(--input-border)] text-[var(--muted)] hover:border-[var(--primary)]/50 bg-[var(--input-bg)]"
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              Filtres
-              {activeFilterCount > 0 && (
-                <span className="bg-[var(--primary)] text-white text-[11px] px-1.5 py-0.5 rounded-full min-w-[16px] text-center leading-none">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
+            {/* Person count */}
+            {!loading && filtered.length > 0 && (
+              <span className="text-sm text-[var(--muted)] whitespace-nowrap">
+                {filtered.length} personne{filtered.length !== 1 ? "s" : ""}
+              </span>
+            )}
           </div>
         </div>
 
@@ -803,6 +790,8 @@ export default function ProfilsPage() {
         activeFilterCount={activeFilterCount}
       />
 
+      {/* Content area — min-height prevents page jump when switching tabs */}
+      <div className="min-h-[50vh]">
       {/* Loading */}
       {loading && (
         <div className="text-center py-12">
@@ -878,10 +867,7 @@ export default function ProfilsPage() {
       {/* Profile grid */}
       {!loading && filtered.length > 0 && (
         <>
-          <p className="text-sm text-[var(--muted)]">
-            {filtered.length} personne{filtered.length !== 1 ? "s" : ""}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((profile) => (
               <ProfileCard
                 key={profile.id}
@@ -893,6 +879,7 @@ export default function ProfilsPage() {
           </div>
         </>
       )}
+      </div>
     </div>
   );
 }

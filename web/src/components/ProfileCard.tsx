@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ProfileCard as ProfileCardType } from "@/lib/profile-types";
+import type { ProfileCard as ProfileCardType } from "@/lib/profile-types";
 
 interface ProfileCardProps {
   profile: ProfileCardType;
@@ -30,18 +30,18 @@ export function ProfileCard({ profile, isFavorite, onToggleFavorite }: ProfileCa
   if (profile.sexuality) demographicParts.push(profile.sexuality);
 
   return (
-    <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-5 hover:shadow-md transition-shadow">
+    <Link href={`/profils/${profile.id}`} className="block bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-5 hover:shadow-md transition-shadow">
       {/* Header: avatar + name + favorite */}
       <div className="flex items-start gap-3 mb-3">
         {profile.avatar_url ? (
           <img
             src={profile.avatar_url}
             alt=""
-            className="w-12 h-12 rounded-full object-cover shrink-0"
+            className="w-16 h-16 rounded-full object-cover shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
-            <span className="text-sm font-bold text-[var(--primary)]">
+          <div className="w-16 h-16 rounded-full bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
+            <span className="text-base font-bold text-[var(--primary)]">
               {initials}
             </span>
           </div>
@@ -103,7 +103,7 @@ export function ProfileCard({ profile, isFavorite, onToggleFavorite }: ProfileCa
 
       {/* Intro snippet - first person voice */}
       {profile.intro_snippet && (
-        <p className="text-sm text-[var(--muted)] italic leading-relaxed mb-3 line-clamp-2">
+        <p className="text-sm text-[var(--muted)] italic leading-relaxed mb-3 line-clamp-3">
           &laquo; {profile.intro_snippet} &raquo;
         </p>
       )}
@@ -154,13 +154,6 @@ export function ProfileCard({ profile, isFavorite, onToggleFavorite }: ProfileCa
         ))}
       </div>
 
-      {/* CTA */}
-      <Link
-        href={`/profils/${profile.id}`}
-        className="block w-full text-center px-4 py-2.5 border border-[var(--primary)] text-[var(--primary)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/5 transition-colors"
-      >
-        D&eacute;couvrir {profile.display_name} &rarr;
-      </Link>
-    </div>
+    </Link>
   );
 }

@@ -7,7 +7,6 @@ import {
   DEFAULT_UI_FILTERS,
   LISTING_TYPE_LABELS,
   STATUS_CONFIG,
-  CriteriaScores,
   RefinementFilters,
   ListingWithEval,
   Listing,
@@ -49,59 +48,15 @@ function makeItem(
   };
 }
 
-const ALL_CRITERIA: CriteriaScores = {
-  community_size_and_maturity: 5,
-  values_alignment: 7,
-  common_projects: 6,
-  large_hall_biodanza: 3,
-  rental_price: 8,
-  unit_type: 4,
-  parking: 2,
-  spiritual_alignment: 9,
-  charter_openness: 6,
-  community_meals: 7,
-  location_brussels: 8,
-  near_hospital: 5,
-};
-
 describe("calculateRefinedScore", () => {
-  it("returns correct score with default weights (all 1.0)", () => {
-    const score = calculateRefinedScore(ALL_CRITERIA, DEFAULT_WEIGHTS);
-    // Average of all scores * 10
-    const sum = 5 + 7 + 6 + 3 + 8 + 4 + 2 + 9 + 6 + 7 + 8 + 5;
-    const expected = Math.round((sum / 12) * 10);
-    expect(score).toBe(expected);
+  it("returns the quality score directly (weights are deprecated)", () => {
+    const score = calculateRefinedScore(75, DEFAULT_WEIGHTS);
+    expect(score).toBe(75);
   });
 
-  it("returns 0 when all weights are 0", () => {
-    const zeroWeights = { ...DEFAULT_WEIGHTS };
-    for (const key of Object.keys(zeroWeights) as (keyof CriteriaScores)[]) {
-      zeroWeights[key] = 0;
-    }
-    expect(calculateRefinedScore(ALL_CRITERIA, zeroWeights)).toBe(0);
-  });
-
-  it("weights criteria correctly", () => {
-    // Double the weight of rental_price (score=8) and zero everything else
-    const weights = { ...DEFAULT_WEIGHTS };
-    for (const key of Object.keys(weights) as (keyof CriteriaScores)[]) {
-      weights[key] = 0;
-    }
-    weights.rental_price = 2.0;
-    const score = calculateRefinedScore(ALL_CRITERIA, weights);
-    // (8 * 2) / 2 * 10 = 80
-    expect(score).toBe(80);
-  });
-
-  it("gives higher score when heavily weighted criteria score high", () => {
-    const heavySpiritual = { ...DEFAULT_WEIGHTS };
-    heavySpiritual.spiritual_alignment = 5.0; // Score is 9
-    const heavyParking = { ...DEFAULT_WEIGHTS };
-    heavyParking.parking = 5.0; // Score is 2
-
-    const scoreSpiritual = calculateRefinedScore(ALL_CRITERIA, heavySpiritual);
-    const scoreParking = calculateRefinedScore(ALL_CRITERIA, heavyParking);
-    expect(scoreSpiritual).toBeGreaterThan(scoreParking);
+  it("ignores weights and returns quality score", () => {
+    const score = calculateRefinedScore(42, { some_weight: 5.0 });
+    expect(score).toBe(42);
   });
 });
 
@@ -181,7 +136,6 @@ describe("applyRefinementFilters", () => {
       listing_id: "test-1",
       quality_score: 40,
       quality_summary: "",
-      criteria_scores: ALL_CRITERIA,
       highlights: [],
       concerns: [],
       date_evaluated: "2026-02-23",
@@ -201,7 +155,6 @@ describe("applyRefinementFilters", () => {
       listing_id: "test-1",
       quality_score: 30,
       quality_summary: "",
-      criteria_scores: ALL_CRITERIA,
       highlights: [],
       concerns: [],
       date_evaluated: "2026-02-23",

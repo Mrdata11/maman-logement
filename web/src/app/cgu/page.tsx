@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Conditions d'utilisation - Maman Logement",
-  description: "Conditions g\u00e9n\u00e9rales d'utilisation de Maman Logement",
+  title: "Conditions d'utilisation - Cohabitat Europe",
+  description: "Conditions g\u00e9n\u00e9rales d'utilisation de Cohabitat Europe",
 };
 
 export default function CGU() {
@@ -16,7 +16,7 @@ export default function CGU() {
         <section>
           <h2 className="text-lg font-semibold mb-2">Objet</h2>
           <p className="text-sm text-[var(--muted)] leading-relaxed">
-            Maman Logement est une plateforme gratuite d&apos;aide &agrave; la recherche d&apos;habitat group&eacute;.
+            Cohabitat Europe est une plateforme gratuite d&apos;aide &agrave; la recherche d&apos;habitat group&eacute;.
             Elle agr&egrave;ge des annonces publiques, permet de cr&eacute;er un profil de recherche et de publier
             des projets d&apos;habitat group&eacute;. L&apos;utilisation du site implique l&apos;acceptation des
             pr&eacute;sentes conditions.
@@ -37,7 +37,7 @@ export default function CGU() {
           <h2 className="text-lg font-semibold mb-2">Contenu des annonces</h2>
           <p className="text-sm text-[var(--muted)] leading-relaxed">
             Les annonces sont collect&eacute;es automatiquement depuis des sources publiques tierces.
-            Maman Logement ne produit pas ce contenu et ne peut garantir son exactitude, sa compl&eacute;tude
+            Cohabitat Europe ne produit pas ce contenu et ne peut garantir son exactitude, sa compl&eacute;tude
             ou sa disponibilit&eacute;. Les &eacute;valuations IA sont fournies &agrave; titre indicatif uniquement.
           </p>
         </section>
@@ -61,7 +61,7 @@ export default function CGU() {
         <section>
           <h2 className="text-lg font-semibold mb-2">Responsabilit&eacute;</h2>
           <p className="text-sm text-[var(--muted)] leading-relaxed">
-            Maman Logement facilite la mise en relation mais n&apos;est pas partie aux &eacute;changes
+            Cohabitat Europe facilite la mise en relation mais n&apos;est pas partie aux &eacute;changes
             entre utilisateurs ni aux transactions li&eacute;es aux annonces. Nous ne sommes pas responsables
             des cons&eacute;quences des contacts &eacute;tablis via la plateforme. Nous vous encourageons &agrave;
             exercer votre propre jugement et vigilance.

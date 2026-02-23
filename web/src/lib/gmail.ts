@@ -52,11 +52,12 @@ export function loadGoogleScript(): Promise<void> {
 
 export function getStoredAuth(): GmailAuth | null {
   try {
-    const stored = localStorage.getItem(GMAIL_AUTH_KEY);
+    const stored = sessionStorage.getItem(GMAIL_AUTH_KEY);
     if (!stored) return null;
     const auth: GmailAuth = JSON.parse(stored);
-    if (auth.expiresAt < Date.now() + 5 * 60 * 1000) {
-      localStorage.removeItem(GMAIL_AUTH_KEY);
+    // Clear 15 minutes before expiry for safety margin
+    if (auth.expiresAt < Date.now() + 15 * 60 * 1000) {
+      sessionStorage.removeItem(GMAIL_AUTH_KEY);
       return null;
     }
     return auth;
@@ -66,11 +67,11 @@ export function getStoredAuth(): GmailAuth | null {
 }
 
 export function storeAuth(auth: GmailAuth): void {
-  localStorage.setItem(GMAIL_AUTH_KEY, JSON.stringify(auth));
+  sessionStorage.setItem(GMAIL_AUTH_KEY, JSON.stringify(auth));
 }
 
 export function clearAuth(): void {
-  localStorage.removeItem(GMAIL_AUTH_KEY);
+  sessionStorage.removeItem(GMAIL_AUTH_KEY);
 }
 
 export async function requestGmailAccess(

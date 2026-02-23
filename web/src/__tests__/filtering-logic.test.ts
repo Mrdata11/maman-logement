@@ -5,7 +5,6 @@ import {
   ListingWithEval,
   Listing,
   Evaluation,
-  CriteriaScores,
 } from "@/lib/types";
 
 // Reusable filter logic extracted from Dashboard for testability
@@ -101,21 +100,6 @@ function makeListing(overrides: Partial<Listing> = {}): Listing {
   };
 }
 
-const MOCK_CRITERIA: CriteriaScores = {
-  community_size_and_maturity: 5,
-  values_alignment: 5,
-  common_projects: 5,
-  large_hall_biodanza: 5,
-  rental_price: 5,
-  unit_type: 5,
-  parking: 5,
-  spiritual_alignment: 5,
-  charter_openness: 5,
-  community_meals: 5,
-  location_brussels: 5,
-  near_hospital: 5,
-};
-
 function makeEvaluation(
   listingId: string,
   score: number
@@ -124,7 +108,6 @@ function makeEvaluation(
     listing_id: listingId,
     quality_score: score,
     quality_summary: "Test summary",
-    criteria_scores: MOCK_CRITERIA,
     highlights: [],
     concerns: [],
     date_evaluated: "2026-02-23",

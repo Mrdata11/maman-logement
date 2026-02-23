@@ -1,15 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/api-auth";
+import { generateEmailSchema } from "@/lib/api-schemas";
 
 export async function POST(request: NextRequest) {
+  const user = await getAuthenticatedUser();
+  if (!user) return unauthorizedResponse();
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY not configured" },
-      { status: 500 }
+      { error: "Service IA non configur\u00e9." },
+      { status: 503 }
     );
   }
 
-  const { listing, evaluation, userProfile } = await request.json();
+  let body;
+  try {
+    body = generateEmailSchema.parse(await request.json());
+  } catch {
+    return NextResponse.json(
+      { error: "Donn\u00e9es invalides." },
+      { status: 400 }
+    );
+  }
+
+  const { listing, evaluation, userProfile } = body;
 
   const listingContext = `
 ANNONCE: ${listing.title}
@@ -27,19 +42,19 @@ ${listing.description.slice(0, 3000)}
     ? `
 EVALUATION (score: ${evaluation.quality_score}/100):
 - Resume: ${evaluation.quality_summary}
-- Points forts: ${evaluation.highlights.join(", ")}
-- Points d'attention: ${evaluation.concerns.join(", ")}
+- Points forts: ${(evaluation.highlights ?? []).join(", ")}
+- Points d'attention: ${(evaluation.concerns ?? []).join(", ")}
 `
     : "";
 
   const userName = userProfile?.name || "";
   const userContext = userProfile?.context || "";
 
-  const systemPrompt = `Tu es un assistant qui redige des emails de premier contact pour des annonces d'habitat groupe en Belgique.
+  const systemPrompt = `Tu es un assistant qui redige des emails de premier contact pour des annonces d'habitat groupe en Europe.
 
 PROFIL DE L'EXPEDITEUR:
 ${userName ? `- Prenom: ${userName}` : "- Prenom: non specifie (ne pas signer avec un prenom)"}
-${userContext ? `- Contexte personnel: ${userContext}` : "- Pas de contexte personnel fourni"}
+${userContext ? `- Contexte personnel: ${userContext.slice(0, 1000)}` : "- Pas de contexte personnel fourni"}
 
 ANNONCE CIBLE:
 ${listingContext}
@@ -80,18 +95,19 @@ CONSIGNES POUR L'EMAIL:
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      console.error("Anthropic API error [generate-email]:", response.status, await response.text());
       return NextResponse.json(
-        { error: `Anthropic API error: ${errorText}` },
-        { status: response.status }
+        { error: "Erreur du service IA. Veuillez r\u00e9essayer." },
+        { status: 502 }
       );
     }
 
     const data = await response.json();
     return NextResponse.json({ email: data.content[0].text });
   } catch (error) {
+    console.error("Route error [generate-email]:", error);
     return NextResponse.json(
-      { error: `Failed to generate email: ${error}` },
+      { error: "Une erreur interne est survenue." },
       { status: 500 }
     );
   }

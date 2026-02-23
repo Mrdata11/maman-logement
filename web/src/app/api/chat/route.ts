@@ -47,7 +47,7 @@ EVALUATION IA (score qualite: ${evaluation.quality_score}/100):
 `
     : "Pas d'evaluation IA disponible pour cette annonce.";
 
-  const systemPrompt = `Tu es un assistant chaleureux et bienveillant qui aide les gens a trouver leur habitat groupe ideal en Belgique et en Europe. Tu reponds toujours en francais, de maniere claire et concise.
+  const systemPrompt = `Tu es un assistant chaleureux et bienveillant qui aide les gens a trouver leur habitat groupe ideal en Europe. Tu reponds toujours en francais, de maniere claire et concise.
 
 Tu as acces aux details de l'annonce suivante:
 ${listingContext}

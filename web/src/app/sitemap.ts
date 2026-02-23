@@ -46,11 +46,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
+  const safeDate = (str: string | null): Date => {
+    if (!str) return new Date();
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? new Date() : d;
+  };
+
   const listingPages: MetadataRoute.Sitemap = listings.map((item) => ({
     url: `${BASE_URL}/listing/${item.listing.id}`,
-    lastModified: item.listing.date_published
-      ? new Date(item.listing.date_published)
-      : new Date(item.listing.date_scraped),
+    lastModified: safeDate(item.listing.date_published ?? item.listing.date_scraped),
     changeFrequency: "weekly",
     priority: 0.7,
   }));

@@ -22,7 +22,7 @@ export async function generateMetadata({
   const { id } = await params;
   const item = getListingById(id);
   if (!item) {
-    return { title: "Annonce introuvable - Maman Logement" };
+    return { title: "Annonce introuvable - Cohabitat Europe" };
   }
 
   const { listing, evaluation } = item;
@@ -35,13 +35,13 @@ export async function generateMetadata({
     listing.images.length > 0 ? listing.images[0] : undefined;
 
   return {
-    title: `${title} - Maman Logement`,
+    title: `${title} - Cohabitat Europe`,
     description,
     openGraph: {
       title,
       description,
       url: `${BASE_URL}/listing/${listing.id}`,
-      siteName: "Maman Logement",
+      siteName: "Cohabitat Europe",
       locale: "fr_BE",
       type: "article",
       ...(firstImage && {

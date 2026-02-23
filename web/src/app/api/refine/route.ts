@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   const currentFiltersJson = JSON.stringify(currentFilters ?? {});
 
-  const prompt = `Tu es un assistant qui aide \u00e0 affiner une recherche d'habitat group\u00e9 en Belgique et en Europe.
+  const prompt = `Tu es un assistant qui aide \u00e0 affiner une recherche d'habitat group\u00e9 en Europe.
 
 L'utilisateur a des filtres pour exclure/inclure des annonces.
 

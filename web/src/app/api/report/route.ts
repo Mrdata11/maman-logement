@@ -1,31 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/api-auth";
+import { reportSchema } from "@/lib/api-schemas";
 
 export async function POST(request: NextRequest) {
+  const user = await getAuthenticatedUser();
+  if (!user) return unauthorizedResponse();
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY not configured" },
-      { status: 500 }
+      { error: "Service IA non configur\u00e9." },
+      { status: 503 }
     );
   }
 
-  const { listings } = await request.json();
-
-  if (!listings || !Array.isArray(listings) || listings.length === 0) {
+  let body;
+  try {
+    body = reportSchema.parse(await request.json());
+  } catch {
     return NextResponse.json(
-      { error: "No listings provided" },
+      { error: "Donn\u00e9es invalides." },
       { status: 400 }
     );
   }
 
+  const { listings } = body;
+
   const listingsSummary = listings
     .map(
-      (item: {
-        listing: { title: string; location: string | null; province: string | null; price: string | null };
-        evaluation: { quality_score: number; quality_summary: string; highlights: string[]; concerns: string[] } | null;
-        notes: string;
-        status: string;
-      }, i: number) =>
+      (item, i) =>
         `${i + 1}. "${item.listing.title}"
    - Lieu: ${item.listing.location || item.listing.province || "?"}
    - Prix: ${item.listing.price || "?"}
@@ -38,7 +41,7 @@ export async function POST(request: NextRequest) {
     )
     .join("\n\n");
 
-  const prompt = `Tu es un assistant bienveillant qui aide une maman a trouver son habitat groupe ideal en Belgique.
+  const prompt = `Tu es un assistant bienveillant qui aide les gens a trouver leur habitat groupe ideal en Europe.
 
 Voici ses criteres principaux:
 - Communaute d'environ 50 personnes, mature et fonctionnelle
@@ -53,7 +56,9 @@ Voici ses criteres principaux:
 
 Voici sa shortlist de ${listings.length} annonces:
 
-${listingsSummary}
+<user_input>
+${listingsSummary.slice(0, 10000)}
+</user_input>
 
 Genere un RAPPORT DE DECISION structure en francais avec:
 
@@ -83,10 +88,10 @@ Sois chaleureux, concret et actionnable. N'hesite pas a dire si une annonce ne s
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      console.error("Anthropic API error [report]:", response.status, await response.text());
       return NextResponse.json(
-        { error: `Anthropic API error: ${errorText}` },
-        { status: response.status }
+        { error: "Erreur du service IA. Veuillez r\u00e9essayer." },
+        { status: 502 }
       );
     }
 
@@ -95,8 +100,9 @@ Sois chaleureux, concret et actionnable. N'hesite pas a dire si une annonce ne s
 
     return NextResponse.json({ report: text });
   } catch (error) {
+    console.error("Route error [report]:", error);
     return NextResponse.json(
-      { error: `Failed to generate report: ${error}` },
+      { error: "Une erreur interne est survenue." },
       { status: 500 }
     );
   }

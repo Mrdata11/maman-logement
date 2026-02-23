@@ -15,12 +15,12 @@ export const chatSchema = z.object({
   }),
   evaluation: z
     .object({
-      overall_score: z.number().min(0).max(100),
-      match_summary: z.string().max(2000),
-      highlights: z.array(z.string().max(300)).max(20),
-      concerns: z.array(z.string().max(300)).max(20),
-      criteria_scores: z.record(z.number()),
+      quality_score: z.number().min(0).max(100).optional(),
+      quality_summary: z.string().max(2000).optional(),
+      highlights: z.array(z.string().max(300)).max(20).optional(),
+      concerns: z.array(z.string().max(300)).max(20).optional(),
     })
+    .passthrough()
     .nullable()
     .optional(),
   conversationHistory: z
@@ -64,11 +64,12 @@ export const generateEmailSchema = z.object({
   }),
   evaluation: z
     .object({
-      overall_score: z.number().min(0).max(100),
-      match_summary: z.string().max(2000),
-      highlights: z.array(z.string().max(300)).max(20),
-      concerns: z.array(z.string().max(300)).max(20),
+      quality_score: z.number().min(0).max(100).optional(),
+      quality_summary: z.string().max(2000).optional(),
+      highlights: z.array(z.string().max(300)).max(20).optional(),
+      concerns: z.array(z.string().max(300)).max(20).optional(),
     })
+    .passthrough()
     .nullable()
     .optional(),
   userProfile: z
@@ -82,7 +83,7 @@ export const generateEmailSchema = z.object({
 // /api/refine
 export const refineSchema = z.object({
   message: z.string().max(1000),
-  currentWeights: z.record(z.number().min(0).max(5)),
+  currentWeights: z.record(z.string(), z.number().min(0).max(5)).optional(),
   currentFilters: z
     .object({
       listing_types_include: z.array(z.string()).optional(),
@@ -110,11 +111,12 @@ export const reportSchema = z.object({
         }),
         evaluation: z
           .object({
-            overall_score: z.number(),
-            match_summary: z.string().max(2000),
-            highlights: z.array(z.string().max(300)),
-            concerns: z.array(z.string().max(300)),
+            quality_score: z.number().optional(),
+            quality_summary: z.string().max(2000).optional(),
+            highlights: z.array(z.string().max(300)).optional(),
+            concerns: z.array(z.string().max(300)).optional(),
           })
+          .passthrough()
           .nullable()
           .optional(),
         notes: z.string().max(2000),
@@ -127,7 +129,7 @@ export const reportSchema = z.object({
 
 // /api/profiles/generate-summary
 export const generateSummarySchema = z.object({
-  questionnaireAnswers: z.record(z.unknown()).optional(),
+  questionnaireAnswers: z.record(z.string(), z.unknown()).optional(),
   introduction: z
     .object({
       whoAreYou: z.string().max(2000).optional(),

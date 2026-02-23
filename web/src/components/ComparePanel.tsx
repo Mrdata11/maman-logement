@@ -2,10 +2,7 @@
 
 import {
   ListingWithEval,
-  CRITERIA_LABELS,
-  CriteriaScores,
 } from "@/lib/types";
-import { ScoreBar } from "./ScoreBar";
 import Link from "next/link";
 
 interface ComparePanelProps {
@@ -20,23 +17,6 @@ export function ComparePanel({
   onRemove,
 }: ComparePanelProps) {
   if (items.length === 0) return null;
-
-  const criteriaKeys = Object.keys(CRITERIA_LABELS) as (keyof CriteriaScores)[];
-
-  // Find best score per criterion
-  const bestPerCriteria: Record<string, string> = {};
-  for (const key of criteriaKeys) {
-    let bestId = "";
-    let bestScore = -1;
-    for (const item of items) {
-      const score = item.evaluation?.criteria_scores[key] ?? 0;
-      if (score > bestScore) {
-        bestScore = score;
-        bestId = item.listing.id;
-      }
-    }
-    bestPerCriteria[key] = bestId;
-  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -98,7 +78,7 @@ export function ComparePanel({
                               </span>
                             )}
                           </div>
-                          {/* Quality score */}
+                          {/* Overall score */}
                           {item.evaluation && (
                             <div className="mt-2">
                               <span
@@ -146,37 +126,6 @@ export function ComparePanel({
                     </td>
                   ))}
                 </tr>
-
-                {/* Criteria rows */}
-                {criteriaKeys.map((key) => (
-                  <tr
-                    key={key}
-                    className="border-t border-[var(--border-color)]/50"
-                  >
-                    <td className="p-2 text-xs font-medium text-[var(--muted)] sticky left-0 bg-[var(--card-bg)]">
-                      {CRITERIA_LABELS[key]}
-                    </td>
-                    {items.map((item) => {
-                      const score =
-                        item.evaluation?.criteria_scores[key] ?? 0;
-                      const isBest =
-                        bestPerCriteria[key] === item.listing.id &&
-                        score > 0;
-                      return (
-                        <td
-                          key={item.listing.id}
-                          className={`p-2 ${isBest ? "bg-green-50" : ""}`}
-                        >
-                          {item.evaluation ? (
-                            <ScoreBar score={score} max={10} />
-                          ) : (
-                            <span className="text-xs text-[var(--muted-light)]">-</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
 
                 {/* Highlights row */}
                 <tr className="border-t border-[var(--border-color)]">

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Mentions l\u00e9gales - Maman Logement",
-  description: "Politique de confidentialit\u00e9 et mentions l\u00e9gales de Maman Logement",
+  title: "Mentions l\u00e9gales - Cohabitat Europe",
+  description: "Politique de confidentialit\u00e9 et mentions l\u00e9gales de Cohabitat Europe",
 };
 
 export default function MentionsLegales() {
@@ -16,8 +16,8 @@ export default function MentionsLegales() {
         <section>
           <h2 className="text-lg font-semibold mb-2">&Eacute;diteur du site</h2>
           <p className="text-sm text-[var(--muted)] leading-relaxed">
-            Maman Logement est un projet personnel &agrave; but non lucratif d&apos;aide &agrave; la recherche
-            d&apos;habitat group&eacute; en Belgique et en Europe. Ce site n&apos;est pas une entreprise commerciale.
+            Cohabitat Europe est un projet personnel &agrave; but non lucratif d&apos;aide &agrave; la recherche
+            d&apos;habitat group&eacute; en Europe. Ce site n&apos;est pas une entreprise commerciale.
           </p>
           <p className="text-sm text-[var(--muted)] leading-relaxed mt-2">
             Contact : via le formulaire de contact sur le site.

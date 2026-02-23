@@ -104,11 +104,11 @@ export function ApartmentFavoritesClient({ allItems }: { allItems: ApartmentWith
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     {evaluation && (
                       <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                        evaluation.overall_score >= 70 ? "bg-emerald-100 text-emerald-800" :
-                        evaluation.overall_score >= 40 ? "bg-amber-100 text-amber-800" :
+                        evaluation.quality_score >= 70 ? "bg-emerald-100 text-emerald-800" :
+                        evaluation.quality_score >= 40 ? "bg-amber-100 text-amber-800" :
                         "bg-rose-100 text-rose-800"
                       }`}>
-                        {evaluation.overall_score}/100
+                        {evaluation.quality_score}/100
                       </span>
                     )}
                     {listing.price_monthly && (
@@ -138,9 +138,9 @@ export function ApartmentFavoritesClient({ allItems }: { allItems: ApartmentWith
                     {listing.commune}
                     {distance !== null && ` · ${distance.toFixed(1)} km d'Ixelles`}
                   </div>
-                  {evaluation?.match_summary && (
+                  {evaluation?.quality_summary && (
                     <p className="text-sm text-[var(--muted)] mt-1 line-clamp-2">
-                      {evaluation.match_summary}
+                      {evaluation.quality_summary}
                     </p>
                   )}
                 </div>

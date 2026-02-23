@@ -6,12 +6,11 @@ import {
   ListingWithEval,
   ListingStatus,
   STATUS_CONFIG,
-  CRITERIA_LABELS,
-  CriteriaScores,
   LISTING_TYPE_LABELS,
 } from "@/lib/types";
-import { ScoreBar, ScoreBadge } from "./ScoreBar";
+import { ScoreBadge } from "./ScoreBar";
 import { TagsPills } from "./TagsDisplay";
+import { PlaceholderImage } from "./PlaceholderImage";
 
 interface ListingPreviewProps {
   item: ListingWithEval;
@@ -132,7 +131,7 @@ export function ListingPreview({
         {/* Content */}
         <div className="p-4">
           {/* Images */}
-          {listing.images.length > 0 && (
+          {listing.images.length > 0 ? (
             <div className="mb-4 -mx-4 -mt-4">
               <div className="flex overflow-x-auto gap-1 scrollbar-hide">
                 {listing.images.slice(0, 6).map((src, i) => (
@@ -149,6 +148,10 @@ export function ListingPreview({
                   </a>
                 ))}
               </div>
+            </div>
+          ) : (
+            <div className="mb-4 -mx-4 -mt-4">
+              <PlaceholderImage className="h-48" />
             </div>
           )}
 
@@ -210,17 +213,6 @@ export function ListingPreview({
               <p className="text-sm text-[var(--foreground)] mb-3">
                 {evaluation.ai_description || evaluation.quality_summary}
               </p>
-
-              <div className="grid gap-1.5 mb-3">
-                {(
-                  Object.entries(evaluation.criteria_scores) as [
-                    keyof CriteriaScores,
-                    number,
-                  ][]
-                ).map(([key, s]) => (
-                  <ScoreBar key={key} score={s} max={10} label={CRITERIA_LABELS[key]} />
-                ))}
-              </div>
 
               {evaluation.highlights.length > 0 && (
                 <div className="mb-2">

@@ -8,6 +8,7 @@ import {
   STATUS_CONFIG,
   PEB_RATING_COLORS,
 } from "@/lib/types";
+import { PlaceholderImage } from "./PlaceholderImage";
 
 function getPublicationFreshness(dateStr: string | null): {
   label: string;
@@ -98,7 +99,7 @@ export function ApartmentListingCard({
       }`}
     >
       {/* Image carousel */}
-      {images.length > 0 && (
+      {images.length > 0 ? (
         <div className="relative group aspect-[16/9] bg-[var(--surface)] overflow-hidden">
           <img
             src={images[imgIndex]}
@@ -159,17 +160,19 @@ export function ApartmentListingCard({
           {evaluation && (
             <span
               className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold shadow ${
-                evaluation.overall_score >= 70
+                evaluation.quality_score >= 70
                   ? "bg-emerald-500 text-white"
-                  : evaluation.overall_score >= 40
+                  : evaluation.quality_score >= 40
                   ? "bg-amber-400 text-white"
                   : "bg-rose-500 text-white"
               }`}
             >
-              {evaluation.overall_score}/100
+              {evaluation.quality_score}/100
             </span>
           )}
         </div>
+      ) : (
+        <PlaceholderImage className="aspect-[16/9]" />
       )}
 
       {/* Content */}
@@ -273,7 +276,7 @@ export function ApartmentListingCard({
         {/* AI Summary */}
         {evaluation && (
           <p className="mt-2 text-xs text-[var(--muted)] line-clamp-2">
-            {evaluation.match_summary}
+            {evaluation.quality_summary}
           </p>
         )}
 

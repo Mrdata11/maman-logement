@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
   const { transcript } = body;
 
-  const prompt = `Tu es un assistant qui analyse un message decrivant un projet d'habitat groupe en Belgique.
+  const prompt = `Tu es un assistant qui analyse un message decrivant un projet d'habitat groupe en Europe.
 A partir de cette description libre, tu dois extraire des reponses structurees pour un formulaire de creation de projet.
 
 ## FORMULAIRE DE CREATION

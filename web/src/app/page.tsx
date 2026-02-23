@@ -6,8 +6,8 @@ import Link from "next/link";
 
 export default function Home() {
   const items = getListingsWithEvals();
-  const topListings = items
-    .filter((item) => item.evaluation !== null)
+  const evaluated = items.filter((item) => item.evaluation !== null);
+  const topListings = evaluated
     .sort(
       (a, b) =>
         (b.evaluation?.quality_score ?? 0) -
@@ -16,19 +16,61 @@ export default function Home() {
     .slice(0, 6);
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-16">
       {/* Hero */}
-      <HeroBanner alwaysVisible />
+      <HeroBanner
+        alwaysVisible
+        listingCount={items.length}
+      />
 
-      {/* Habitats groupés à découvrir */}
+      {/* Comment &ccedil;a marche — 3 &eacute;tapes */}
+      <section>
+        <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)] text-center mb-2">
+          Comment &ccedil;a marche
+        </h2>
+        <p className="text-sm text-[var(--muted)] text-center mb-8 max-w-lg mx-auto">
+          En 3 &eacute;tapes, trouvez l&apos;habitat qui vous correspond
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="relative text-center px-4 py-6">
+            <div className="w-12 h-12 rounded-full bg-[var(--primary)]/10 flex items-center justify-center mx-auto mb-4">
+              <span className="text-lg font-bold text-[var(--primary)]">1</span>
+            </div>
+            <h3 className="font-semibold text-[var(--foreground)] mb-1.5">R&eacute;pondez au questionnaire</h3>
+            <p className="text-sm text-[var(--muted)] leading-relaxed">
+              Vos envies, votre budget, vos valeurs &mdash; en 5 minutes, on comprend ce que vous cherchez.
+            </p>
+          </div>
+          <div className="relative text-center px-4 py-6">
+            <div className="w-12 h-12 rounded-full bg-[var(--accent)]/10 flex items-center justify-center mx-auto mb-4">
+              <span className="text-lg font-bold text-[var(--accent)]">2</span>
+            </div>
+            <h3 className="font-semibold text-[var(--foreground)] mb-1.5">D&eacute;couvrez des lieux &eacute;valu&eacute;s</h3>
+            <p className="text-sm text-[var(--muted)] leading-relaxed">
+              Notre IA analyse chaque annonce et vous pr&eacute;sente les projets les plus pertinents pour vous.
+            </p>
+          </div>
+          <div className="relative text-center px-4 py-6">
+            <div className="w-12 h-12 rounded-full bg-[var(--golden)]/10 flex items-center justify-center mx-auto mb-4">
+              <span className="text-lg font-bold text-[var(--golden)]">3</span>
+            </div>
+            <h3 className="font-semibold text-[var(--foreground)] mb-1.5">Connectez-vous avec d&apos;autres</h3>
+            <p className="text-sm text-[var(--muted)] leading-relaxed">
+              Cr&eacute;ez votre profil et rencontrez des personnes qui partagent votre vision de vie.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Habitats group&eacute;s &agrave; d&eacute;couvrir */}
       <section>
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="text-xl font-bold text-[var(--foreground)]">
-              Habitats group&eacute;s &agrave; d&eacute;couvrir
+              Les projets les mieux not&eacute;s
             </h2>
             <p className="text-sm text-[var(--muted)] mt-1">
-              Les annonces les mieux &eacute;valu&eacute;es selon nos crit&egrave;res
+              S&eacute;lectionn&eacute;s et &eacute;valu&eacute;s par notre IA parmi {items.length}+ annonces
             </p>
           </div>
           <Link
@@ -38,7 +80,7 @@ export default function Home() {
             Voir tout &rarr;
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {topListings.map((item) => (
             <ListingCardCompact key={item.listing.id} item={item} />
           ))}
@@ -50,10 +92,10 @@ export default function Home() {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="text-xl font-bold text-[var(--foreground)]">
-              Personnes qui cherchent
+              Ils cherchent aussi
             </h2>
             <p className="text-sm text-[var(--muted)] mt-1">
-              Des personnes comme vous, &agrave; la recherche d&apos;un habitat partag&eacute;
+              Des personnes comme vous, pr&ecirc;tes &agrave; vivre autrement
             </p>
           </div>
           <Link
@@ -67,32 +109,28 @@ export default function Home() {
       </section>
 
       {/* CTA final */}
-      <section className="rounded-2xl bg-[var(--surface)] border border-[var(--border-color)] px-6 py-8 sm:px-8 sm:py-10 text-center">
-        <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)] mb-2">
-          Rejoignez la communaut&eacute;
-        </h2>
-        <p className="text-[var(--muted)] mb-6 max-w-lg mx-auto">
-          Que vous cherchiez un habitat group&eacute; ou que vous souhaitiez en cr&eacute;er un, Maman Logement vous accompagne.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link
-            href="/questionnaire"
-            className="px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            Chercher un lieu
-          </Link>
-          <Link
-            href="/profils/creer"
-            className="px-5 py-2.5 border border-[var(--primary)] text-[var(--primary)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/5 transition-colors"
-          >
-            Cr&eacute;er mon profil
-          </Link>
-          <Link
-            href="/creer"
-            className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--muted)] rounded-xl text-sm font-medium hover:text-[var(--foreground)] hover:border-[var(--foreground)] transition-colors"
-          >
-            Proposer un projet
-          </Link>
+      <section className="rounded-2xl overflow-hidden border border-[var(--border-color)]">
+        <div className="bg-[var(--primary)] px-6 py-10 sm:px-10 sm:py-14 text-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-3">
+            Vous n&apos;&ecirc;tes pas seul&middot;e &agrave; vouloir vivre autrement
+          </h2>
+          <p className="text-white/80 mb-8 max-w-lg mx-auto leading-relaxed">
+            Rejoignez une communaut&eacute; de personnes qui r&ecirc;vent, cherchent et construisent des lieux de vie partag&eacute;s &agrave; travers l&apos;Europe.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/questionnaire"
+              className="px-6 py-3 bg-white text-[var(--primary)] rounded-xl text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm"
+            >
+              Commencer ma recherche
+            </Link>
+            <Link
+              href="/profils/creer"
+              className="px-6 py-3 border border-white/40 text-white rounded-xl text-sm font-medium hover:bg-white/10 transition-colors"
+            >
+              Cr&eacute;er mon profil
+            </Link>
+          </div>
         </div>
       </section>
     </div>

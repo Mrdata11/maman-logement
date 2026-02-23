@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
   const { transcript } = body;
 
-  const prompt = `Tu es un assistant qui analyse un message vocal d'une personne cherchant un habitat groupe en Belgique.
+  const prompt = `Tu es un assistant qui analyse un message vocal d'une personne cherchant un habitat groupe en Europe.
 A partir de sa description libre, tu dois extraire des reponses structurees pour un questionnaire de 29 questions.
 
 ## QUESTIONNAIRE COMPLET

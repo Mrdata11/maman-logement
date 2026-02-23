@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import {
   ListingWithEval,
@@ -10,6 +10,7 @@ import {
 } from "@/lib/types";
 import { ScoreBadge } from "./ScoreBar";
 import { TagsPills } from "./TagsDisplay";
+import { PlaceholderImage } from "./PlaceholderImage";
 
 interface ListingCardProps {
   item: ListingWithEval;
@@ -17,6 +18,7 @@ interface ListingCardProps {
   onNotesChange: (id: string, notes: string) => void;
   onToggleCompare?: (id: string) => void;
   adjustedScore?: number;
+  personalScore?: { score: number; explanation: string } | null;
   isHighlighted?: boolean;
   isSelected?: boolean;
   distance?: number | null;
@@ -28,6 +30,7 @@ export function ListingCard({
   onNotesChange,
   onToggleCompare,
   adjustedScore,
+  personalScore,
   isHighlighted = false,
   isSelected = false,
   distance,
@@ -44,6 +47,27 @@ export function ListingCard({
   const [showNotes, setShowNotes] = useState(false);
   const [localNotes, setLocalNotes] = useState(notes);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [imgIndex, setImgIndex] = useState(0);
+
+  const images = listing.images;
+  const maxVisible = Math.min(images.length, 8);
+
+  const prevImg = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setImgIndex((i) => (i - 1 + maxVisible) % maxVisible);
+    },
+    [maxVisible]
+  );
+  const nextImg = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setImgIndex((i) => (i + 1) % maxVisible);
+    },
+    [maxVisible]
+  );
 
   const handleNotesSave = () => {
     onNotesChange(listing.id, localNotes);
@@ -52,7 +76,7 @@ export function ListingCard({
 
   return (
     <div
-      className={`bg-[var(--card-bg)] rounded-xl border p-4 transition-all shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] ${
+      className={`bg-[var(--card-bg)] rounded-xl border overflow-hidden transition-all shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] flex flex-row h-56 ${
         isFaded ? "opacity-50" : ""
       } ${
         isHighlighted
@@ -60,43 +84,87 @@ export function ListingCard({
           : "border-[var(--border-color)]"
       }`}
     >
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* Image thumbnail */}
-        <div className="shrink-0">
-          {listing.images.length > 0 ? (
-            <Link href={`/listing/${listing.id}`}>
+      {/* Image carousel — côté gauche */}
+      <div className="relative group w-56 sm:w-64 md:w-80 shrink-0 bg-[var(--surface)]">
+        {images.length > 0 ? (
+          <>
+            <Link href={`/listing/${listing.id}`} className="block h-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={listing.images[0]}
+                src={images[imgIndex]}
                 alt=""
                 loading="lazy"
-                className="w-full h-[160px] sm:w-[130px] sm:h-[90px] object-cover rounded-lg border border-[var(--border-color)] hover:opacity-90 transition-opacity"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
               />
             </Link>
-          ) : (
-            <div className="w-full h-[120px] sm:w-[130px] sm:h-[90px] rounded-lg border border-[var(--border-color)] bg-[var(--surface)] flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-[var(--muted-light)]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-            </div>
-          )}
-        </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
+            {/* Navigation arrows */}
+            {maxVisible > 1 && (
+              <>
+                <button
+                  onClick={prevImg}
+                  className="absolute left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60"
+                  aria-label="Photo précédente"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={nextImg}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60"
+                  aria-label="Photo suivante"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+
+            {/* Dot indicators */}
+            {maxVisible > 1 && (
+              <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1">
+                {Array.from({ length: maxVisible }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setImgIndex(i);
+                    }}
+                    className={`w-1.5 h-1.5 rounded-full transition-all ${
+                      i === imgIndex ? "bg-white w-3" : "bg-white/50"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Image counter */}
+            {maxVisible > 1 && (
+              <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/50 text-white text-[10px]">
+                {imgIndex + 1}/{maxVisible}
+              </span>
+            )}
+
+            {/* Score badge overlay */}
+            {evaluation && (
+              <div className="absolute top-2 left-2">
+                <ScoreBadge score={adjustedScore ?? evaluation.quality_score} />
+              </div>
+            )}
+          </>
+        ) : (
+          <PlaceholderImage className="w-full h-full" />
+        )}
+      </div>
+
+      {/* Content — côté droit */}
+      <div className="flex-1 min-w-0 p-4">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               {/* Badges row */}
@@ -117,6 +185,14 @@ export function ListingCard({
                       </span>
                     )}
                   </div>
+                )}
+                {personalScore && (
+                  <span
+                    className="text-xs px-2 py-0.5 rounded-lg font-semibold bg-violet-100 text-violet-700"
+                    title={personalScore.explanation}
+                  >
+                    Mon score: {personalScore.score}
+                  </span>
                 )}
                 {listing.listing_type && (
                   <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
@@ -369,7 +445,6 @@ export function ListingCard({
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 }

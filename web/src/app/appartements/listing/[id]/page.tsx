@@ -1,6 +1,6 @@
 import { getApartmentById, getApartmentsWithEvals } from "@/lib/data";
-import { APARTMENT_CRITERIA_LABELS, ApartmentCriteriaScores, PEB_RATING_COLORS } from "@/lib/types";
-import { ScoreBar, ScoreBadge } from "@/components/ScoreBar";
+import { PEB_RATING_COLORS } from "@/lib/types";
+import { ScoreBadge } from "@/components/ScoreBar";
 import { ImageGallery } from "@/components/ImageGallery";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -128,7 +128,7 @@ export default async function ApartmentDetailPage({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {evaluation && <ScoreBadge score={evaluation.overall_score} />}
+            {evaluation && <ScoreBadge score={evaluation.quality_score} />}
           </div>
         </div>
 
@@ -264,24 +264,8 @@ export default async function ApartmentDetailPage({
               &Eacute;valuation IA
             </h2>
             <p className="text-[var(--foreground)] mb-4">
-              {evaluation.match_summary}
+              {evaluation.quality_summary}
             </p>
-
-            <div className="grid gap-2 mb-4">
-              {(
-                Object.entries(evaluation.criteria_scores) as [
-                  keyof ApartmentCriteriaScores,
-                  number,
-                ][]
-              ).map(([key, score]) => (
-                <ScoreBar
-                  key={key}
-                  score={score}
-                  max={10}
-                  label={APARTMENT_CRITERIA_LABELS[key]}
-                />
-              ))}
-            </div>
 
             {evaluation.highlights.length > 0 && (
               <div className="mb-2">

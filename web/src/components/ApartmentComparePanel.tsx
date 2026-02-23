@@ -1,7 +1,6 @@
 "use client";
 
-import { ApartmentWithEval, APARTMENT_CRITERIA_LABELS, ApartmentCriteriaScores, PEB_RATING_COLORS } from "@/lib/types";
-import { ScoreBar } from "./ScoreBar";
+import { ApartmentWithEval, PEB_RATING_COLORS } from "@/lib/types";
 
 interface ApartmentComparePanelProps {
   items: ApartmentWithEval[];
@@ -11,23 +10,6 @@ interface ApartmentComparePanelProps {
 
 export function ApartmentComparePanel({ items, onClose, onRemove }: ApartmentComparePanelProps) {
   if (items.length === 0) return null;
-
-  const criteriaKeys = Object.keys(APARTMENT_CRITERIA_LABELS) as (keyof ApartmentCriteriaScores)[];
-
-  // Find best per-criteria
-  const bestPerCriteria = new Map<string, string>();
-  for (const key of criteriaKeys) {
-    let bestId = "";
-    let bestScore = -1;
-    for (const item of items) {
-      const score = item.evaluation?.criteria_scores[key] ?? -1;
-      if (score > bestScore) {
-        bestScore = score;
-        bestId = item.listing.id;
-      }
-    }
-    if (bestId) bestPerCriteria.set(key, bestId);
-  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
@@ -78,11 +60,11 @@ export function ApartmentComparePanel({ items, onClose, onRemove }: ApartmentCom
                       )}
                       {item.evaluation && (
                         <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${
-                          item.evaluation.overall_score >= 70 ? "bg-emerald-100 text-emerald-800" :
-                          item.evaluation.overall_score >= 40 ? "bg-amber-100 text-amber-800" :
+                          item.evaluation.quality_score >= 70 ? "bg-emerald-100 text-emerald-800" :
+                          item.evaluation.quality_score >= 40 ? "bg-amber-100 text-amber-800" :
                           "bg-rose-100 text-rose-800"
                         }`}>
-                          {item.evaluation.overall_score}/100
+                          {item.evaluation.quality_score}/100
                         </div>
                       )}
                       <button
@@ -141,35 +123,15 @@ export function ApartmentComparePanel({ items, onClose, onRemove }: ApartmentCom
                 ))}
               </tr>
 
-              {/* AI Criteria scores */}
-              <tr>
-                <td colSpan={items.length + 1} className="px-4 py-2 text-xs font-bold text-[var(--foreground)] bg-[var(--surface)]">
-                  Évaluation AI par critère
-                </td>
-              </tr>
-              {criteriaKeys.map((key) => (
-                <tr key={key} className="border-t border-[var(--border-color)]">
-                  <td className="sticky left-0 bg-[var(--card-bg)] px-4 py-2 text-xs text-[var(--muted)]">
-                    {APARTMENT_CRITERIA_LABELS[key]}
+              {/* AI Summary */}
+              <tr className="border-t border-[var(--border-color)]">
+                <td className="sticky left-0 bg-[var(--card-bg)] px-4 py-2 text-xs font-medium text-[var(--muted)]">Resume IA</td>
+                {items.map((item) => (
+                  <td key={item.listing.id} className="px-4 py-2 text-xs text-[var(--muted)]">
+                    {item.evaluation?.quality_summary ?? "—"}
                   </td>
-                  {items.map((item) => {
-                    const score = item.evaluation?.criteria_scores[key];
-                    const isBest = bestPerCriteria.get(key) === item.listing.id;
-                    return (
-                      <td
-                        key={item.listing.id}
-                        className={`px-4 py-2 ${isBest ? "bg-emerald-50" : ""}`}
-                      >
-                        {score !== undefined ? (
-                          <ScoreBar score={score} max={10} />
-                        ) : (
-                          <span className="text-[var(--muted-light)] text-xs">—</span>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
+                ))}
+              </tr>
 
               {/* Highlights & Concerns */}
               <tr className="border-t border-[var(--border-color)]">

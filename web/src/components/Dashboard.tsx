@@ -11,6 +11,7 @@ import {
   UITagFilters,
   DEFAULT_TAG_FILTERS,
   applyRefinementFilters,
+  PersonalizedResult,
 } from "@/lib/types";
 import {
   haversineDistance,
@@ -32,7 +33,7 @@ import {
 import { mapQuestionnaireToFilters } from "@/lib/questionnaire-mapping";
 
 type FilterType = "all" | "new" | "favorite" | "active" | "archived";
-type SortType = "score" | "price" | "distance";
+type SortType = "score" | "price" | "distance" | "personal";
 
 const SortIconScore = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,14 +54,22 @@ const SortIconDistance = () => (
   </svg>
 );
 
+const SortIconPersonal = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
 const SORT_OPTIONS: { value: SortType; label: string; icon: ReactNode }[] = [
   { value: "score", label: "Score", icon: <SortIconScore /> },
+  { value: "personal", label: "Mon score", icon: <SortIconPersonal /> },
   { value: "price", label: "Prix", icon: <SortIconPrice /> },
   { value: "distance", label: "Distance", icon: <SortIconDistance /> },
 ];
 
 const SORT_LABELS: Record<SortType, string> = {
   score: "Score",
+  personal: "Mon score",
   price: "Prix",
   distance: "Distance",
 };
@@ -69,6 +78,8 @@ type ViewMode = "list" | "map" | "split";
 const REFINEMENT_STORAGE_KEY = "refinement_state";
 const LAST_VISIT_KEY = "last_visit_date";
 const NOTES_STORAGE_KEY = "listing_notes";
+const PERSONAL_CRITERIA_KEY = "personal_criteria";
+const PERSONAL_SCORES_KEY = "personal_scores";
 
 export function Dashboard({
   initialItems,
@@ -78,7 +89,6 @@ export function Dashboard({
   const [items, setItems] = useState(initialItems);
   const [filter, setFilter] = useState<FilterType>("all");
   const [sort, setSort] = useState<SortType>("score");
-  const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [uiFilters, setUiFilters] = useState<UIFilterState>({ ...DEFAULT_UI_FILTERS });
@@ -88,9 +98,7 @@ export function Dashboard({
 
   // Custom dropdown states
   const [sortOpen, setSortOpen] = useState(false);
-  const [sourceOpen, setSourceOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
-  const sourceRef = useRef<HTMLDivElement>(null);
 
   // Refinement state (driven by questionnaire)
   const [filters, setFilters] = useState<RefinementFilters>({ ...DEFAULT_FILTERS });
@@ -106,6 +114,13 @@ export function Dashboard({
   // Questionnaire state
   const [questionnaireState, setQuestionnaireState] = useState<QuestionnaireState | null>(null);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+
+  // Personalized scoring state
+  const [showScoringPanel, setShowScoringPanel] = useState(false);
+  const [personalCriteria, setPersonalCriteria] = useState("");
+  const [personalScores, setPersonalScores] = useState<Map<string, PersonalizedResult>>(new Map());
+  const [scoringLoading, setScoringLoading] = useState(false);
+  const [scoringProgress, setScoringProgress] = useState("");
 
   // New listings detection
   const [lastVisitDate, setLastVisitDate] = useState<string | null>(null);
@@ -143,6 +158,21 @@ export function Dashboard({
     }
   }, []);
 
+  // Load personalized criteria and scores from localStorage
+  useEffect(() => {
+    try {
+      const savedCriteria = localStorage.getItem(PERSONAL_CRITERIA_KEY);
+      if (savedCriteria) setPersonalCriteria(savedCriteria);
+      const savedScores = localStorage.getItem(PERSONAL_SCORES_KEY);
+      if (savedScores) {
+        const parsed: [string, PersonalizedResult][] = JSON.parse(savedScores);
+        setPersonalScores(new Map(parsed));
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }, []);
+
   // Load last visit date
   useEffect(() => {
     const saved = localStorage.getItem(LAST_VISIT_KEY);
@@ -168,9 +198,6 @@ export function Dashboard({
       if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
         setSortOpen(false);
       }
-      if (sourceRef.current && !sourceRef.current.contains(e.target as Node)) {
-        setSourceOpen(false);
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -189,6 +216,62 @@ export function Dashboard({
 
   const isRefined = questionnaireFilterActive;
 
+  // Personalized scoring function
+  const runPersonalizedScoring = useCallback(async (criteria: string, listingsToScore: ListingWithEval[]) => {
+    if (!criteria || listingsToScore.length === 0) return;
+    setScoringLoading(true);
+    setScoringProgress(`Scoring de ${listingsToScore.length} annonces...`);
+
+    const summaries = listingsToScore.map((item) => ({
+      id: item.listing.id,
+      title: item.evaluation?.ai_title || item.listing.title,
+      description: (item.evaluation?.ai_description || item.listing.description).slice(0, 500),
+      location: item.listing.location,
+      country: item.listing.country,
+      price: item.listing.price,
+      listing_type: item.listing.listing_type,
+      tags_summary: item.tags
+        ? [
+            ...item.tags.project_types,
+            item.tags.environment,
+            ...item.tags.values,
+            ...item.tags.shared_spaces.slice(0, 3),
+          ].filter(Boolean).join(", ")
+        : "",
+    }));
+
+    try {
+      const resp = await fetch("/api/score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ criteria, listings: summaries }),
+      });
+
+      if (!resp.ok) throw new Error("API error");
+
+      const data = await resp.json();
+      const newScores = new Map(personalScores);
+      for (const r of data.results) {
+        newScores.set(r.listing_id, {
+          listing_id: r.listing_id,
+          score: r.score,
+          explanation: r.explanation,
+          highlights: [],
+          concerns: [],
+        });
+      }
+      setPersonalScores(newScores);
+      localStorage.setItem(PERSONAL_CRITERIA_KEY, criteria);
+      localStorage.setItem(PERSONAL_SCORES_KEY, JSON.stringify(Array.from(newScores.entries())));
+      setScoringProgress(`${data.results.length} annonces \u00e9valu\u00e9es`);
+    } catch (err) {
+      console.error("Scoring error:", err);
+      setScoringProgress("Erreur lors du scoring");
+    } finally {
+      setScoringLoading(false);
+    }
+  }, [personalScores]);
+
   // Calculate distances from Bruxelles
   const distances = useMemo(() => {
     const map = new Map<string, number | null>();
@@ -206,10 +289,16 @@ export function Dashboard({
     return map;
   }, [items]);
 
-  // Get unique sources
-  const sources = useMemo(() => {
-    const s = new Set(items.map((item) => item.listing.source));
-    return Array.from(s);
+  // Available sources with counts
+  const availableSources = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of items) {
+      const s = item.listing.source;
+      if (s) map.set(s, (map.get(s) || 0) + 1);
+    }
+    return Array.from(map.entries())
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count);
   }, [items]);
 
   // Quality-filtered items (always on — only relevant, evaluated listings)
@@ -241,6 +330,18 @@ export function Dashboard({
     for (const item of items) {
       const p = item.listing.province;
       if (p) map.set(p, (map.get(p) || 0) + 1);
+    }
+    return Array.from(map.entries())
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [items]);
+
+  // Available countries with counts
+  const availableCountries = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of items) {
+      const c = item.listing.country;
+      if (c) map.set(c, (map.get(c) || 0) + 1);
     }
     return Array.from(map.entries())
       .map(([value, count]) => ({ value, count }))
@@ -356,8 +457,10 @@ export function Dashboard({
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (uiFilters.searchText.trim()) count++;
+    if (uiFilters.countries.length > 0) count++;
     if (uiFilters.provinces.length > 0) count++;
     if (uiFilters.listingTypes.length > 0) count++;
+    if (uiFilters.sources.length > 0) count++;
     if (uiFilters.priceMin !== null || uiFilters.priceMax !== null) count++;
     if (uiFilters.scoreMin !== null) count++;
     // Tag filters
@@ -403,9 +506,9 @@ export function Dashboard({
         break;
     }
 
-    // Source filter
-    if (sourceFilter !== "all") {
-      result = result.filter((i) => i.listing.source === sourceFilter);
+    // Source filter (from filter modal)
+    if (uiFilters.sources.length > 0) {
+      result = result.filter((i) => uiFilters.sources.includes(i.listing.source));
     }
 
     // Quality filter: always on — only relevant, evaluated listings
@@ -431,6 +534,13 @@ export function Dashboard({
         (i) =>
           i.listing.title.toLowerCase().includes(query) ||
           i.listing.description.toLowerCase().includes(query)
+      );
+    }
+
+    // UI filters - countries
+    if (uiFilters.countries.length > 0) {
+      result = result.filter(
+        (i) => i.listing.country !== null && uiFilters.countries.includes(i.listing.country)
       );
     }
 
@@ -574,6 +684,13 @@ export function Dashboard({
 
     // Sort
     result.sort((a, b) => {
+      if (sort === "personal") {
+        const sa = personalScores.get(a.listing.id)?.score ?? -1;
+        const sb = personalScores.get(b.listing.id)?.score ?? -1;
+        if (sb !== sa) return sb - sa;
+        // Fallback to quality score for unscored items
+        return (b.evaluation?.quality_score ?? -1) - (a.evaluation?.quality_score ?? -1);
+      }
       if (sort === "score") {
         const sa = a.evaluation?.quality_score ?? -1;
         const sb = b.evaluation?.quality_score ?? -1;
@@ -589,7 +706,7 @@ export function Dashboard({
     });
 
     return result;
-  }, [items, filter, sort, sourceFilter, RELEVANT_TYPES, isRefined, filters, uiFilters, tagFilters, distances]);
+  }, [items, filter, sort, RELEVANT_TYPES, isRefined, filters, uiFilters, tagFilters, distances, personalScores]);
 
   const handleStatusChange = (id: string, newStatus: ListingStatus) => {
     const prevStatus = items.find((i) => i.listing.id === id)?.status;
@@ -768,12 +885,12 @@ export function Dashboard({
           {/* Divider */}
           <div className="w-px h-7 bg-[var(--border-color)] shrink-0" />
 
-          {/* Sort + Source + Filters (outside overflow so dropdowns work) */}
+          {/* Sort + Filters (outside overflow so dropdowns work) */}
           <div className="flex items-center gap-1.5 shrink-0">
             {/* Sort dropdown */}
             <div ref={sortRef} className="relative">
               <button
-                onClick={() => { setSortOpen(!sortOpen); setSourceOpen(false); }}
+                onClick={() => setSortOpen(!sortOpen)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
                   sortOpen
                     ? "border-[var(--primary)] bg-[var(--primary)]/5"
@@ -793,7 +910,7 @@ export function Dashboard({
                   {SORT_OPTIONS.map(({ value, label, icon }) => (
                     <button
                       key={value}
-                      onClick={() => { setSort(value); setSortOpen(false); }}
+                      onClick={() => { setSort(value); setSortOpen(false); if (value === "personal") setShowScoringPanel(true); }}
                       className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
                         sort === value
                           ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
@@ -812,64 +929,6 @@ export function Dashboard({
                 </div>
               )}
             </div>
-
-            {/* Source dropdown */}
-            {sources.length > 1 && (
-              <div ref={sourceRef} className="relative">
-                <button
-                  onClick={() => { setSourceOpen(!sourceOpen); setSortOpen(false); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
-                    sourceOpen
-                      ? "border-[var(--primary)] bg-[var(--primary)]/5"
-                      : "border-[var(--input-border)] bg-[var(--input-bg)] hover:border-[var(--primary)]/50"
-                  }`}
-                >
-                  <span className="font-medium text-[var(--foreground)]">
-                    {sourceFilter === "all" ? "Sources" : sourceFilter}
-                  </span>
-                  <svg className={`w-3 h-3 text-[var(--muted)] transition-transform ${sourceOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {sourceOpen && (
-                  <div className="absolute top-full mt-1.5 right-0 min-w-[200px] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden z-50 animate-fadeIn">
-                    <button
-                      onClick={() => { setSourceFilter("all"); setSourceOpen(false); }}
-                      className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
-                        sourceFilter === "all"
-                          ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
-                          : "text-[var(--foreground)] hover:bg-[var(--surface)]"
-                      }`}
-                    >
-                      <span className="flex-1">Toutes sources</span>
-                      {sourceFilter === "all" && (
-                        <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </button>
-                    {sources.map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => { setSourceFilter(s); setSourceOpen(false); }}
-                        className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
-                          sourceFilter === s
-                            ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
-                            : "text-[var(--foreground)] hover:bg-[var(--surface)]"
-                        }`}
-                      >
-                        <span className="flex-1">{s}</span>
-                        {sourceFilter === s && (
-                          <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Filter toggle */}
             <button
@@ -931,8 +990,10 @@ export function Dashboard({
         onClose={() => setShowFilters(false)}
         uiFilters={uiFilters}
         onUiFiltersChange={setUiFilters}
+        availableCountries={availableCountries}
         availableProvinces={availableProvinces}
         availableListingTypes={availableListingTypes}
+        availableSources={availableSources}
         priceRange={priceRange}
         tagFilters={tagFilters}
         onTagFiltersChange={setTagFilters}
@@ -940,6 +1001,71 @@ export function Dashboard({
         resultCount={filtered.length}
         activeFilterCount={activeFilterCount}
       />
+
+      {/* Personalized scoring panel */}
+      {showScoringPanel && (
+        <div className="mb-4 p-5 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl shadow-sm print:hidden">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-[var(--foreground)]">Scoring personnalis&eacute;</h3>
+            <button
+              onClick={() => setShowScoringPanel(false)}
+              className="text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <p className="text-xs text-[var(--muted)] mb-3">
+            D&eacute;crivez ce que vous cherchez et l&apos;IA &eacute;valuera chaque annonce selon vos crit&egrave;res.
+          </p>
+          <textarea
+            value={personalCriteria}
+            onChange={(e) => setPersonalCriteria(e.target.value)}
+            placeholder="Ex: Je cherche un habitat group&eacute; &eacute;cologique pr&egrave;s de la nature, avec jardin partag&eacute;, pour une famille avec enfants. Budget max 800&euro;/mois. Id&eacute;alement en France ou Belgique."
+            className="w-full px-4 py-3 border border-[var(--border-light)] rounded-xl text-sm bg-[var(--surface)]/50 text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)]/40 transition-all duration-200 resize-none"
+            rows={3}
+          />
+          <div className="flex items-center justify-between mt-3">
+            <div className="text-xs text-[var(--muted)]">
+              {scoringProgress && <span>{scoringProgress}</span>}
+              {personalScores.size > 0 && !scoringLoading && (
+                <span>{personalScores.size} annonces &eacute;valu&eacute;es</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {personalScores.size > 0 && (
+                <button
+                  onClick={() => {
+                    setPersonalScores(new Map());
+                    setPersonalCriteria("");
+                    localStorage.removeItem(PERSONAL_CRITERIA_KEY);
+                    localStorage.removeItem(PERSONAL_SCORES_KEY);
+                    setScoringProgress("");
+                    setSort("score");
+                  }}
+                  className="px-3 py-1.5 text-xs font-medium text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+                >
+                  Effacer
+                </button>
+              )}
+              <button
+                onClick={() => runPersonalizedScoring(personalCriteria, filtered)}
+                disabled={scoringLoading || personalCriteria.length < 10}
+                className="px-4 py-1.5 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {scoringLoading && (
+                  <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                )}
+                {scoringLoading ? "Scoring..." : `Scorer ${filtered.length} annonces`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Compare floating button */}
       {compareIds.length > 0 && (
@@ -996,6 +1122,7 @@ export function Dashboard({
                   onNotesChange={handleNotesChange}
                   onToggleCompare={handleToggleCompare}
                   adjustedScore={undefined}
+                  personalScore={personalScores.get(item.listing.id) ? { score: personalScores.get(item.listing.id)!.score, explanation: personalScores.get(item.listing.id)!.explanation } : null}
                   isHighlighted={hoveredListingId === item.listing.id}
                   isSelected={compareIds.includes(item.listing.id)}
                   distance={distances.get(item.listing.id) ?? null}

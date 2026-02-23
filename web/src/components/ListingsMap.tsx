@@ -13,6 +13,7 @@ import {
   getJitteredCoordinates,
   getListingCoordinates,
 } from "@/lib/coordinates";
+import { escapeHtml, sanitizeUrl } from "@/lib/sanitize";
 
 // --- Pin prix style Airbnb ---
 
@@ -64,14 +65,6 @@ function createClusterIcon(cluster: any): L.DivIcon {
 
 // --- Popup HTML enrichi ---
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 function createPopupContent(item: ListingWithEval): string {
   const { listing, evaluation } = item;
   const imageUrl = listing.images.length > 0 ? listing.images[0] : null;
@@ -109,7 +102,7 @@ function createPopupContent(item: ListingWithEval): string {
   return `<div class="map-popup-content">
     ${
       imageUrl
-        ? `<img src="${imageUrl}" alt="" class="map-popup-img" onerror="this.style.display='none'" />`
+        ? `<img src="${escapeHtml(imageUrl)}" alt="" class="map-popup-img" />`
         : ""
     }
     <div class="map-popup-body">
@@ -133,7 +126,7 @@ function createPopupContent(item: ListingWithEval): string {
       ${concernsHtml}
       <div class="map-popup-actions">
         <a href="/listing/${listing.id}" class="map-popup-link">Voir d\u00e9tail</a>
-        <a href="${listing.source_url}" target="_blank" rel="noopener noreferrer" class="map-popup-link-secondary">Source</a>
+        <a href="${sanitizeUrl(listing.source_url)}" target="_blank" rel="noopener noreferrer" class="map-popup-link-secondary">Source</a>
         <button class="map-popup-archive-btn" data-archive-id="${listing.id}" title="Archiver">
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
         </button>
@@ -173,11 +166,13 @@ export default function ListingsMap({
 }: ListingsMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
-  // Event delegation for archive buttons in Leaflet popups (raw HTML)
+  // Event delegation for archive buttons and image error handling in Leaflet popups
   useEffect(() => {
     const container = mapContainerRef.current;
-    if (!container || !onArchive) return;
+    if (!container) return;
+
     const handleClick = (e: MouseEvent) => {
+      if (!onArchive) return;
       const btn = (e.target as HTMLElement).closest<HTMLElement>(".map-popup-archive-btn");
       if (btn) {
         e.preventDefault();
@@ -186,8 +181,21 @@ export default function ListingsMap({
         if (id) onArchive(id);
       }
     };
+
+    // Hide broken images via event delegation (replaces inline onerror)
+    const handleImgError = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "IMG" && target.classList.contains("map-popup-img")) {
+        target.style.display = "none";
+      }
+    };
+
     container.addEventListener("click", handleClick);
-    return () => container.removeEventListener("click", handleClick);
+    container.addEventListener("error", handleImgError, true);
+    return () => {
+      container.removeEventListener("click", handleClick);
+      container.removeEventListener("error", handleImgError, true);
+    };
   }, [onArchive]);
   const mappableItems = useMemo(() => {
     return items
