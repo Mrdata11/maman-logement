@@ -83,10 +83,47 @@ export interface RetreatVenue {
   min_stay_nights: number | null;
   lead_time_weeks: number | null;
 
+  // Languages spoken by staff
+  languages_spoken: string[];
+
+  // Booking & policies
+  cancellation_policy: string | null;
+  deposit_required: string | null;
+  group_discount: boolean | null;
+  suggested_durations: number[];       // e.g. [3, 5, 7] nights
+  seasonal_availability: string | null; // e.g. "Mai-Octobre"
+
+  // Specialized equipment
+  specialized_equipment: string[];
+
+  // Environment & rules
+  ceremonies_allowed: boolean | null;   // encens, bougies, rituels
+  silence_policy: string | null;
+  noise_level: string | null;          // "very_quiet" | "quiet" | "moderate" | "lively"
+  climate_info: string | null;
+
+  // Safety
+  nearest_hospital_km: number | null;
+
+  // Track record
+  retreats_hosted_count: number | null;
+  testimonials: RetreatTestimonial[];
+
+  // Hire model
+  exclusive_hire_only: boolean | null;
+
   // Metadata
   original_language: string | null;
   date_scraped: string;
   is_claimed: boolean;
+}
+
+export interface RetreatTestimonial {
+  author: string;
+  role: string;           // e.g. "Professeur de Reiki", "Yoga teacher"
+  text: string;
+  rating: number;         // 1-5
+  date: string;           // ISO date
 }
 
 export interface RetreatCriteriaScores {
@@ -167,6 +204,7 @@ export interface RetreatVenueWithEval {
 export interface RetreatFilterState {
   searchText: string;
   countries: string[];
+  languages: string[];
   settings: string[];
   styles: string[];
   capacityMin: number | null;
@@ -181,11 +219,14 @@ export interface RetreatFilterState {
   scoreMin: number | null;
   accommodationTypes: string[];
   outdoorSpaces: string[];
+  specializedEquipment: string[];
+  ceremoniesAllowed: boolean | null;
 }
 
 export const DEFAULT_RETREAT_FILTERS: RetreatFilterState = {
   searchText: "",
   countries: [],
+  languages: [],
   settings: [],
   styles: [],
   capacityMin: null,
@@ -200,6 +241,8 @@ export const DEFAULT_RETREAT_FILTERS: RetreatFilterState = {
   scoreMin: null,
   accommodationTypes: [],
   outdoorSpaces: [],
+  specializedEquipment: [],
+  ceremoniesAllowed: null,
 };
 
 // === Labels (French) ===
@@ -387,6 +430,59 @@ export const ALCOHOL_POLICY_LABELS: Record<string, string> = {
   allowed: "Autoris\u00e9",
   not_allowed: "Interdit",
   limited: "Limit\u00e9",
+};
+
+export const LANGUAGE_LABELS: Record<string, string> = {
+  fr: "Fran\u00e7ais",
+  en: "Anglais",
+  es: "Espagnol",
+  pt: "Portugais",
+  it: "Italien",
+  de: "Allemand",
+  nl: "N\u00e9erlandais",
+  th: "Tha\u00ef",
+  id: "Indon\u00e9sien",
+  el: "Grec",
+  ar: "Arabe",
+};
+
+export const LANGUAGE_FLAGS: Record<string, string> = {
+  fr: "\ud83c\uddeb\ud83c\uddf7",
+  en: "\ud83c\uddec\ud83c\udde7",
+  es: "\ud83c\uddea\ud83c\uddf8",
+  pt: "\ud83c\uddf5\ud83c\uddf9",
+  it: "\ud83c\uddee\ud83c\uddf9",
+  de: "\ud83c\udde9\ud83c\uddea",
+  nl: "\ud83c\uddf3\ud83c\uddf1",
+  th: "\ud83c\uddf9\ud83c\udded",
+  id: "\ud83c\uddee\ud83c\udde9",
+  el: "\ud83c\uddec\ud83c\uddf7",
+  ar: "\ud83c\uddf2\ud83c\udde6",
+};
+
+export const SPECIALIZED_EQUIPMENT_LABELS: Record<string, string> = {
+  singing_bowls: "Bols tib\u00e9tains / chantants",
+  gongs: "Gongs",
+  crystal_bowls: "Bols en cristal",
+  yoga_props: "Props yoga (bolsters, blocs, sangles)",
+  meditation_cushions: "Coussins de méditation",
+  massage_tables: "Tables de massage",
+  reiki_tables: "Tables de Reiki",
+  essential_oils: "Huiles essentielles / diffuseurs",
+  incense: "Encens",
+  candles: "Bougies / \u00e9clairage tamisable",
+  altar_space: "Espace autel",
+  blankets: "Couvertures / plaids",
+  heating: "Chauffage dans les salles",
+  air_conditioning: "Climatisation",
+  blackout: "Occultation (stores / rideaux opaques)",
+};
+
+export const NOISE_LEVEL_LABELS: Record<string, string> = {
+  very_quiet: "Tr\u00e8s calme (isol\u00e9)",
+  quiet: "Calme",
+  moderate: "Mod\u00e9r\u00e9",
+  lively: "Anim\u00e9",
 };
 
 export const PRICE_BRACKET_LABELS: Record<string, string> = {

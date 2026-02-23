@@ -6,26 +6,38 @@ import {
 } from "./types";
 import { haversineDistance, IXELLES_CENTER } from "./coordinates";
 
+// Module-level cache to avoid re-reading JSON files on every call
+let _dataDirCache: string | null = null;
+let _apartmentDirCache: string | null = null;
+const _jsonCache = new Map<string, unknown[]>();
+
 function findDataDir(): string {
+  if (_dataDirCache) return _dataDirCache;
   const candidates = [
-    path.join(process.cwd(), "..", "data"),        // Local dev (cwd = web/)
-    path.join(process.cwd(), "data"),               // Vercel (cwd = root)
-    path.join(process.cwd(), "public", "data"),     // Copied to public/data/
+    path.join(process.cwd(), "..", "data"),
+    path.join(process.cwd(), "data"),
+    path.join(process.cwd(), "public", "data"),
   ];
   for (const dir of candidates) {
     if (fs.existsSync(path.join(dir, "listings.json"))) {
+      _dataDirCache = dir;
       return dir;
     }
   }
-  return candidates[0]; // Fallback
+  _dataDirCache = candidates[0];
+  return candidates[0];
 }
 
 function readJSON<T>(filename: string, fallback: T[]): T[] {
+  const cacheKey = `main:${filename}`;
+  if (_jsonCache.has(cacheKey)) return _jsonCache.get(cacheKey) as T[];
   const dataDir = findDataDir();
   const filepath = path.join(dataDir, filename);
   try {
     const content = fs.readFileSync(filepath, "utf-8");
-    return JSON.parse(content);
+    const parsed = JSON.parse(content) as T[];
+    _jsonCache.set(cacheKey, parsed);
+    return parsed;
   } catch {
     return fallback;
   }
@@ -36,7 +48,14 @@ export function getListings(): Listing[] {
 }
 
 export function getEvaluations(): Evaluation[] {
-  return readJSON<Evaluation>("evaluations.json", []);
+  // Normalize field names: data uses overall_score/match_summary,
+  // but the app types expect quality_score/quality_summary
+  const raw = readJSON<Record<string, unknown>>("evaluations.json", []);
+  return raw.map((e) => ({
+    ...e,
+    quality_score: (e.quality_score ?? e.overall_score ?? 0) as number,
+    quality_summary: (e.quality_summary ?? e.match_summary ?? "") as string,
+  })) as unknown as Evaluation[];
 }
 
 export function getTags(): ListingTags[] {
@@ -67,6 +86,7 @@ export function getListingById(id: string): ListingWithEval | null {
 // === Apartment data loading ===
 
 function findApartmentDataDir(): string {
+  if (_apartmentDirCache) return _apartmentDirCache;
   const candidates = [
     path.join(process.cwd(), "..", "data", "apartments"),
     path.join(process.cwd(), "data", "apartments"),
@@ -74,18 +94,24 @@ function findApartmentDataDir(): string {
   ];
   for (const dir of candidates) {
     if (fs.existsSync(path.join(dir, "listings.json"))) {
+      _apartmentDirCache = dir;
       return dir;
     }
   }
+  _apartmentDirCache = candidates[0];
   return candidates[0];
 }
 
 function readApartmentJSON<T>(filename: string, fallback: T[]): T[] {
+  const cacheKey = `apt:${filename}`;
+  if (_jsonCache.has(cacheKey)) return _jsonCache.get(cacheKey) as T[];
   const dataDir = findApartmentDataDir();
   const filepath = path.join(dataDir, filename);
   try {
     const content = fs.readFileSync(filepath, "utf-8");
-    return JSON.parse(content);
+    const parsed = JSON.parse(content) as T[];
+    _jsonCache.set(cacheKey, parsed);
+    return parsed;
   } catch {
     return fallback;
   }

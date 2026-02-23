@@ -22,18 +22,18 @@ function formatPinPrice(
   price: string | null,
 ): string {
   if (priceAmount) {
-    if (priceAmount >= 1000) return `${Math.round(priceAmount / 1000)}k\u20ac`;
-    return `${priceAmount}\u20ac`;
+    if (priceAmount >= 1000) return `${Math.round(priceAmount / 1000)}k€`;
+    return `${priceAmount}€`;
   }
   if (price) {
     const match = price.match(/(\d[\d\s]*)/);
     if (match) {
       const num = parseInt(match[1].replace(/\s/g, ""));
-      if (num >= 1000) return `${Math.round(num / 1000)}k\u20ac`;
-      return `${num}\u20ac`;
+      if (num >= 1000) return `${Math.round(num / 1000)}k€`;
+      return `${num}€`;
     }
   }
-  return "\u2022";
+  return "•";
 }
 
 function createPricePinIcon(label: string, isHighlighted: boolean): L.DivIcon {
@@ -118,14 +118,14 @@ function createPopupContent(item: ListingWithEval): string {
       <div class="map-popup-meta">
         ${listing.price ? `<span class="map-popup-price">${escapeHtml(listing.price)}</span>` : ""}
         <span class="map-popup-location-text">
-          ${escapeHtml(listing.location || "")}${listing.province && listing.province !== listing.location ? " \u00b7 " + escapeHtml(listing.province) : ""}
+          ${escapeHtml(listing.location || "")}${listing.province && listing.province !== listing.location ? " · " + escapeHtml(listing.province) : ""}
         </span>
       </div>
       ${summaryHtml}
       ${highlightsHtml}
       ${concernsHtml}
       <div class="map-popup-actions">
-        <a href="/listing/${listing.id}" class="map-popup-link">Voir d\u00e9tail</a>
+        <a href="/listing/${listing.id}" class="map-popup-link">Voir détail</a>
         <a href="${sanitizeUrl(listing.source_url)}" target="_blank" rel="noopener noreferrer" class="map-popup-link-secondary">Source</a>
         <button class="map-popup-archive-btn" data-archive-id="${listing.id}" title="Archiver">
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
@@ -286,7 +286,7 @@ export default function ListingsMap({
       {unmappableCount > 0 && (
         <div className="absolute bottom-2 left-2 bg-[var(--card-bg)]/90 text-xs text-[var(--muted)] px-2 py-1 rounded shadow">
           {unmappableCount} annonce{unmappableCount > 1 ? "s" : ""} sans
-          localisation pr\u00e9cise
+          localisation précise
         </div>
       )}
     </div>

@@ -185,7 +185,7 @@ export default function ParametresPage() {
           disabled={saving}
           className="mt-6 w-full px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
         >
-          {saved ? "Enregistr\u00e9 !" : saving ? "Enregistrement..." : "Enregistrer"}
+          {saved ? "Enregistré !" : saving ? "Enregistrement..." : "Enregistrer"}
         </button>
       </div>
 

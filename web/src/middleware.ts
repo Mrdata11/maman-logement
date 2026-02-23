@@ -50,6 +50,9 @@ const AUTH_REQUIRED_ROUTES = [
   "/api/voice-profile",
   "/api/voice-creation",
   "/api/profiles/generate-summary",
+  "/api/screening/configs",
+  "/api/screening/sessions",
+  "/api/screening/complete",
 ];
 
 export async function middleware(request: NextRequest) {

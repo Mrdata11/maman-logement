@@ -11,6 +11,7 @@ import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
 import { createClient } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import { AuthButton } from "./AuthButton";
+import { ProfilePhotoGallery } from "./ProfilePhotoGallery";
 
 interface ProfileDetailProps {
   profile: Profile;
@@ -19,8 +20,6 @@ interface ProfileDetailProps {
 export function ProfileDetail({ profile }: ProfileDetailProps) {
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
-
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [emailRevealed, setEmailRevealed] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
@@ -88,7 +87,6 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
     } catch {}
   };
 
-
   // Build detailed questionnaire display
   const questionnaireDetails: { label: string; value: string }[] = [];
   for (const step of QUESTIONNAIRE_STEPS) {
@@ -126,385 +124,285 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
   }));
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto">
       {/* Navigation row */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <a
           href="/profils"
-          className="inline-flex items-center gap-1 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           Retour aux profils
         </a>
         <button
           onClick={handleShare}
-          className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors px-3 py-1.5 border border-[var(--border-color)] rounded-lg"
+          className="inline-flex items-center gap-1.5 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors px-3 py-1.5 border border-[var(--border-color)] rounded-lg hover:bg-[var(--card-bg)]"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-            />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
           </svg>
-          {linkCopied ? "Lien copi\u00e9 !" : "Partager"}
+          {linkCopied ? "Lien copie !" : "Partager"}
         </button>
       </div>
 
-      {/* Header section */}
-      <div className="space-y-4">
-        <div className="flex items-start gap-4">
-          {profile.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt=""
-              className="w-20 h-20 rounded-full object-cover shrink-0"
-            />
-          ) : (
-            <div className="w-20 h-20 rounded-full bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
-              <span className="text-xl font-bold text-[var(--primary)]">
-                {initials}
-              </span>
-            </div>
-          )}
-          <div className="min-w-0 pt-1">
-            <h1 className="text-2xl font-bold text-[var(--foreground)]">
-              {profile.display_name}
-            </h1>
-            {demographicParts.length > 0 && (
-              <p className="text-sm text-[var(--foreground)]/70 mt-0.5">
-                {demographicParts.join(" \u00B7 ")}
-              </p>
-            )}
-            {profile.location && (
-              <p className="text-[var(--muted)] flex items-center gap-1 mt-0.5">
-                <svg
-                  className="w-4 h-4 shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                {profile.location}
-              </p>
-            )}
-          </div>
-        </div>
+      {/* Photo gallery - full width */}
+      <ProfilePhotoGallery photos={photos} displayName={profile.display_name} />
 
-        {/* AI Summary */}
-        {profile.ai_summary && (
-          <p className="text-[var(--foreground)] leading-relaxed italic">
-            &laquo; {profile.ai_summary} &raquo;
-          </p>
-        )}
-
-        {/* AI Tags */}
-        {profile.ai_tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {profile.ai_tags.map((tag, i) => (
-              <span
-                key={i}
-                className="text-sm px-2.5 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full font-medium"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Photo gallery */}
-      {photos.length > 0 && (
-        <div>
-          <div
-            className={`grid gap-2 ${
-              photos.length === 1
-                ? "grid-cols-1"
-                : photos.length === 2
-                  ? "grid-cols-2"
-                  : "grid-cols-2 sm:grid-cols-3"
-            }`}
-          >
-            {photos.map((url, i) => (
-              <button
-                key={i}
-                onClick={() => setLightboxIndex(i)}
-                className={`relative overflow-hidden rounded-xl ${
-                  photos.length === 1 ? "aspect-[16/9]" : "aspect-square"
-                } group`}
-              >
+      {/* Content: main + sidebar */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
+        {/* Left column: profile info */}
+        <div className="space-y-8 min-w-0">
+          {/* Header */}
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              {profile.avatar_url ? (
                 <img
-                  src={url}
-                  alt={`Photo ${i + 1} de ${profile.display_name}`}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                  loading="lazy"
+                  src={profile.avatar_url}
+                  alt=""
+                  className="w-16 h-16 rounded-full object-cover shrink-0 ring-2 ring-[var(--border-color)]"
                 />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Lightbox */}
-      {lightboxIndex !== null && photos.length > 0 && (
-        <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setLightboxIndex(null)}
-        >
-          <button
-            onClick={() => setLightboxIndex(null)}
-            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors p-2"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          {photos.length > 1 && (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setLightboxIndex((lightboxIndex - 1 + photos.length) % photos.length);
-                }}
-                className="absolute left-4 text-white/70 hover:text-white transition-colors p-2"
-              >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setLightboxIndex((lightboxIndex + 1) % photos.length);
-                }}
-                className="absolute right-4 text-white/70 hover:text-white transition-colors p-2"
-              >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </>
-          )}
-          <img
-            src={photos[lightboxIndex]}
-            alt=""
-            className="max-w-full max-h-[85vh] object-contain rounded-lg"
-            onClick={(e) => e.stopPropagation()}
-          />
-          {photos.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
-              {lightboxIndex + 1} / {photos.length}
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-[var(--primary)]/10 flex items-center justify-center shrink-0 ring-2 ring-[var(--primary)]/20">
+                  <span className="text-lg font-bold text-[var(--primary)]">
+                    {initials}
+                  </span>
+                </div>
+              )}
+              <div className="min-w-0 pt-0.5">
+                <h1 className="text-2xl font-bold text-[var(--foreground)] leading-tight">
+                  {profile.display_name}
+                </h1>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+                  {demographicParts.length > 0 && (
+                    <span className="text-sm text-[var(--foreground)]/70">
+                      {demographicParts.join(" · ")}
+                    </span>
+                  )}
+                  {profile.location && (
+                    <span className="text-sm text-[var(--muted)] flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {profile.location}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-      )}
 
-      {/* Introduction - single flowing section */}
-      {introSections.length > 0 && (
-        <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8">
-          {introSections.map((section, i) => (
-            <div
-              key={section.id}
-              className={i > 0 ? "mt-6 pt-6 border-t border-[var(--border-color)]" : ""}
-            >
-              <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide mb-2 flex items-center gap-2">
-                <span className="text-base">{section.icon}</span>
-                {section.title}
-              </h3>
-              <p className="text-[var(--foreground)] leading-relaxed">
-                {section.content}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Questionnaire details */}
-      {questionnaireDetails.length > 0 && (
-        <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 space-y-5">
-          <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide flex items-center gap-2">
-            <span className="text-base">{"\u{1F50D}"}</span>
-            Ce que {profile.display_name} recherche
-          </h3>
-
-          {/* Visual summary grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {display.budget_range && (
-              <div className="bg-[var(--surface)] rounded-lg p-3 text-center">
-                <p className="text-xs text-[var(--muted)]">Budget</p>
-                <p className="text-sm font-semibold text-[var(--foreground)]">
-                  {display.budget_range}
-                </p>
-              </div>
+            {/* AI Summary */}
+            {profile.ai_summary && (
+              <blockquote className="text-[var(--foreground)]/90 leading-relaxed italic border-l-3 border-[var(--primary)]/30 pl-4">
+                {profile.ai_summary}
+              </blockquote>
             )}
-            {display.community_size && (
-              <div className="bg-[var(--surface)] rounded-lg p-3 text-center">
-                <p className="text-xs text-[var(--muted)]">
-                  Communaut&eacute;
-                </p>
-                <p className="text-sm font-semibold text-[var(--foreground)]">
-                  {display.community_size}
-                </p>
-              </div>
-            )}
-            {display.preferred_regions.length > 0 && (
-              <div className="bg-[var(--surface)] rounded-lg p-3 text-center">
-                <p className="text-xs text-[var(--muted)]">
-                  R&eacute;gion
-                </p>
-                <p className="text-sm font-semibold text-[var(--foreground)]">
-                  {display.preferred_regions.join(", ")}
-                </p>
-              </div>
-            )}
-          </div>
 
-          {/* Values as pills */}
-          {display.core_values.length > 0 && (
-            <div>
-              <p className="text-xs text-[var(--muted)] mb-1.5">
-                Valeurs essentielles
-              </p>
+            {/* AI Tags */}
+            {profile.ai_tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
-                {display.core_values.map((v, i) => (
+                {profile.ai_tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="text-sm px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full font-medium"
+                    className="text-xs px-2.5 py-1 bg-[var(--primary)]/8 text-[var(--primary)] rounded-full font-medium"
                   >
-                    {v}
+                    {tag}
                   </span>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* Detailed Q&A in collapsible section */}
-          <details className="group">
-            <summary className="cursor-pointer text-sm text-[var(--primary)] font-medium hover:text-[var(--primary-hover)] transition-colors list-none flex items-center gap-1">
-              Voir toutes les r&eacute;ponses
-              <svg
-                className="w-4 h-4 transition-transform group-open:rotate-180"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </summary>
-            <div className="grid gap-3 mt-3 pt-3 border-t border-[var(--border-color)]">
-              {questionnaireDetails.map((d, i) => (
-                <div key={i} className="flex flex-col sm:flex-row sm:gap-4">
-                  <span className="text-xs text-[var(--muted)] sm:w-1/2 shrink-0">
-                    {d.label}
-                  </span>
-                  <span className="text-sm text-[var(--foreground)] font-medium">
-                    {d.value}
-                  </span>
+          {/* Separator */}
+          <hr className="border-[var(--border-color)]" />
+
+          {/* Introduction sections */}
+          {introSections.length > 0 && (
+            <div className="space-y-6">
+              {introSections.map((section) => (
+                <div key={section.id}>
+                  <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide mb-2 flex items-center gap-2">
+                    <span className="text-base">{section.icon}</span>
+                    {section.title}
+                  </h3>
+                  <p className="text-[var(--foreground)]/90 leading-relaxed">
+                    {section.content}
+                  </p>
                 </div>
               ))}
             </div>
-          </details>
-        </div>
-      )}
+          )}
 
-      {/* Contact section */}
-      <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 space-y-4">
-        <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide">
-          Contacter {profile.display_name}
-        </h3>
+          {/* Separator */}
+          {questionnaireDetails.length > 0 && <hr className="border-[var(--border-color)]" />}
 
-        {emailRevealed ? (
-          <>
-            <div className="flex items-center gap-2 p-3 bg-[var(--surface)] rounded-lg">
-              <svg
-                className="w-4 h-4 text-[var(--muted)] shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-              <a
-                href={`mailto:${profile.contact_email}`}
-                className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors font-medium"
-              >
-                {profile.contact_email}
-              </a>
-              <button
-                onClick={copyEmail}
-                className="ml-auto text-xs px-2.5 py-1 border border-[var(--border-color)] text-[var(--muted)] rounded-md hover:bg-[var(--card-bg)] transition-colors"
-              >
-                {copied ? "Copi\u00e9 !" : "Copier"}
-              </button>
+          {/* Questionnaire details */}
+          {questionnaireDetails.length > 0 && (
+            <div className="space-y-5">
+              <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide flex items-center gap-2">
+                <span className="text-base">{"\u{1F50D}"}</span>
+                Ce que {profile.display_name} recherche
+              </h3>
+
+              {/* Visual summary grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {display.budget_range && (
+                  <div className="bg-[var(--surface)] rounded-xl p-3.5 text-center">
+                    <p className="text-xs text-[var(--muted)] mb-0.5">Budget</p>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      {display.budget_range}
+                    </p>
+                  </div>
+                )}
+                {display.community_size && (
+                  <div className="bg-[var(--surface)] rounded-xl p-3.5 text-center">
+                    <p className="text-xs text-[var(--muted)] mb-0.5">Communaut&eacute;</p>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      {display.community_size}
+                    </p>
+                  </div>
+                )}
+                {display.preferred_regions.length > 0 && (
+                  <div className="bg-[var(--surface)] rounded-xl p-3.5 text-center">
+                    <p className="text-xs text-[var(--muted)] mb-0.5">R&eacute;gion</p>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      {display.preferred_regions.join(", ")}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Values as pills */}
+              {display.core_values.length > 0 && (
+                <div>
+                  <p className="text-xs text-[var(--muted)] mb-1.5">Valeurs essentielles</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {display.core_values.map((v, i) => (
+                      <span
+                        key={i}
+                        className="text-sm px-3 py-1 bg-[var(--primary)]/8 text-[var(--primary)] rounded-full font-medium"
+                      >
+                        {v}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Detailed Q&A in collapsible section */}
+              <details className="group">
+                <summary className="cursor-pointer text-sm text-[var(--primary)] font-medium hover:text-[var(--primary-hover)] transition-colors list-none flex items-center gap-1">
+                  Voir toutes les r&eacute;ponses
+                  <svg
+                    className="w-4 h-4 transition-transform group-open:rotate-180"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="grid gap-3 mt-3 pt-3 border-t border-[var(--border-color)]">
+                  {questionnaireDetails.map((d, i) => (
+                    <div key={i} className="flex flex-col sm:flex-row sm:gap-4">
+                      <span className="text-xs text-[var(--muted)] sm:w-1/2 shrink-0">
+                        {d.label}
+                      </span>
+                      <span className="text-sm text-[var(--foreground)] font-medium">
+                        {d.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </details>
             </div>
-            <p className="text-sm text-[var(--muted)]">
-              N&apos;h&eacute;sitez pas &agrave; envoyer un petit mot pour faire connaissance.
-            </p>
-            <a
-              href={`mailto:${profile.contact_email}`}
-              className="inline-block px-6 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
-            >
-              Envoyer un email
-            </a>
-          </>
-        ) : (
-          <>
-            <p className="text-sm text-[var(--muted)]">
-              {user
-                ? "Cliquez pour voir les coordonn\u00e9es de contact."
-                : "Connectez-vous pour voir les coordonn\u00e9es de contact."}
-            </p>
-            <button
-              onClick={handleContactClick}
-              className="px-6 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Voir les coordonn&eacute;es
-            </button>
-          </>
-        )}
+          )}
+
+          {/* Profile date */}
+          <p className="text-xs text-[var(--muted)] pt-4 border-t border-[var(--border-color)]">
+            Profil cr&eacute;&eacute; le{" "}
+            {new Date(profile.created_at).toLocaleDateString("fr-BE", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+        </div>
+
+        {/* Right column: sticky contact card */}
+        <div className="lg:sticky lg:top-6">
+          <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-5 sm:p-6 shadow-[var(--card-shadow)] space-y-4">
+            <h3 className="font-semibold text-[var(--foreground)]">
+              Contacter {profile.display_name}
+            </h3>
+
+            {emailRevealed ? (
+              <>
+                <div className="flex items-center gap-2 p-3 bg-[var(--surface)] rounded-lg">
+                  <svg className="w-4 h-4 text-[var(--muted)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <a
+                    href={`mailto:${profile.contact_email}`}
+                    className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors font-medium truncate"
+                  >
+                    {profile.contact_email}
+                  </a>
+                  <button
+                    onClick={copyEmail}
+                    className="ml-auto text-xs px-2.5 py-1 border border-[var(--border-color)] text-[var(--muted)] rounded-md hover:bg-[var(--surface)] transition-colors shrink-0"
+                  >
+                    {copied ? "Copie !" : "Copier"}
+                  </button>
+                </div>
+                <p className="text-xs text-[var(--muted)]">
+                  N&apos;h&eacute;sitez pas &agrave; envoyer un petit mot pour faire connaissance.
+                </p>
+                <a
+                  href={`mailto:${profile.contact_email}`}
+                  className="block w-full text-center px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+                >
+                  Envoyer un email
+                </a>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-[var(--muted)]">
+                  {user
+                    ? "Cliquez pour voir les coordonnees de contact."
+                    : "Connectez-vous pour voir les coordonnees de contact."}
+                </p>
+                <button
+                  onClick={handleContactClick}
+                  className="w-full px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Voir les coordonn&eacute;es
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Quick stats under contact card */}
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {display.budget_range && (
+              <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-3 text-center">
+                <p className="text-xs text-[var(--muted)]">Budget</p>
+                <p className="text-sm font-semibold text-[var(--foreground)] mt-0.5">{display.budget_range}</p>
+              </div>
+            )}
+            {profile.location && (
+              <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-3 text-center">
+                <p className="text-xs text-[var(--muted)]">Localisation</p>
+                <p className="text-sm font-semibold text-[var(--foreground)] mt-0.5">{profile.location}</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Auth prompt modal */}
@@ -540,17 +438,6 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
           </div>
         </div>
       )}
-
-      {/* Profile date */}
-      <p className="text-xs text-[var(--muted)] text-center pb-16">
-        Profil cr&eacute;&eacute; le{" "}
-        {new Date(profile.created_at).toLocaleDateString("fr-BE", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        })}
-      </p>
-
     </div>
   );
 }

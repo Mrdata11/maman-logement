@@ -141,3 +141,43 @@ export const generateSummarySchema = z.object({
     })
     .optional(),
 });
+
+// /api/screening/configs
+export const screeningConfigCreateSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().max(2000).nullable().optional(),
+  questions: z
+    .array(
+      z.object({
+        id: z.string().max(100),
+        text: z.string().min(1).max(500),
+        followUp: z.string().max(500).optional(),
+        required: z.boolean(),
+        order: z.number().int().min(0),
+      })
+    )
+    .min(1)
+    .max(20),
+  voice_id: z.string().max(100).optional(),
+  language: z.string().max(10).optional(),
+});
+
+export const screeningConfigUpdateSchema = screeningConfigCreateSchema.partial();
+
+// /api/screening/sessions
+export const screeningSessionCreateSchema = z.object({
+  config_id: z.string().uuid(),
+  candidate_name: z.string().min(1).max(200),
+  candidate_email: z.string().email().max(300).nullable().optional(),
+});
+
+// /api/screening/agent (public, validated by token)
+export const screeningAgentSchema = z.object({
+  token: z.string().min(32).max(128),
+});
+
+// /api/screening/complete
+export const screeningCompleteSchema = z.object({
+  session_id: z.string().uuid(),
+  conversation_id: z.string().max(200),
+});

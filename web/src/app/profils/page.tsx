@@ -8,6 +8,7 @@ import {
 } from "@/lib/profile-types";
 import { ProfileCard } from "@/components/ProfileCard";
 import { ProfileFilterModal } from "@/components/ProfileFilterModal";
+import { Pagination } from "@/components/Pagination";
 import {
   ProfileUIFilters,
   ProfileTagFilters,
@@ -52,6 +53,7 @@ const SORT_LABELS: Record<ProfileSort, string> = {
   location: "Lieu",
 };
 
+const PROFILES_PER_PAGE = 12;
 const PROFILE_STATES_KEY = "profile_states";
 
 const DEMO_PROFILES: ProfileCardType[] = [
@@ -63,13 +65,13 @@ const DEMO_PROFILES: ProfileCardType[] = [
     age: 62,
     gender: "femme",
     sexuality: null,
-    ai_summary: "Marie, 62 ans, ancienne enseignante, cherche un habitat group\u00e9 chaleureux pr\u00e8s de Bruxelles. Passionn\u00e9e de jardinage et de biodanza, elle r\u00eave d'un lieu o\u00f9 le partage et la bienveillance sont au coeur du quotidien.",
-    ai_tags: ["Pr\u00e8s de Bruxelles", "Jardin partag\u00e9", "Biodanza", "Spiritualit\u00e9", "Budget modeste"],
-    budget_range: "max 700\u20ac/mois",
+    ai_summary: "Marie, 62 ans, ancienne enseignante, cherche un habitat groupé chaleureux près de Bruxelles. Passionnée de jardinage et de biodanza, elle rêve d'un lieu où le partage et la bienveillance sont au coeur du quotidien.",
+    ai_tags: ["Près de Bruxelles", "Jardin partagé", "Biodanza", "Spiritualité", "Budget modeste"],
+    budget_range: "max 700€/mois",
     preferred_regions: ["Bruxelles", "Brabant Wallon"],
     community_size: "Moyen (8-15)",
-    core_values: ["Solidarit\u00e9", "Spiritualit\u00e9", "Ecologie"],
-    intro_snippet: "Je m'appelle Marie, j'ai 62 ans et je vis \u00e0 Ixelles depuis plus de 20 ans. Ancienne enseignante de fran\u00e7ais, je suis maintenant retrait\u00e9e et je profite de mon temps pour me consacrer \u00e0 mes passions...",
+    core_values: ["Solidarité", "Spiritualité", "Ecologie"],
+    intro_snippet: "Je m'appelle Marie, j'ai 62 ans et je vis à Ixelles depuis plus de 20 ans. Ancienne enseignante de français, je suis maintenant retraitée et je profite de mon temps pour me consacrer à mes passions...",
     created_at: "2026-02-20T10:00:00Z",
     questionnaire_answers: {
       setting_type: "urban_green",
@@ -93,13 +95,13 @@ const DEMO_PROFILES: ProfileCardType[] = [
     age: 68,
     gender: "homme",
     sexuality: null,
-    ai_summary: "Jean-Pierre, retrait\u00e9 dynamique de 68 ans, cherche un \u00e9colieu o\u00f9 il pourrait mettre \u00e0 profit ses comp\u00e9tences en menuiserie. Il souhaite un cadre semi-rural avec un potager collectif et des repas partag\u00e9s.",
-    ai_tags: ["Semi-rural", "Potager", "Menuiserie", "Repas partag\u00e9s", "Interg\u00e9n\u00e9rationnel"],
-    budget_range: "max 600\u20ac/mois",
+    ai_summary: "Jean-Pierre, retraité dynamique de 68 ans, cherche un écolieu où il pourrait mettre à profit ses compétences en menuiserie. Il souhaite un cadre semi-rural avec un potager collectif et des repas partagés.",
+    ai_tags: ["Semi-rural", "Potager", "Menuiserie", "Repas partagés", "Intergénérationnel"],
+    budget_range: "max 600€/mois",
     preferred_regions: ["Namur", "Luxembourg"],
     community_size: "Petit (4-8)",
     core_values: ["Ecologie", "Autonomie", "Respect"],
-    intro_snippet: "Je suis Jean-Pierre, 68 ans, retrait\u00e9 depuis 3 ans. J'ai travaill\u00e9 toute ma vie comme menuisier \u00e0 Namur. Je vis seul depuis le d\u00e9c\u00e8s de ma femme il y a 5 ans...",
+    intro_snippet: "Je suis Jean-Pierre, 68 ans, retraité depuis 3 ans. J'ai travaillé toute ma vie comme menuisier à Namur. Je vis seul depuis le décès de ma femme il y a 5 ans...",
     created_at: "2026-02-18T14:30:00Z",
     questionnaire_answers: {
       setting_type: "semi_rural",
@@ -119,17 +121,17 @@ const DEMO_PROFILES: ProfileCardType[] = [
     id: "demo-3",
     display_name: "Sofia",
     avatar_url: "https://randomuser.me/api/portraits/women/44.jpg",
-    location: "Li\u00e8ge",
+    location: "Liège",
     age: 45,
     gender: "femme",
     sexuality: null,
-    ai_summary: "Sofia, 45 ans, artiste et m\u00e8re de deux enfants, recherche une communaut\u00e9 ouverte et cr\u00e9ative. Elle aimerait un espace o\u00f9 ses enfants grandissent entour\u00e9s d'adultes bienveillants, avec des ateliers et de la musique.",
-    ai_tags: ["Famille", "Ateliers cr\u00e9atifs", "Enfants bienvenus", "Musique", "Ouverture"],
-    budget_range: "max 850\u20ac/mois",
-    preferred_regions: ["Li\u00e8ge", "Bruxelles"],
+    ai_summary: "Sofia, 45 ans, artiste et mère de deux enfants, recherche une communauté ouverte et créative. Elle aimerait un espace où ses enfants grandissent entourés d'adultes bienveillants, avec des ateliers et de la musique.",
+    ai_tags: ["Famille", "Ateliers créatifs", "Enfants bienvenus", "Musique", "Ouverture"],
+    budget_range: "max 850€/mois",
+    preferred_regions: ["Liège", "Bruxelles"],
     community_size: "Moyen (8-15)",
-    core_values: ["Cr\u00e9ativit\u00e9", "Ouverture", "Solidarit\u00e9"],
-    intro_snippet: "Je suis Sofia, 45 ans, artiste plasticienne et m\u00e8re de Noa (12 ans) et Lila (8 ans). On vit \u00e0 Li\u00e8ge dans un appartement qui devient trop petit et trop isol\u00e9...",
+    core_values: ["Créativité", "Ouverture", "Solidarité"],
+    intro_snippet: "Je suis Sofia, 45 ans, artiste plasticienne et mère de Noa (12 ans) et Lila (8 ans). On vit à Liège dans un appartement qui devient trop petit et trop isolé...",
     created_at: "2026-02-15T09:00:00Z",
     questionnaire_answers: {
       setting_type: "urban_green",
@@ -153,13 +155,13 @@ const DEMO_PROFILES: ProfileCardType[] = [
     age: 33,
     gender: null,
     sexuality: null,
-    ai_summary: "Couple trentenaire sans enfants, Thomas et Claire cherchent un habitat group\u00e9 \u00e9cologique o\u00f9 ils pourront s'impliquer activement. Lui est d\u00e9veloppeur, elle est infirmi\u00e8re. Ils r\u00eavent de permaculture et de gouvernance partag\u00e9e.",
-    ai_tags: ["Permaculture", "\u00c9cologique", "Couple", "Gouvernance partag\u00e9e", "Engag\u00e9s"],
-    budget_range: "max 900\u20ac/mois",
+    ai_summary: "Couple trentenaire sans enfants, Thomas et Claire cherchent un habitat groupé écologique où ils pourront s'impliquer activement. Lui est développeur, elle est infirmière. Ils rêvent de permaculture et de gouvernance partagée.",
+    ai_tags: ["Permaculture", "Écologique", "Couple", "Gouvernance partagée", "Engagés"],
+    budget_range: "max 900€/mois",
     preferred_regions: ["Brabant Wallon", "Bruxelles"],
     community_size: "Grand (15+)",
-    core_values: ["Ecologie", "D\u00e9mocratie", "Solidarit\u00e9", "Autonomie"],
-    intro_snippet: "On est Thomas (33 ans, d\u00e9veloppeur web) et Claire (31 ans, infirmi\u00e8re). On vit ensemble depuis 8 ans \u00e0 Louvain-la-Neuve et on n'a pas d'enfants pour l'instant...",
+    core_values: ["Ecologie", "Démocratie", "Solidarité", "Autonomie"],
+    intro_snippet: "On est Thomas (33 ans, développeur web) et Claire (31 ans, infirmière). On vit ensemble depuis 8 ans à Louvain-la-Neuve et on n'a pas d'enfants pour l'instant...",
     created_at: "2026-02-12T16:00:00Z",
     questionnaire_answers: {
       setting_type: "rural",
@@ -197,6 +199,8 @@ export default function ProfilsPage() {
   const [sort, setSort] = useState<ProfileSort>("date");
   const [showSearch, setShowSearch] = useState(false);
   const [profileStates, setProfileStates] = useState<Record<string, string>>({});
+
+  const [page, setPage] = useState(1);
 
   // Filter modal state
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -388,6 +392,19 @@ export default function ProfilsPage() {
     return count;
   }, [profileUiFilters, profileTagFilters]);
 
+  // Tab counts (before UI/tag filters)
+  const tabCounts = useMemo(() => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return {
+      all: profiles.filter((p) => profileStates[p.id] !== "archived").length,
+      new: profiles.filter((p) => new Date(p.created_at) >= sevenDaysAgo).length,
+      favorite: profiles.filter((p) => profileStates[p.id] === "favorite").length,
+      active: profiles.filter((p) => profileStates[p.id] === "contacted" || profileStates[p.id] === "in_discussion").length,
+      archived: profiles.filter((p) => profileStates[p.id] === "archived").length,
+    };
+  }, [profiles, profileStates]);
+
   const filtered = useMemo(() => {
     let result = [...profiles];
 
@@ -545,6 +562,23 @@ export default function ProfilsPage() {
     return result;
   }, [profiles, filter, search, sort, profileStates, profileUiFilters, profileTagFilters]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [filter, search, sort, profileUiFilters, profileTagFilters]);
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PROFILES_PER_PAGE));
+  const paginatedProfiles = useMemo(() => {
+    const start = (page - 1) * PROFILES_PER_PAGE;
+    return filtered.slice(start, start + PROFILES_PER_PAGE);
+  }, [filtered, page]);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const hasActiveFilters = !!search.trim() || activeFilterCount > 0;
 
   const handleClearAll = () => {
@@ -555,7 +589,7 @@ export default function ProfilsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
@@ -627,12 +661,16 @@ export default function ProfilsPage() {
                   </svg>
                 )}
                 {label}
+                <span className={`text-xs font-medium ml-0.5 ${
+                  filter === key
+                    ? "opacity-80"
+                    : "opacity-50"
+                }`}>
+                  {tabCounts[key]}
+                </span>
               </button>
             ))}
           </div>
-
-          {/* Divider */}
-          <div className="w-px h-7 bg-[var(--border-color)] shrink-0" />
 
           {/* Sort + Search + Filters */}
           <div className="flex items-center gap-1.5 shrink-0">
@@ -692,6 +730,27 @@ export default function ProfilsPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
+            </button>
+
+            {/* Filter button */}
+            <button
+              onClick={() => setShowFilterModal(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+                activeFilterCount > 0
+                  ? "border-[var(--primary)] text-[var(--primary)] bg-[var(--primary)]/5"
+                  : "border-[var(--input-border)] text-[var(--muted)] hover:border-[var(--primary)]/50 bg-[var(--input-bg)]"
+              }`}
+              aria-label="Filtres"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              <span className="font-medium">Filtres</span>
+              {activeFilterCount > 0 && (
+                <span className="flex items-center justify-center w-5 h-5 bg-[var(--primary)] text-white text-xs font-bold rounded-full">
+                  {activeFilterCount}
+                </span>
+              )}
             </button>
 
             {/* Person count */}
@@ -832,8 +891,8 @@ export default function ProfilsPage() {
       {/* Profile grid */}
       {!loading && filtered.length > 0 && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((profile) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {paginatedProfiles.map((profile) => (
               <ProfileCard
                 key={profile.id}
                 profile={profile}
@@ -842,6 +901,11 @@ export default function ProfilsPage() {
               />
             ))}
           </div>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </>
       )}
       </div>

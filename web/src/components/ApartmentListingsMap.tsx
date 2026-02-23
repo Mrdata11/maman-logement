@@ -10,9 +10,9 @@ import { BRUSSELS_MAP_CENTER, BRUSSELS_DEFAULT_ZOOM } from "@/lib/coordinates";
 import { escapeHtml, sanitizeUrl } from "@/lib/sanitize";
 
 function formatPrice(price: number | null): string {
-  if (!price) return "\u2022";
-  if (price >= 1000) return `${(price / 1000).toFixed(1)}k\u20ac`;
-  return `${price}\u20ac`;
+  if (!price) return "•";
+  if (price >= 1000) return `${(price / 1000).toFixed(1)}k€`;
+  return `${price}€`;
 }
 
 function createPricePinIcon(label: string, isHighlighted: boolean): L.DivIcon {
@@ -47,9 +47,9 @@ function createPopupContent(item: ApartmentWithEval): string {
 
   const details = [
     listing.bedrooms ? `${listing.bedrooms} ch.` : null,
-    listing.surface_m2 ? `${listing.surface_m2} m\u00b2` : null,
+    listing.surface_m2 ? `${listing.surface_m2} m²` : null,
     listing.peb_rating ? `PEB ${listing.peb_rating}` : null,
-  ].filter(Boolean).join(" \u00b7 ");
+  ].filter(Boolean).join(" · ");
 
   const highlightsHtml =
     evaluation && evaluation.highlights.length > 0
@@ -76,14 +76,14 @@ function createPopupContent(item: ApartmentWithEval): string {
       </div>
       <div class="map-popup-title">${escapeHtml(listing.title)}</div>
       <div class="map-popup-meta">
-        ${listing.price_monthly ? `<span class="map-popup-price">${listing.price_monthly.toLocaleString("fr-BE")} \u20ac/mois</span>` : ""}
+        ${listing.price_monthly ? `<span class="map-popup-price">${listing.price_monthly.toLocaleString("fr-BE")} €/mois</span>` : ""}
         <span class="map-popup-location-text">${details}</span>
       </div>
       ${evaluation?.quality_summary ? `<div class="map-popup-summary">${escapeHtml(evaluation.quality_summary)}</div>` : ""}
       ${highlightsHtml}
       ${concernsHtml}
       <div class="map-popup-actions">
-        <a href="/appartements/listing/${listing.id}" class="map-popup-link">Voir d\u00e9tail</a>
+        <a href="/appartements/listing/${listing.id}" class="map-popup-link">Voir détail</a>
         <a href="${sanitizeUrl(listing.source_url)}" target="_blank" rel="noopener noreferrer" class="map-popup-link-secondary">Immoweb</a>
         <button class="map-popup-archive-btn" data-archive-id="${listing.id}" title="Archiver">
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>

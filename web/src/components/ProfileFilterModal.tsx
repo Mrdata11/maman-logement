@@ -167,7 +167,7 @@ export function ProfileFilterModal({
                     max={120}
                     className={inputClass}
                   />
-                  <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"\u2013"}</span>
+                  <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"–"}</span>
                   <input
                     type="number"
                     aria-label="Âge maximum"

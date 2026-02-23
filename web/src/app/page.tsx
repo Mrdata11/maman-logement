@@ -9,13 +9,13 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://maman-logement.vercel.app";
 
 export const metadata: Metadata = {
-  title: "Cohabitat Europe \u2014 Trouvez votre habitat group\u00e9 en Europe",
+  title: "Cohabitat Europe — Trouvez votre habitat groupé en Europe",
   description:
-    "Plateforme de recherche d\u2019habitats group\u00e9s en Europe. Annonces \u00e9valu\u00e9es par IA, profils communautaires, questionnaire personnalis\u00e9 et outils de mise en relation.",
+    "Plateforme de recherche d’habitats groupés en Europe. Annonces évaluées par IA, profils communautaires, questionnaire personnalisé et outils de mise en relation.",
   openGraph: {
-    title: "Cohabitat Europe \u2014 Trouvez votre habitat group\u00e9 en Europe",
+    title: "Cohabitat Europe — Trouvez votre habitat groupé en Europe",
     description:
-      "Plateforme de recherche d\u2019habitats group\u00e9s en Europe. Annonces \u00e9valu\u00e9es par IA, profils communautaires et outils de mise en relation.",
+      "Plateforme de recherche d’habitats groupés en Europe. Annonces évaluées par IA, profils communautaires et outils de mise en relation.",
     url: BASE_URL,
     type: "website",
   },
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export default function Home() {
   const items = getListingsWithEvals();
   const topListings = items
-    .filter((item) => item.evaluation !== null)
+    .filter((item) => item.evaluation !== null && !item.evaluation.ai_title?.includes("⚠"))
     .sort(
       (a, b) =>
         (b.evaluation?.quality_score ?? 0) -
@@ -42,7 +42,7 @@ export default function Home() {
         url: BASE_URL,
         logo: `${BASE_URL}/logo_alt_living.png`,
         description:
-          "Plateforme de recherche d\u2019habitats group\u00e9s en Europe. Annonces \u00e9valu\u00e9es par IA et profils communautaires.",
+          "Plateforme de recherche d’habitats groupés en Europe. Annonces évaluées par IA et profils communautaires.",
       },
       {
         "@type": "WebSite",
@@ -60,11 +60,11 @@ export default function Home() {
         "@type": "WebPage",
         "@id": `${BASE_URL}/#webpage`,
         url: BASE_URL,
-        name: "Cohabitat Europe \u2014 Trouvez votre habitat group\u00e9 en Europe",
+        name: "Cohabitat Europe — Trouvez votre habitat groupé en Europe",
         isPartOf: { "@id": `${BASE_URL}/#website` },
         about: { "@id": `${BASE_URL}/#organization` },
         description:
-          "Plateforme de recherche d\u2019habitats group\u00e9s en Europe. Annonces \u00e9valu\u00e9es par IA, profils communautaires et outils de mise en relation.",
+          "Plateforme de recherche d’habitats groupés en Europe. Annonces évaluées par IA, profils communautaires et outils de mise en relation.",
       },
     ],
   };
@@ -76,25 +76,22 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* \u2500\u2500 Hero full-bleed \u2500\u2500 */}
+      {/* ── Hero full-bleed ── */}
       <HeroBanner alwaysVisible listingCount={items.length} />
 
-      {/* \u2500\u2500 S\u00e9lection IA : top listings \u2500\u2500 */}
-      <section className="mt-16 sm:mt-20">
+      {/* ── Sélection IA : top listings ── */}
+      <section className="mt-16 sm:mt-20 max-w-6xl mx-auto">
         <div className="flex items-end justify-between mb-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--primary)] mb-1">
-              S\u00e9lection IA
-            </p>
-            <h2 className="text-2xl font-bold text-[var(--foreground)]">
-              Les projets les mieux not\u00e9s
+<h2 className="text-2xl font-bold text-[var(--foreground)]">
+              Les projets les mieux notés
             </h2>
           </div>
           <Link
             href="/habitats"
             className="text-sm font-medium text-[var(--primary)] hover:underline whitespace-nowrap shrink-0"
           >
-            Tout voir \u2192
+            Tout voir →
           </Link>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -104,14 +101,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* \u2500\u2500 Profils : section full-bleed fond chaud \u2500\u2500 */}
+      {/* ── Profils : section full-bleed fond chaud ── */}
       <section className="-mx-4 sm:-mx-6 mt-16 sm:mt-20">
         <div className="bg-[var(--surface)] border-y border-[var(--border-color)] px-4 sm:px-6 py-12 sm:py-16">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-end justify-between mb-6">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)] mb-1">
-                  Communaut\u00e9
+                  Communauté
                 </p>
                 <h2 className="text-2xl font-bold text-[var(--foreground)]">
                   Ils cherchent un lieu, comme vous
@@ -121,7 +118,7 @@ export default function Home() {
                 href="/profils"
                 className="text-sm font-medium text-[var(--primary)] hover:underline whitespace-nowrap shrink-0"
               >
-                Tout voir \u2192
+                Tout voir →
               </Link>
             </div>
             <HomepageProfiles />
@@ -133,22 +130,22 @@ export default function Home() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Cr\u00e9er mon profil et rejoindre la communaut\u00e9
+                Créer mon profil et rejoindre la communauté
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* \u2500\u2500 CTA final full-bleed dark \u2500\u2500 */}
+      {/* ── CTA final full-bleed dark ── */}
       <section className="-mx-4 sm:-mx-6 -mb-8">
         <div className="bg-[var(--foreground)] px-4 sm:px-6 py-16 sm:py-20">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-              Vous n&apos;\u00eates pas seul\u00b7e
+              Vous n&apos;êtes pas seul·e
             </h2>
-            <p className="text-white/50 mb-10 max-w-md mx-auto leading-relaxed">
-              Des centaines de personnes cherchent un lieu de vie partag\u00e9 en Europe. Rejoignez-les.
+            <p className="text-white/60 mb-10 max-w-md mx-auto leading-relaxed">
+              Des centaines de personnes cherchent un lieu de vie partagé en Europe. Rejoignez-les.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
@@ -159,7 +156,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/creer"
-                className="px-7 py-3.5 border border-white/15 text-white/70 rounded-xl font-medium hover:bg-white/5 hover:text-white transition-colors"
+                className="px-7 py-3.5 border border-white/30 text-white/80 rounded-xl font-medium hover:bg-white/10 hover:text-white transition-colors"
               >
                 Proposer un projet
               </Link>

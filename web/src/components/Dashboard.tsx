@@ -25,6 +25,7 @@ import { ListingsMapWrapper } from "./ListingsMapWrapper";
 import { ListingPreview } from "./ListingPreview";
 import { VoiceQuestionnaire } from "./VoiceQuestionnaire";
 import { QuestionnaireBanner } from "./QuestionnaireBanner";
+import { Pagination } from "./Pagination";
 import {
   QuestionnaireState,
   QUESTIONNAIRE_STORAGE_KEY,
@@ -74,6 +75,7 @@ const SORT_LABELS: Record<SortType, string> = {
 };
 type ViewMode = "list" | "map" | "split";
 
+const ITEMS_PER_PAGE = 20;
 const REFINEMENT_STORAGE_KEY = "refinement_state";
 const LAST_VISIT_KEY = "last_visit_date";
 const NOTES_STORAGE_KEY = "listing_notes";
@@ -94,6 +96,7 @@ export function Dashboard({
   const [tagFilters, setTagFilters] = useState<UITagFilters>({ ...DEFAULT_TAG_FILTERS });
   const [showFilters, setShowFilters] = useState(false);
   const [previewItem, setPreviewItem] = useState<ListingWithEval | null>(null);
+  const [page, setPage] = useState(1);
 
   // Custom dropdown states
   const [sortOpen, setSortOpen] = useState(false);
@@ -188,6 +191,27 @@ export function Dashboard({
     }
   }, [lastVisitDate, items]);
 
+  const RELEVANT_TYPES = useMemo(() => new Set(["offre-location", "creation-groupe", "habitat-leger", "ecovillage", "community-profile", "cohousing"]), []);
+
+  // Tab counts (after quality filter, before UI/tag filters)
+  const tabCounts = useMemo(() => {
+    const base = items.filter((i) => {
+      const lt = i.listing.listing_type;
+      if (!lt || !RELEVANT_TYPES.has(lt)) return false;
+      if (!i.evaluation) return false;
+      if (i.evaluation.quality_score < 15) return false;
+      if (i.evaluation.ai_title?.includes("\u26A0")) return false;
+      return true;
+    });
+    return {
+      all: base.filter((i) => i.status !== "archived" && i.status !== "rejected").length,
+      new: base.filter((i) => i.status === "new").length,
+      favorite: base.filter((i) => i.status === "favorite").length,
+      active: base.filter((i) => ["contacted", "visit_planned", "in_discussion"].includes(i.status)).length,
+      archived: base.filter((i) => i.status === "archived").length,
+    };
+  }, [items, RELEVANT_TYPES]);
+
   // Click outside to close custom dropdowns
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -259,7 +283,7 @@ export function Dashboard({
       setPersonalScores(newScores);
       localStorage.setItem(PERSONAL_CRITERIA_KEY, criteria);
       localStorage.setItem(PERSONAL_SCORES_KEY, JSON.stringify(Array.from(newScores.entries())));
-      setScoringProgress(`${data.results.length} annonces \u00e9valu\u00e9es`);
+      setScoringProgress(`${data.results.length} annonces évaluées`);
     } catch (err) {
       console.error("Scoring error:", err);
       setScoringProgress("Erreur lors du scoring");
@@ -297,8 +321,6 @@ export function Dashboard({
       .sort((a, b) => b.count - a.count);
   }, [items]);
 
-  const RELEVANT_TYPES = useMemo(() => new Set(["offre-location", "creation-groupe", "habitat-leger", "ecovillage", "community-profile", "cohousing"]), []);
-
   // Available provinces with counts
   const availableProvinces = useMemo(() => {
     const map = new Map<string, number>();
@@ -317,6 +339,18 @@ export function Dashboard({
     for (const item of items) {
       const c = item.listing.country;
       if (c) map.set(c, (map.get(c) || 0) + 1);
+    }
+    return Array.from(map.entries())
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [items]);
+
+  // Available languages with counts
+  const availableLanguages = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of items) {
+      const lang = item.listing.original_language || "fr";
+      map.set(lang, (map.get(lang) || 0) + 1);
     }
     return Array.from(map.entries())
       .map(([value, count]) => ({ value, count }))
@@ -433,6 +467,7 @@ export function Dashboard({
     let count = 0;
     if (uiFilters.searchText.trim()) count++;
     if (uiFilters.countries.length > 0) count++;
+    if (uiFilters.languages.length > 0) count++;
     if (uiFilters.provinces.length > 0) count++;
     if (uiFilters.listingTypes.length > 0) count++;
     if (uiFilters.sources.length > 0) count++;
@@ -492,6 +527,8 @@ export function Dashboard({
       if (!lt || !RELEVANT_TYPES.has(lt)) return false;
       if (!i.evaluation) return false;
       if (i.evaluation.quality_score < 15) return false;
+      // Exclude AI-flagged low-quality listings (⚠️ in title)
+      if (i.evaluation.ai_title?.includes("⚠")) return false;
       return true;
     });
 
@@ -516,6 +553,13 @@ export function Dashboard({
     if (uiFilters.countries.length > 0) {
       result = result.filter(
         (i) => i.listing.country !== null && uiFilters.countries.includes(i.listing.country)
+      );
+    }
+
+    // UI filters - languages
+    if (uiFilters.languages.length > 0) {
+      result = result.filter(
+        (i) => uiFilters.languages.includes(i.listing.original_language || "fr")
       );
     }
 
@@ -683,6 +727,23 @@ export function Dashboard({
     return result;
   }, [items, filter, sort, RELEVANT_TYPES, isRefined, filters, uiFilters, tagFilters, distances, personalScores]);
 
+  // Reset page when filters/sort change
+  useEffect(() => {
+    setPage(1);
+  }, [filter, sort, uiFilters, tagFilters, isRefined, filters]);
+
+  // Paginated items
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginatedItems = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(start, start + ITEMS_PER_PAGE);
+  }, [filtered, page]);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleStatusChange = (id: string, newStatus: ListingStatus) => {
     const prevStatus = items.find((i) => i.listing.id === id)?.status;
     setItems((prev) =>
@@ -806,11 +867,10 @@ export function Dashboard({
       <div className="mb-2" />
 
       {/* Sticky toolbar */}
-      <div className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 print:hidden">
-        {/* Single row: Status tabs + Sort/Source/Filters + View toggle */}
+      <div className="sticky top-0 z-30 -mx-4 px-4 py-2 sm:py-3 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 print:hidden">
+        {/* Row 1: Status tabs (scrollable) */}
         <div className="flex items-center gap-2">
-          {/* Scrollable status tabs */}
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0">
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0 pb-0.5">
             {([
               ["all", "Actifs"],
               ["new", "Nouveaux"],
@@ -835,15 +895,22 @@ export function Dashboard({
                   </svg>
                 )}
                 {label}
+                <span className={`text-xs font-medium ml-0.5 ${
+                  filter === key
+                    ? "opacity-80"
+                    : "opacity-50"
+                }`}>
+                  {tabCounts[key]}
+                </span>
               </button>
             ))}
           </div>
+        </div>
 
-          {/* Divider */}
-          <div className="w-px h-7 bg-[var(--border-color)] shrink-0" />
-
-          {/* Sort + Filters (outside overflow so dropdowns work) */}
-          <div className="flex items-center gap-1.5 shrink-0">
+        {/* Row 2: Sort + Filters + View toggle + Count */}
+        <div className="flex items-center gap-2 mt-1.5">
+          {/* Sort + Filters */}
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
             {/* Sort dropdown */}
             <div ref={sortRef} className="relative">
               <button
@@ -935,8 +1002,8 @@ export function Dashboard({
           </div>
 
           {/* Result count */}
-          <span className="text-sm text-[var(--muted-light)] shrink-0">
-            {filtered.length}
+          <span className="text-xs text-[var(--muted-light)] shrink-0">
+            {filtered.length} résultat{filtered.length !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
@@ -948,6 +1015,7 @@ export function Dashboard({
         uiFilters={uiFilters}
         onUiFiltersChange={setUiFilters}
         availableCountries={availableCountries}
+        availableLanguages={availableLanguages}
         availableProvinces={availableProvinces}
         availableListingTypes={availableListingTypes}
         availableSources={availableSources}
@@ -1035,7 +1103,7 @@ export function Dashboard({
                 : "space-y-4"
             }
           >
-            {filtered.map((item) => (
+            {paginatedItems.map((item) => (
               <div
                 key={item.listing.id}
                 onMouseEnter={() => setHoveredListingId(item.listing.id)}
@@ -1051,6 +1119,14 @@ export function Dashboard({
                 />
               </div>
             ))}
+
+            {filtered.length > 0 && (
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
 
             {filtered.length === 0 && (
               <div className="text-center py-12">

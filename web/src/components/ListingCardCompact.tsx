@@ -3,9 +3,9 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { ListingWithEval, LISTING_TYPE_LABELS } from "@/lib/types";
-import { ScoreBadge } from "./ScoreBar";
 import { TagsPills } from "./TagsDisplay";
 import { PlaceholderImage } from "./PlaceholderImage";
+import { prioritizePhotos } from "@/lib/image-utils";
 
 interface ListingCardCompactProps {
   item: ListingWithEval;
@@ -15,7 +15,7 @@ export function ListingCardCompact({ item }: ListingCardCompactProps) {
   const { listing, evaluation, tags } = item;
   const [imgIndex, setImgIndex] = useState(0);
 
-  const images = listing.images;
+  const images = prioritizePhotos(listing.images);
   const maxVisible = Math.min(images.length, 8);
 
   const prevImg = useCallback(
@@ -36,9 +36,9 @@ export function ListingCardCompact({ item }: ListingCardCompactProps) {
   );
 
   return (
-    <div className="group/card bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] overflow-hidden hover:shadow-md transition-shadow flex flex-row">
-      {/* Image carousel — côté gauche */}
-      <div className="relative group w-48 sm:w-56 md:w-64 shrink-0 bg-[var(--surface)]">
+    <div className="group/card bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] overflow-hidden hover:shadow-md transition-shadow flex flex-col sm:flex-row sm:h-52">
+      {/* Image carousel */}
+      <div className="relative group aspect-[16/9] sm:aspect-auto sm:w-56 md:w-64 shrink-0 bg-[var(--surface)]">
         {images.length > 0 ? (
           <>
             <Link href={`/listing/${listing.id}`} className="block h-full">
@@ -107,12 +107,6 @@ export function ListingCardCompact({ item }: ListingCardCompactProps) {
         ) : (
           <PlaceholderImage className="w-full h-full" />
         )}
-        {/* Score badge overlay */}
-        {evaluation && (
-          <div className="absolute top-2 left-2">
-            <ScoreBadge score={evaluation.quality_score} />
-          </div>
-        )}
       </div>
 
       {/* Content — côté droit */}
@@ -125,12 +119,8 @@ export function ListingCardCompact({ item }: ListingCardCompactProps) {
             </span>
           )}
           {listing.country && listing.country !== "BE" && (
-            <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
-              {listing.country === "FR"
-                ? "\uD83C\uDDEB\uD83C\uDDF7 France"
-                : listing.country === "ES"
-                  ? "\uD83C\uDDEA\uD83C\uDDF8 Espagne"
-                  : listing.country}
+            <span className="text-sm" title={listing.country === "FR" ? "France" : listing.country === "ES" ? "Espagne" : listing.country}>
+              {listing.country === "FR" ? "🇫🇷" : listing.country === "ES" ? "🇪🇸" : listing.country}
             </span>
           )}
         </div>

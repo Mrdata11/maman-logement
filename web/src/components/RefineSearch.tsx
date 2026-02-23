@@ -11,8 +11,8 @@ const TYPE_LABELS: Record<string, string> = {
   "offre-vente": "Vente",
   "demande-location": "Recherche location",
   "demande-vente": "Recherche achat",
-  "creation-groupe": "Cr\u00e9ation de groupe",
-  "habitat-leger": "Habitat l\u00e9ger",
+  "creation-groupe": "Création de groupe",
+  "habitat-leger": "Habitat léger",
   divers: "Divers",
 };
 
@@ -76,7 +76,7 @@ export function RefineSearch({
       setInput("");
     } catch {
       setError(
-        "Erreur lors du traitement. V\u00e9rifie ta connexion et r\u00e9essaie."
+        "Erreur lors du traitement. Vérifie ta connexion et réessaie."
       );
     } finally {
       setIsLoading(false);
@@ -95,7 +95,7 @@ export function RefineSearch({
       if (after.listing_types_include.length > 0) {
         changes.push(`Types inclus: ${after.listing_types_include.map((t) => TYPE_LABELS[t] || t).join(", ")}`);
       } else if (before.listing_types_include.length > 0) {
-        changes.push("Filtre types inclus retir\u00e9");
+        changes.push("Filtre types inclus retiré");
       }
     }
 
@@ -103,7 +103,7 @@ export function RefineSearch({
       if (after.listing_types_exclude.length > 0) {
         changes.push(`Types exclus: ${after.listing_types_exclude.map((t) => TYPE_LABELS[t] || t).join(", ")}`);
       } else if (before.listing_types_exclude.length > 0) {
-        changes.push("Filtre types exclus retir\u00e9");
+        changes.push("Filtre types exclus retiré");
       }
     }
 
@@ -111,7 +111,7 @@ export function RefineSearch({
       if (after.locations_include.length > 0) {
         changes.push(`Lieux: ${after.locations_include.join(", ")}`);
       } else if (before.locations_include.length > 0) {
-        changes.push("Filtre lieux retir\u00e9");
+        changes.push("Filtre lieux retiré");
       }
     }
 
@@ -119,31 +119,31 @@ export function RefineSearch({
       if (after.locations_exclude.length > 0) {
         changes.push(`Lieux exclus: ${after.locations_exclude.join(", ")}`);
       } else if (before.locations_exclude.length > 0) {
-        changes.push("Filtre lieux exclus retir\u00e9");
+        changes.push("Filtre lieux exclus retiré");
       }
     }
 
     if (after.max_price !== before.max_price) {
-      changes.push(after.max_price !== null ? `Prix max: ${after.max_price}\u20ac` : "Filtre prix max retir\u00e9");
+      changes.push(after.max_price !== null ? `Prix max: ${after.max_price}€` : "Filtre prix max retiré");
     }
 
     if (after.min_score !== before.min_score) {
-      changes.push(after.min_score !== null ? `Score min: ${after.min_score}/100` : "Filtre score min retir\u00e9");
+      changes.push(after.min_score !== null ? `Score min: ${after.min_score}/100` : "Filtre score min retiré");
     }
 
     if (JSON.stringify(after.keywords_include) !== JSON.stringify(before.keywords_include)) {
       if (after.keywords_include.length > 0) {
-        changes.push(`Mots-cl\u00e9s requis: ${after.keywords_include.join(", ")}`);
+        changes.push(`Mots-clés requis: ${after.keywords_include.join(", ")}`);
       } else if (before.keywords_include.length > 0) {
-        changes.push("Filtre mots-cl\u00e9s requis retir\u00e9");
+        changes.push("Filtre mots-clés requis retiré");
       }
     }
 
     if (JSON.stringify(after.keywords_exclude) !== JSON.stringify(before.keywords_exclude)) {
       if (after.keywords_exclude.length > 0) {
-        changes.push(`Mots-cl\u00e9s exclus: ${after.keywords_exclude.join(", ")}`);
+        changes.push(`Mots-clés exclus: ${after.keywords_exclude.join(", ")}`);
       } else if (before.keywords_exclude.length > 0) {
-        changes.push("Filtre mots-cl\u00e9s exclus retir\u00e9");
+        changes.push("Filtre mots-clés exclus retiré");
       }
     }
 
@@ -178,7 +178,7 @@ export function RefineSearch({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            placeholder="Ex: Que des locations en Wallonie, max 800\u20ac, avec un jardin..."
+            placeholder="Ex: Que des locations en Wallonie, max 800€, avec un jardin..."
             className="flex-1 px-3 py-2 border border-amber-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white"
             disabled={isLoading}
           />
@@ -194,7 +194,7 @@ export function RefineSearch({
         {isLoading && (
           <div className="mt-3 flex items-center gap-2 text-sm text-amber-700">
             <div className="animate-spin h-4 w-4 border-2 border-amber-600 border-t-transparent rounded-full" />
-            <span>Je filtre les annonces selon tes crit\u00e8res...</span>
+            <span>Je filtre les annonces selon tes critères...</span>
           </div>
         )}
 
@@ -240,13 +240,13 @@ export function RefineSearch({
 
             <div className="flex items-center gap-3">
               <button onClick={() => setShowHistory(!showHistory)} className="text-xs text-amber-700 underline hover:text-amber-900">
-                {showHistory ? "Masquer l\u0027historique" : "Voir l\u0027historique"}
+                {showHistory ? "Masquer l'historique" : "Voir l'historique"}
               </button>
               <button onClick={onUndo} className="text-xs text-amber-700 underline hover:text-amber-900">
                 Annuler le dernier
               </button>
               <button onClick={onReset} className="text-xs text-red-600 underline hover:text-red-800">
-                Tout r\u00e9initialiser
+                Tout réinitialiser
               </button>
             </div>
           </div>

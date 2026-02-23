@@ -8,7 +8,11 @@ import {
   VenueStatus,
 } from "./types";
 
+let _retreatDirCache: string | null = null;
+const _retreatJsonCache = new Map<string, unknown[]>();
+
 function findRetreatDataDir(): string {
+  if (_retreatDirCache) return _retreatDirCache;
   const candidates = [
     path.join(process.cwd(), "..", "data", "retreats"),
     path.join(process.cwd(), "data", "retreats"),
@@ -16,18 +20,23 @@ function findRetreatDataDir(): string {
   ];
   for (const dir of candidates) {
     if (fs.existsSync(path.join(dir, "venues.json"))) {
+      _retreatDirCache = dir;
       return dir;
     }
   }
+  _retreatDirCache = candidates[0];
   return candidates[0];
 }
 
 function readRetreatJSON<T>(filename: string, fallback: T[]): T[] {
+  if (_retreatJsonCache.has(filename)) return _retreatJsonCache.get(filename) as T[];
   const dataDir = findRetreatDataDir();
   const filepath = path.join(dataDir, filename);
   try {
     const content = fs.readFileSync(filepath, "utf-8");
-    return JSON.parse(content);
+    const parsed = JSON.parse(content) as T[];
+    _retreatJsonCache.set(filename, parsed);
+    return parsed;
   } catch {
     return fallback;
   }

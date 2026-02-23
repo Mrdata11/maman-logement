@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ProfileNav } from "@/components/ProfileNav";
 import { AppModeToggle } from "@/components/AppModeToggle";
 import { CookieConsent } from "@/components/CookieConsent";
-import { Footer } from "@/components/Footer";
+import { ConditionalFooter } from "@/components/ConditionalFooter";
 import "./globals.css";
 
 const inter = Inter({
@@ -21,10 +21,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
     template: "%s | Cohabitat Europe",
-    default: "Cohabitat Europe \u2014 Recherche Habitat Group\u00e9 en Europe",
+    default: "Cohabitat Europe — Recherche Habitat Groupé en Europe",
   },
   description:
-    "Trouvez votre habitat group\u00e9 en Europe. Annonces \u00e9valu\u00e9es par IA, profils communautaires, et outils de recherche personnalis\u00e9s.",
+    "Trouvez votre habitat groupé en Europe. Annonces évaluées par IA, profils communautaires, et outils de recherche personnalisés.",
   icons: {
     icon: "/favicon_alt_living.png",
     apple: "/favicon_alt_living.png",
@@ -59,19 +59,19 @@ export default function RootLayout({
         >
           Aller au contenu principal
         </a>
-        <header role="banner" className="bg-[var(--card-bg)] border-b border-[var(--border-color)] px-3 sm:px-4 py-3 sm:py-4 transition-colors">
+        <header role="banner" className="bg-[var(--card-bg)] border-b border-[var(--border-color)] px-3 sm:px-4 py-2.5 sm:py-3 transition-colors">
           <nav className="max-w-6xl mx-auto flex items-center justify-between gap-2" aria-label="Navigation principale">
             <Link href="/" className="shrink-0">
-              <Image src="/logo_alt_living.png" alt="Cohabitat Europe" width={120} height={40} priority />
+              <Image src="/logo_alt_living.png" alt="Cohabitat Europe" width={100} height={33} className="sm:w-[120px]" priority />
             </Link>
             <AppModeToggle />
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="flex items-center shrink-0">
               <ProfileNav />
             </div>
           </nav>
         </header>
-        <main id="main-content" role="main" className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1">{children}</main>
-        <Footer />
+        <main id="main-content" role="main" className="px-4 sm:px-6 py-8 flex-1">{children}</main>
+        <ConditionalFooter />
         <CookieConsent />
       </body>
     </html>

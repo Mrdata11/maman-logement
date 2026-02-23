@@ -10,6 +10,7 @@ import {
 } from "@/lib/types";
 import { TagsPills } from "./TagsDisplay";
 import { PlaceholderImage } from "./PlaceholderImage";
+import { prioritizePhotos } from "@/lib/image-utils";
 
 interface ListingCardProps {
   item: ListingWithEval;
@@ -36,7 +37,7 @@ export function ListingCard({
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [imgIndex, setImgIndex] = useState(0);
 
-  const images = listing.images;
+  const images = prioritizePhotos(listing.images);
   const maxVisible = Math.min(images.length, 8);
 
   const prevImg = useCallback(
@@ -63,7 +64,7 @@ export function ListingCard({
 
   return (
     <div
-      className={`bg-[var(--card-bg)] rounded-xl border transition-all shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] flex flex-row ${
+      className={`bg-[var(--card-bg)] rounded-xl border transition-all shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] flex flex-col sm:flex-row sm:min-h-[220px] ${
         isFaded ? "opacity-50" : ""
       } ${
         isHighlighted
@@ -72,7 +73,7 @@ export function ListingCard({
       }`}
     >
       {/* Image carousel — côté gauche */}
-      <div className="relative group w-56 sm:w-64 md:w-80 shrink-0 bg-[var(--surface)] overflow-hidden rounded-l-xl">
+      <div className="relative group aspect-[16/9] sm:aspect-auto sm:w-64 md:w-80 shrink-0 bg-[var(--surface)] overflow-hidden rounded-t-xl sm:rounded-t-none sm:rounded-l-xl">
         {images.length > 0 ? (
           <>
             <Link href={`/listing/${listing.id}`} className="block h-full">
@@ -172,13 +173,8 @@ export function ListingCard({
                   </span>
                 )}
                 {listing.country && listing.country !== "BE" && (
-                  <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
-                    {listing.country === "FR" ? "🇫🇷 France" : listing.country === "ES" ? "🇪🇸 Espagne" : listing.country}
-                  </span>
-                )}
-                {listing.original_language === "es" && (
-                  <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                    🇪🇸 Traduit
+                  <span className="text-sm" title={listing.country === "FR" ? "France" : listing.country === "ES" ? "Espagne" : listing.country}>
+                    {listing.country === "FR" ? "🇫🇷" : listing.country === "ES" ? "🇪🇸" : listing.country}
                   </span>
                 )}
                 {distance !== null && distance !== undefined && (
@@ -296,7 +292,7 @@ export function ListingCard({
           {/* AI Summary */}
           {evaluation && (
             <div className="mt-2">
-              <p className="text-sm text-[var(--foreground)] line-clamp-3">
+              <p className="text-sm text-[var(--foreground)] line-clamp-2">
                 {evaluation.ai_description || evaluation.quality_summary}
               </p>
             </div>
@@ -309,7 +305,7 @@ export function ListingCard({
           )}
 
           {/* Tags pills */}
-          {tags && <TagsPills tags={tags} />}
+          {tags && <div className="overflow-hidden"><TagsPills tags={tags} /></div>}
 
           {/* Notes preview */}
           {notes && !showNotes && (
@@ -319,7 +315,7 @@ export function ListingCard({
           )}
 
           {/* Voir détail + Status row */}
-          <div className="mt-2 flex items-center justify-between">
+          <div className="mt-auto pt-2 flex items-center justify-between">
             <Link
               href={`/listing/${listing.id}`}
               className="text-sm text-[var(--muted)] underline hover:text-[var(--primary)] transition-colors"
@@ -339,7 +335,7 @@ export function ListingCard({
                 </svg>
               </button>
               {showStatusMenu && (
-                <div className="absolute right-0 z-10 mt-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg py-1 min-w-[180px]">
+                <div className="absolute right-0 bottom-full z-50 mb-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg py-1 min-w-[180px]">
                   {(Object.keys(STATUS_CONFIG) as ListingStatus[])
                     .filter((s) => s !== status && s !== "archived" && s !== "rejected")
                     .map((s) => (

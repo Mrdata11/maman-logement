@@ -48,8 +48,8 @@ export function HeroBanner({ alwaysVisible = false, listingCount = 0 }: HeroBann
               autrement.
             </h1>
 
-            <p className="mt-6 text-lg sm:text-xl text-white/60 max-w-xl leading-relaxed">
-              {listingCount > 0 ? `${listingCount}+` : "Des centaines de"} habitats group&eacute;s, &eacute;colieux et coop&eacute;ratives en Europe &mdash; tri&eacute;s et &eacute;valu&eacute;s par IA.
+            <p className="mt-6 text-lg sm:text-xl text-white/70 max-w-xl leading-relaxed">
+              {listingCount > 0 ? `${listingCount}+` : "Des centaines de"} habitats group&eacute;s, &eacute;colieux et coop&eacute;ratives en Europe.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -64,9 +64,9 @@ export function HeroBanner({ alwaysVisible = false, listingCount = 0 }: HeroBann
               </a>
               <a
                 href="/habitats"
-                className="text-sm text-white/40 hover:text-white/70 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/40"
+                className="text-sm text-white/70 hover:text-white transition-colors font-medium"
               >
-                ou parcourir toutes les annonces
+                Parcourir toutes les annonces &rarr;
               </a>
             </div>
           </div>

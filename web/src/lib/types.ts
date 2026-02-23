@@ -153,6 +153,24 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   LU: "\ud83c\uddf1\ud83c\uddfa",
 };
 
+export const LANGUAGE_FLAGS: Record<string, string> = {
+  fr: "\ud83c\uddeb\ud83c\uddf7",
+  es: "\ud83c\uddea\ud83c\uddf8",
+  en: "\ud83c\uddec\ud83c\udde7",
+  nl: "\ud83c\uddf3\ud83c\uddf1",
+  de: "\ud83c\udde9\ud83c\uddea",
+  pt: "\ud83c\uddf5\ud83c\uddf9",
+};
+
+export const LANGUAGE_LABELS: Record<string, string> = {
+  fr: "Français",
+  es: "Espagnol",
+  en: "Anglais",
+  nl: "Néerlandais",
+  de: "Allemand",
+  pt: "Portugais",
+};
+
 export interface PersonalizedResult {
   listing_id: string;
   score: number;
@@ -215,8 +233,6 @@ export const STATUS_CONFIG: Record<
 };
 
 // Refinement weights — simplified after migration to quality_score model
-export type CriteriaScores = Record<string, number>;
-export const CRITERIA_LABELS: Record<string, string> = {};
 export type RefinementWeights = Record<string, number>;
 export const DEFAULT_WEIGHTS: RefinementWeights = {};
 
@@ -345,6 +361,7 @@ export interface UIFilterState {
   searchText: string;
   provinces: string[];
   countries: string[];
+  languages: string[];
   listingTypes: string[];
   sources: string[];
   priceMin: number | null;
@@ -358,6 +375,7 @@ export const DEFAULT_UI_FILTERS: UIFilterState = {
   searchText: "",
   provinces: [],
   countries: [],
+  languages: [],
   listingTypes: [],
   sources: [],
   priceMin: null,

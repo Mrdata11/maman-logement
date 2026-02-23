@@ -105,7 +105,53 @@
     "lead_time_weeks": 12,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "en",
+      "fr"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 60 jours avant. 50% remboursé entre 30-60 jours. Non remboursable sous 30 jours.",
+    "deposit_required": "30% à la réservation, solde 60 jours avant le début.",
+    "group_discount": true,
+    "suggested_durations": [
+      3,
+      5,
+      7
+    ],
+    "seasonal_availability": "Avril à Octobre",
+    "specialized_equipment": [
+      "yoga_props",
+      "meditation_cushions",
+      "singing_bowls",
+      "blankets",
+      "essential_oils",
+      "incense",
+      "candles",
+      "heating"
+    ],
+    "ceremonies_allowed": true,
+    "silence_policy": "Retraites silencieuses possibles sur demande. Heures calmes : 22h-7h.",
+    "noise_level": "very_quiet",
+    "climate_info": "Climat méditerranéen doux. Été 25-35°C, printemps/automne 15-25°C. Pluies rares en été.",
+    "nearest_hospital_km": 15,
+    "retreats_hosted_count": 120,
+    "testimonials": [
+      {
+        "author": "Sophie M.",
+        "role": "Professeur de Reiki",
+        "text": "Un cadre exceptionnel pour mes retraites Reiki. Le château crée une atmosphère sacrée unique. L'équipe est aux petits soins et la cuisine vegan est incroyable.",
+        "rating": 5,
+        "date": "2025-09-15"
+      },
+      {
+        "author": "David L.",
+        "role": "Enseignant de yoga Kundalini",
+        "text": "Trois espaces de pratique magnifiques, idéaux pour alterner entre méditation silencieuse et sessions dynamiques. Je reviens chaque année.",
+        "rating": 5,
+        "date": "2025-06-20"
+      }
+    ],
+    "exclusive_hire_only": true
   },
   {
     "id": "alga002",
@@ -218,7 +264,54 @@
     "lead_time_weeks": 16,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "en",
+      "pt",
+      "fr"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 90 jours avant. 50% remboursé entre 45-90 jours. Non remboursable sous 45 jours.",
+    "deposit_required": "25% à la réservation, solde 45 jours avant.",
+    "group_discount": true,
+    "suggested_durations": [
+      5,
+      7,
+      10
+    ],
+    "seasonal_availability": "Toute l'année (meilleur : mars-juin, sept-nov)",
+    "specialized_equipment": [
+      "yoga_props",
+      "singing_bowls",
+      "crystal_bowls",
+      "blankets",
+      "essential_oils",
+      "incense",
+      "candles",
+      "massage_tables"
+    ],
+    "ceremonies_allowed": true,
+    "silence_policy": "Zone Natura 2000 naturellement silencieuse. Retraites silencieuses possibles. Heures calmes : 22h-7h30.",
+    "noise_level": "very_quiet",
+    "climate_info": "Climat méditerranéen toute l'année. Été 25-35°C, hiver 10-18°C. 300 jours de soleil/an.",
+    "nearest_hospital_km": 12,
+    "retreats_hosted_count": 85,
+    "testimonials": [
+      {
+        "author": "Claire R.",
+        "role": "Thérapeute holistique",
+        "text": "La nature environnante est d'une puissance extraordinaire. Mes participants ressentent immédiatement l'énergie du lieu. Vue à couper le souffle.",
+        "rating": 5,
+        "date": "2025-10-08"
+      },
+      {
+        "author": "Marc B.",
+        "role": "Professeur de méditation",
+        "text": "Le silence et l'isolement de ce village restauré créent un cadre parfait pour la méditation profonde. Accueil chaleureux et professionnel.",
+        "rating": 5,
+        "date": "2025-05-12"
+      }
+    ],
+    "exclusive_hire_only": false
   },
   {
     "id": "bali003",
@@ -333,7 +426,55 @@
     "lead_time_weeks": 8,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "en",
+      "id"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 45 jours avant. 50% remboursé entre 21-45 jours. Non remboursable sous 21 jours.",
+    "deposit_required": "50% à la réservation, solde 30 jours avant.",
+    "group_discount": false,
+    "suggested_durations": [
+      3,
+      5,
+      7,
+      14
+    ],
+    "seasonal_availability": "Toute l'année (saison sèche avril-octobre recommandée)",
+    "specialized_equipment": [
+      "yoga_props",
+      "singing_bowls",
+      "gongs",
+      "massage_tables",
+      "reiki_tables",
+      "essential_oils",
+      "incense",
+      "candles",
+      "altar_space"
+    ],
+    "ceremonies_allowed": true,
+    "silence_policy": "Ambiance naturellement paisible au coeur des rizières. Cérémonies balinaises respectées.",
+    "noise_level": "quiet",
+    "climate_info": "Tropical humide. 26-32°C toute l'année. Saison des pluies nov-mars (averses courtes).",
+    "nearest_hospital_km": 8,
+    "retreats_hosted_count": 200,
+    "testimonials": [
+      {
+        "author": "Isabelle D.",
+        "role": "Maître Reiki Usui",
+        "text": "Le Gaia Center est mon lieu de prédilection pour les formations Reiki. La salle de soins est parfaite et l'énergie de Bali amplifie les initiations. Prix imbattable.",
+        "rating": 5,
+        "date": "2025-08-25"
+      },
+      {
+        "author": "Thomas K.",
+        "role": "Sound healer",
+        "text": "La healing room est idéale pour les bains sonores. Bols tibétains et gongs disponibles sur place. L'acoustique est remarquable.",
+        "rating": 4,
+        "date": "2025-07-10"
+      }
+    ],
+    "exclusive_hire_only": true
   },
   {
     "id": "tosc004",
@@ -447,7 +588,52 @@
     "lead_time_weeks": 20,
     "original_language": "it",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "it",
+      "en",
+      "fr",
+      "de"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 90 jours avant. 50% remboursé entre 60-90 jours. Non remboursable sous 60 jours.",
+    "deposit_required": "30% à la réservation, solde 60 jours avant.",
+    "group_discount": true,
+    "suggested_durations": [
+      5,
+      7,
+      10
+    ],
+    "seasonal_availability": "Avril à Octobre",
+    "specialized_equipment": [
+      "yoga_props",
+      "blankets",
+      "candles",
+      "heating",
+      "air_conditioning"
+    ],
+    "ceremonies_allowed": true,
+    "silence_policy": "Pas de politique de silence stricte. Lieu vivant et convivial.",
+    "noise_level": "quiet",
+    "climate_info": "Continental méditerranéen. Été 28-36°C, printemps/automne 15-25°C. Vue sur le lac Trasimène.",
+    "nearest_hospital_km": 20,
+    "retreats_hosted_count": 45,
+    "testimonials": [
+      {
+        "author": "Anna P.",
+        "role": "Professeur de yoga et pilates",
+        "text": "Le domaine est somptueux. La grande salle de 120m² peut accueillir des groupes importants. Les fresques historiques créent une atmosphère unique. Huile d'olive du domaine exceptionnelle.",
+        "rating": 5,
+        "date": "2025-09-01"
+      },
+      {
+        "author": "Jean-Marc F.",
+        "role": "Coach bien-être corporate",
+        "text": "Parfait pour les séminaires corporate wellness. Capacité flexible, cadre inspirant, cuisine incroyable. L'école d'équitation est un plus apprécié.",
+        "rating": 4,
+        "date": "2025-07-20"
+      }
+    ],
+    "exclusive_hire_only": false
   },
   {
     "id": "anda005",
@@ -563,7 +749,58 @@
     "lead_time_weeks": 8,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "en",
+      "es",
+      "fr"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 30 jours avant. 50% remboursé entre 14-30 jours. Non remboursable sous 14 jours.",
+    "deposit_required": "20% à la réservation, solde 30 jours avant.",
+    "group_discount": true,
+    "suggested_durations": [
+      3,
+      5,
+      7,
+      14
+    ],
+    "seasonal_availability": "Toute l'année",
+    "specialized_equipment": [
+      "yoga_props",
+      "singing_bowls",
+      "crystal_bowls",
+      "gongs",
+      "blankets",
+      "essential_oils",
+      "incense",
+      "candles",
+      "massage_tables",
+      "altar_space",
+      "heating"
+    ],
+    "ceremonies_allowed": true,
+    "silence_policy": "Retraites silencieuses régulières. Espaces silencieux désignés. Heures calmes : 22h-7h.",
+    "noise_level": "quiet",
+    "climate_info": "Méditerranéen chaud. Été 30-40°C, hiver 10-18°C. 320 jours de soleil. Piscine eau salée ouverte mars-novembre.",
+    "nearest_hospital_km": 10,
+    "retreats_hosted_count": 350,
+    "testimonials": [
+      {
+        "author": "Marie L.",
+        "role": "Enseignante de Reiki et breathwork",
+        "text": "Suryalila est mon centre préféré en Europe. L'aide à l'organisation est top, les 3 salles permettent de varier les ateliers, et le cadre andalou est magique. Je recommande à 100%.",
+        "rating": 5,
+        "date": "2025-11-05"
+      },
+      {
+        "author": "Elena S.",
+        "role": "Professeur de danse extatique",
+        "text": "La grande salle de 140m² est parfaite pour la danse. Le système son est excellent. L'équipe est habituée aux groupes importants et tout est bien rodé.",
+        "rating": 5,
+        "date": "2025-08-18"
+      }
+    ],
+    "exclusive_hire_only": false
   },
   {
     "id": "thai006",
@@ -680,7 +917,57 @@
     "lead_time_weeks": 10,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "en",
+      "th"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 30 jours avant. Non remboursable sous 30 jours. Report possible.",
+    "deposit_required": "50% à la réservation, solde à l'arrivée.",
+    "group_discount": true,
+    "suggested_durations": [
+      3,
+      5,
+      7,
+      14,
+      21
+    ],
+    "seasonal_availability": "Toute l'année (éviter fin oct - début déc : mousson)",
+    "specialized_equipment": [
+      "yoga_props",
+      "singing_bowls",
+      "gongs",
+      "massage_tables",
+      "reiki_tables",
+      "essential_oils",
+      "incense",
+      "candles",
+      "altar_space",
+      "blankets"
+    ],
+    "ceremonies_allowed": true,
+    "silence_policy": "Retraites silencieuses possibles. Zone plage naturellement calme.",
+    "noise_level": "quiet",
+    "climate_info": "Tropical. 27-34°C toute l'année. Mousson octobre-décembre. Humidité élevée.",
+    "nearest_hospital_km": 15,
+    "retreats_hosted_count": 500,
+    "testimonials": [
+      {
+        "author": "Florence G.",
+        "role": "Maître Reiki et formatrice",
+        "text": "Orion est LE lieu pour les formations Reiki et thérapies holistiques en Asie. Tables de Reiki disponibles, salle de soins dédiée, et une communauté de praticiens sur place. Rapport qualité-prix exceptionnel.",
+        "rating": 5,
+        "date": "2025-12-01"
+      },
+      {
+        "author": "Pierre V.",
+        "role": "Naturopathe",
+        "text": "Les programmes détox sont parmi les meilleurs que j'ai vus. Le hammam aux herbes et le sauna infrarouge complètent parfaitement les soins. Fondé en 2005, l'expérience se ressent.",
+        "rating": 4,
+        "date": "2025-10-15"
+      }
+    ],
+    "exclusive_hire_only": false
   },
   {
     "id": "cret007",
@@ -788,7 +1075,40 @@
     "lead_time_weeks": 14,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "en",
+      "el"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 60 jours avant. 50% remboursé entre 30-60 jours. Non remboursable sous 30 jours.",
+    "deposit_required": "30% à la réservation, solde 45 jours avant.",
+    "group_discount": false,
+    "suggested_durations": [
+      7,
+      8
+    ],
+    "seasonal_availability": "Mai, Juillet, Août uniquement",
+    "specialized_equipment": [
+      "yoga_props",
+      "blankets",
+      "candles"
+    ],
+    "ceremonies_allowed": false,
+    "silence_policy": "Pas de politique de silence formelle. Lieu naturellement calme.",
+    "noise_level": "very_quiet",
+    "climate_info": "Méditerranéen sec en été. Juillet-août 28-35°C, mai 22-28°C. Brise marine agréable.",
+    "nearest_hospital_km": 35,
+    "retreats_hosted_count": 60,
+    "testimonials": [
+      {
+        "author": "Sarah W.",
+        "role": "Professeur de yoga Vinyasa",
+        "text": "Le cadre est à couper le souffle. La pratique face à la mer est transformative. La cuisine crétoise avec 90% de produits locaux est un vrai bonheur.",
+        "rating": 5,
+        "date": "2025-08-10"
+      }
+    ],
+    "exclusive_hire_only": false
   },
   {
     "id": "maro008",
@@ -893,7 +1213,43 @@
     "lead_time_weeks": 8,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "en",
+      "de",
+      "fr",
+      "ar"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 45 jours avant. Non remboursable sous 45 jours. Report possible sur une autre date.",
+    "deposit_required": "40% à la réservation, solde 30 jours avant.",
+    "group_discount": false,
+    "suggested_durations": [
+      5
+    ],
+    "seasonal_availability": "Toute l'année (éviter juillet-août : chaleur intense)",
+    "specialized_equipment": [
+      "yoga_props",
+      "essential_oils",
+      "incense",
+      "candles",
+      "blankets"
+    ],
+    "ceremonies_allowed": true,
+    "silence_policy": "Riad intimiste. Terrasse silencieuse pour la méditation. Respect de la tranquillité des voisins.",
+    "noise_level": "moderate",
+    "climate_info": "Semi-aride. Été 35-45°C, hiver 12-22°C, printemps/automne 20-30°C idéal. Très peu de pluie.",
+    "nearest_hospital_km": 3,
+    "retreats_hosted_count": 80,
+    "testimonials": [
+      {
+        "author": "Nathalie C.",
+        "role": "Professeur de yoga",
+        "text": "L'expérience NOSADE est unique : yoga le matin, exploration des souks l'après-midi, cuisine marocaine le soir. Le riad est un bijou. L'option désert du Sahara est inoubliable.",
+        "rating": 5,
+        "date": "2025-11-20"
+      }
+    ],
+    "exclusive_hire_only": true
   },
   {
     "id": "cost009",
@@ -1008,7 +1364,50 @@
     "lead_time_weeks": 12,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "en",
+      "es"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 60 jours avant. 50% remboursé entre 30-60 jours. Non remboursable sous 30 jours.",
+    "deposit_required": "25% à la réservation, solde 45 jours avant.",
+    "group_discount": true,
+    "suggested_durations": [
+      5,
+      7
+    ],
+    "seasonal_availability": "Toute l'année (saison sèche déc-avril recommandée)",
+    "specialized_equipment": [
+      "yoga_props",
+      "singing_bowls",
+      "blankets",
+      "essential_oils",
+      "candles",
+      "massage_tables"
+    ],
+    "ceremonies_allowed": true,
+    "silence_policy": "Pas de politique de silence stricte. Atmosphère détendue. Heures calmes : 22h-7h.",
+    "noise_level": "quiet",
+    "climate_info": "Tropical. 25-33°C toute l'année. Saison des pluies mai-novembre (averses l'après-midi).",
+    "nearest_hospital_km": 25,
+    "retreats_hosted_count": 40,
+    "testimonials": [
+      {
+        "author": "Julie M.",
+        "role": "Coach de yoga et surf",
+        "text": "Nosara est une zone bleue unique. La vue océan depuis le shala est extraordinaire. Le restaurant farm-to-table est excellent. Parfait pour combiner yoga et surf.",
+        "rating": 5,
+        "date": "2025-07-30"
+      },
+      {
+        "author": "Carlos R.",
+        "role": "Organisateur de retraites",
+        "text": "L'équipe d'aide à l'organisation est professionnelle et réactive. Le lieu s'adapte aussi bien aux retraites qu'aux mariages. Accueil chaleureux.",
+        "rating": 4,
+        "date": "2025-06-15"
+      }
+    ],
+    "exclusive_hire_only": false
   },
   {
     "id": "brit010",
@@ -1111,6 +1510,40 @@
     "lead_time_weeks": 16,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
-    "is_claimed": false
+    "is_claimed": false,
+    "languages_spoken": [
+      "en"
+    ],
+    "cancellation_policy": "Annulation gratuite jusqu'à 30 jours avant. Non remboursable sous 30 jours.",
+    "deposit_required": "50% à la réservation, solde 14 jours avant.",
+    "group_discount": false,
+    "suggested_durations": [
+      2,
+      3
+    ],
+    "seasonal_availability": "Printemps (avril-mai) et Automne (sept-oct)",
+    "specialized_equipment": [
+      "yoga_props",
+      "crystal_bowls",
+      "singing_bowls",
+      "blankets",
+      "candles"
+    ],
+    "ceremonies_allowed": false,
+    "silence_policy": "Marches méditatives silencieuses guidées. Pas de politique de silence stricte.",
+    "noise_level": "very_quiet",
+    "climate_info": "Océanique tempéré. Printemps 10-18°C, automne 8-16°C. Pluie possible. Prévoir couches chaudes.",
+    "nearest_hospital_km": 20,
+    "retreats_hosted_count": 25,
+    "testimonials": [
+      {
+        "author": "Emma T.",
+        "role": "Professeur de Hatha Yoga",
+        "text": "Le glamping dans les Cotswolds est une expérience unique. Le bain sonore aux bols de cristal sous les étoiles est magique. Le domaine de 600 hectares offre un isolement total.",
+        "rating": 5,
+        "date": "2025-10-05"
+      }
+    ],
+    "exclusive_hire_only": true
   }
 ]

@@ -1,7 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { QuestionnaireState } from "@/lib/questionnaire-types";
 import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
+
+const BANNER_DISMISSED_KEY = "questionnaire_banner_dismissed";
 
 interface QuestionnaireBannerProps {
   state: QuestionnaireState | null;
@@ -16,6 +19,11 @@ export function QuestionnaireBanner({ state, matchCount, questionnaireSummary, o
   const isCompleted = state?.completedAt != null;
   const hasStarted = state !== null && Object.keys(state.answers).length > 0;
   const totalSteps = QUESTIONNAIRE_STEPS.length;
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem(BANNER_DISMISSED_KEY)) setDismissed(true);
+  }, []);
 
   // Completed state: unified bar with match count + profile summary
   if (isCompleted) {
@@ -114,44 +122,44 @@ export function QuestionnaireBanner({ state, matchCount, questionnaireSummary, o
     );
   }
 
-  // Not started: prominent banner
+  // Not started: compact inline banner, dismissible
+  if (dismissed) return null;
+
   return (
-    <div className="mb-6 p-6 bg-gradient-to-r from-[var(--surface)] to-emerald-50/30 border border-[var(--primary)]/30 rounded-xl print:hidden">
-      <div className="flex items-start gap-4">
-        <div className="shrink-0 w-10 h-10 bg-[var(--primary)]/10 rounded-full flex items-center justify-center">
-          <svg className="w-5 h-5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="mb-4 px-4 py-3 bg-gradient-to-r from-[var(--surface)] to-emerald-50/30 border border-[var(--primary)]/30 rounded-xl print:hidden">
+      <div className="flex items-center gap-3">
+        <div className="shrink-0 w-8 h-8 bg-[var(--primary)]/10 rounded-full flex items-center justify-center">
+          <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <div className="flex-1">
-          <h3 className="font-bold text-[var(--foreground)]">
-            Bienvenue ! Prenons quelques minutes pour comprendre ce que tu recherches.
-          </h3>
-          <p className="text-sm text-[var(--muted)] mt-1 leading-relaxed">
-            Un petit questionnaire en 6 étapes pour que les annonces correspondent vraiment à ce que tu cherches dans l&apos;habitat groupé.
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-[var(--foreground)]">
+            Personnalise tes résultats
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {onStartVoice && (
-              <button
-                onClick={onStartVoice}
-                className="px-5 py-2.5 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors inline-flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-                Dis-nous ce que tu cherches
-              </button>
-            )}
-            <a
-              href="/questionnaire"
-              className="px-5 py-2.5 border border-[var(--primary)] text-[var(--primary)] rounded-lg text-sm font-medium hover:bg-[var(--primary)]/10 transition-colors inline-flex items-center gap-2"
-            >
-              Remplir le questionnaire
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </a>
-          </div>
+          <p className="text-xs text-[var(--muted)] mt-0.5 hidden sm:block">
+            Questionnaire rapide pour affiner les annonces selon tes critères.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href="/questionnaire"
+            className="px-3.5 py-1.5 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+          >
+            Commencer
+          </a>
+          <button
+            onClick={() => {
+              setDismissed(true);
+              localStorage.setItem(BANNER_DISMISSED_KEY, "true");
+            }}
+            className="p-1 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+            aria-label="Fermer"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

@@ -11,6 +11,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@elevenlabs/client": "^0.14.0",
+    "@elevenlabs/react": "^0.14.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
     "@types/leaflet": "^1.9.21",

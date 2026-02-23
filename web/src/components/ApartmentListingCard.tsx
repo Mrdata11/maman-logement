@@ -9,6 +9,7 @@ import {
   PEB_RATING_COLORS,
 } from "@/lib/types";
 import { PlaceholderImage } from "./PlaceholderImage";
+import { prioritizePhotos } from "@/lib/image-utils";
 
 function getPublicationFreshness(dateStr: string | null): {
   label: string;
@@ -68,7 +69,7 @@ export function ApartmentListingCard({
   const isArchived = status === "archived";
   const freshness = getPublicationFreshness(listing.date_published);
 
-  const images = listing.images;
+  const images = prioritizePhotos(listing.images);
   const maxVisible = Math.min(images.length, 8);
 
   const prevImg = useCallback(
@@ -156,20 +157,6 @@ export function ApartmentListingCard({
             {imgIndex + 1}/{maxVisible}
           </span>
 
-          {/* Score badge overlay */}
-          {evaluation && (
-            <span
-              className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold shadow ${
-                evaluation.quality_score >= 70
-                  ? "bg-emerald-500 text-white"
-                  : evaluation.quality_score >= 40
-                  ? "bg-amber-400 text-white"
-                  : "bg-rose-500 text-white"
-              }`}
-            >
-              {evaluation.quality_score}/100
-            </span>
-          )}
         </div>
       ) : (
         <PlaceholderImage className="aspect-[16/9]" />

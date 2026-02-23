@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Listing,
@@ -8,6 +8,9 @@ import {
   ListingStatus,
   STATUS_CONFIG,
 } from "@/lib/types";
+import { ProfileEditorModal } from "./ProfileEditorModal";
+import { ListingNotesPanel } from "./ListingNotesPanel";
+import { ListingEmailPanel } from "./ListingEmailPanel";
 
 interface ListingDetailActionsProps {
   listing: Listing;
@@ -32,7 +35,6 @@ export function ListingDetailActions({
   const [status, setStatus] = useState<ListingStatus>("new");
   const [notes, setNotes] = useState("");
   const [showNotes, setShowNotes] = useState(false);
-  const [localNotes, setLocalNotes] = useState("");
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [emailGenerating, setEmailGenerating] = useState(false);
@@ -45,12 +47,6 @@ export function ListingDetailActions({
   const [profileName, setProfileName] = useState("");
   const [profileContext, setProfileContext] = useState(DEFAULT_PROFILE_CONTEXT);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
-  const [editingName, setEditingName] = useState("");
-  const [editingContext, setEditingContext] = useState("");
-  const [isRecording, setIsRecording] = useState(false);
-  const [voiceTranscript, setVoiceTranscript] = useState("");
-  const recognitionRef = useRef<unknown>(null);
-  const emailTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const isFavorite = status === "favorite";
 
@@ -68,7 +64,6 @@ export function ListingDetailActions({
       }
       if (savedNotes[listing.id]) {
         setNotes(savedNotes[listing.id]);
-        setLocalNotes(savedNotes[listing.id]);
       }
     } catch {
       // Ignore parse errors
@@ -84,7 +79,6 @@ export function ListingDetailActions({
     } catch {
       // Ignore parse errors
     }
-
   }, [listing.id]);
 
   // Show toast helper
@@ -108,7 +102,6 @@ export function ListingDetailActions({
         `Statut: ${STATUS_CONFIG[newStatus].label}`,
         newStatus === "favorite" ? "success" : "info"
       );
-      // Notify nav heart icon
       if (newStatus === "favorite" && prevStatus !== "favorite") {
         window.dispatchEvent(new CustomEvent("favorite-added"));
       } else if (newStatus !== "favorite" && prevStatus === "favorite") {
@@ -124,88 +117,28 @@ export function ListingDetailActions({
   }, [isFavorite, handleStatusChange]);
 
   // Notes save
-  const handleNotesSave = () => {
-    setNotes(localNotes);
+  const handleNotesSave = useCallback((newNotes: string) => {
+    setNotes(newNotes);
     const savedNotes = JSON.parse(
       localStorage.getItem("listing_notes") || "{}"
     );
-    savedNotes[listing.id] = localNotes;
+    savedNotes[listing.id] = newNotes;
     localStorage.setItem("listing_notes", JSON.stringify(savedNotes));
     setShowNotes(false);
     showToast("Notes sauvegardees");
-  };
-
-  // Voice recording for profile
-  const startVoiceRecording = useCallback(() => {
-    const SpeechRecognition = (
-      (window as unknown as Record<string, unknown>).SpeechRecognition ||
-      (window as unknown as Record<string, unknown>).webkitSpeechRecognition
-    ) as (new () => { lang: string; continuous: boolean; interimResults: boolean; onresult: ((e: unknown) => void) | null; onerror: ((e: unknown) => void) | null; onend: (() => void) | null; start(): void; stop(): void }) | undefined;
-
-    if (!SpeechRecognition) {
-      showToast("La reconnaissance vocale n'est pas supportee par ce navigateur", "error");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "fr-FR";
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognitionRef.current = recognition;
-
-    let finalTranscript = "";
-
-    recognition.onresult = (event: unknown) => {
-      const e = event as { resultIndex: number; results: { length: number; [i: number]: { isFinal: boolean; [j: number]: { transcript: string } } } };
-      let interim = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) {
-          finalTranscript += e.results[i][0].transcript;
-        } else {
-          interim += e.results[i][0].transcript;
-        }
-      }
-      setVoiceTranscript(finalTranscript + interim);
-    };
-
-    recognition.onerror = () => {
-      setIsRecording(false);
-      showToast("Erreur de reconnaissance vocale", "error");
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-      if (finalTranscript.trim()) {
-        setEditingContext((prev) => prev ? prev + "\n" + finalTranscript.trim() : finalTranscript.trim());
-        setVoiceTranscript("");
-      }
-    };
-
-    setIsRecording(true);
-    setVoiceTranscript("");
-    recognition.start();
-  }, [showToast]);
-
-  const stopVoiceRecording = useCallback(() => {
-    const recognition = recognitionRef.current as { stop(): void } | null;
-    if (recognition) {
-      recognition.stop();
-    }
-    setIsRecording(false);
-  }, []);
+  }, [listing.id, showToast]);
 
   // Save profile
-  const handleProfileSave = useCallback(() => {
-    const profile = { name: editingName, context: editingContext };
+  const handleProfileSave = useCallback((name: string, context: string) => {
+    const profile = { name, context };
     localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
-    setProfileName(editingName);
-    setProfileContext(editingContext);
+    setProfileName(name);
+    setProfileContext(context);
     setShowProfileEditor(false);
     showToast("Profil sauvegarde");
-    // Clear generated email so it regenerates with new profile
     setGeneratedEmail(null);
     setEditableEmail(null);
-  }, [editingName, editingContext, showToast]);
+  }, [showToast]);
 
   // Generate email
   const handleAutoEmail = useCallback(async () => {
@@ -214,10 +147,7 @@ export function ListingDetailActions({
       return;
     }
 
-    if (generatedEmail) {
-      // Already generated - email is visible below
-      return;
-    }
+    if (generatedEmail) return;
 
     setEmailGenerating(true);
     try {
@@ -252,7 +182,7 @@ export function ListingDetailActions({
     } finally {
       setEmailGenerating(false);
     }
-  }, [listing, evaluation, generatedEmail, editableEmail, profileName, profileContext, showToast]);
+  }, [listing, evaluation, generatedEmail, profileName, profileContext, showToast]);
 
   // Copy email to clipboard
   const handleCopyEmail = useCallback(async () => {
@@ -328,24 +258,9 @@ export function ListingDetailActions({
     }
   }, [listing, evaluation, showToast]);
 
-  // Regenerate email
-  const handleRegenerateEmail = useCallback(() => {
-    setGeneratedEmail(null);
-    setEditableEmail(null);
-  }, []);
-
-  // Auto-resize email textarea to fit content
-  useEffect(() => {
-    const ta = emailTextareaRef.current;
-    if (!ta) return;
-    ta.style.height = "auto";
-    ta.style.height = ta.scrollHeight + "px";
-  }, [editableEmail]);
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger if typing in an input
       const tag = (e.target as HTMLElement).tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
 
@@ -360,7 +275,6 @@ export function ListingDetailActions({
       if (e.key === "n" || e.key === "N") {
         e.preventDefault();
         setShowNotes(true);
-        setLocalNotes(notes);
       }
       if (e.key === "c" || e.key === "C") {
         e.preventDefault();
@@ -389,7 +303,6 @@ export function ListingDetailActions({
     toggleFavorite,
     handleAutoEmail,
     handleCopyListing,
-    notes,
     listing.source_url,
     showNotes,
     showStatusMenu,
@@ -506,10 +419,7 @@ export function ListingDetailActions({
 
         {/* Notes toggle */}
         <button
-          onClick={() => {
-            setShowNotes(!showNotes);
-            setLocalNotes(notes);
-          }}
+          onClick={() => setShowNotes(!showNotes)}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
             notes
               ? "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
@@ -605,7 +515,7 @@ export function ListingDetailActions({
         {listing.contact && !listing.contact.includes("@") && (
           <a
             href={`tel:${listing.contact.replace(/\s/g, "")}`}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-green-50 text-green-600 hover:bg-green-100:bg-green-900/40 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-green-50 text-green-600 hover:bg-green-100 transition-all"
           >
             <svg
               className="w-5 h-5"
@@ -676,169 +586,31 @@ export function ListingDetailActions({
         </div>
       </div>
 
-      {/* Profile editor (centered modal popup) */}
+      {/* Profile editor modal */}
       {showProfileEditor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowProfileEditor(false)}
-          />
-          <div className="relative w-full max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-2xl animate-fadeIn p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-[var(--foreground)] flex items-center gap-2">
-                <svg className="w-5 h-5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Mon profil email
-              </h3>
-              <button
-                onClick={() => setShowProfileEditor(false)}
-                className="text-[var(--muted)] hover:text-[var(--foreground)] p-1 rounded-lg hover:bg-[var(--surface)]"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[var(--foreground)] mb-1">
-                  Prenom (pour la signature)
-                </label>
-                <input
-                  type="text"
-                  value={editingName}
-                  onChange={(e) => setEditingName(e.target.value)}
-                  placeholder="Ex: Marie"
-                  className="w-full px-3 py-2 text-sm border border-[var(--input-border)] rounded-md bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-medium text-[var(--foreground)]">
-                    Ma situation / ce que je cherche
-                  </label>
-                  <button
-                    onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
-                    className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors ${
-                      isRecording
-                        ? "bg-red-50 text-red-600 hover:bg-red-100"
-                        : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
-                    }`}
-                    title={isRecording ? "Arreter l'enregistrement" : "Dicter avec le micro"}
-                  >
-                    <svg className={`w-3.5 h-3.5 ${isRecording ? "animate-recording-pulse" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
-                    {isRecording ? "Arreter" : "Dicter"}
-                  </button>
-                </div>
-                {isRecording && voiceTranscript && (
-                  <div className="mb-1.5 px-3 py-2 text-xs bg-red-50 border border-red-200 rounded-md text-red-700 italic">
-                    {voiceTranscript}
-                  </div>
-                )}
-                <textarea
-                  value={editingContext}
-                  onChange={(e) => setEditingContext(e.target.value)}
-                  placeholder="Decrivez votre situation, vos besoins, ce qui est important pour vous..."
-                  rows={6}
-                  className="w-full px-3 py-2 text-sm border border-[var(--input-border)] rounded-md bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                />
-                <p className="text-xs text-[var(--muted)] mt-1">
-                  Ce texte sera utilise pour personnaliser tous vos emails de contact.
-                </p>
-              </div>
-
-              <div className="flex gap-2 pt-1">
-                <button
-                  onClick={handleProfileSave}
-                  className="text-sm px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:bg-[var(--primary-hover)] font-medium"
-                >
-                  Sauvegarder
-                </button>
-                <button
-                  onClick={() => setShowProfileEditor(false)}
-                  className="text-sm px-3 py-2 text-[var(--muted)] hover:text-[var(--foreground)]"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={() => {
-                    setEditingName("");
-                    setEditingContext(DEFAULT_PROFILE_CONTEXT);
-                  }}
-                  className="text-sm px-3 py-2 text-[var(--primary)] hover:opacity-80 ml-auto"
-                >
-                  Reinitialiser
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProfileEditorModal
+          initialName={profileName}
+          initialContext={profileContext}
+          onSave={handleProfileSave}
+          onClose={() => setShowProfileEditor(false)}
+          showToast={showToast}
+        />
       )}
 
-      {/* Notes panel (collapsible) */}
+      {/* Notes panel */}
       {showNotes && (
-        <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg animate-fadeIn">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-amber-800">
-              Mes notes
-            </h3>
-            <button
-              onClick={() => setShowNotes(false)}
-              className="text-amber-400 hover:text-amber-600:text-amber-200"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <textarea
-            value={localNotes}
-            onChange={(e) => setLocalNotes(e.target.value)}
-            placeholder="Tes impressions, questions, points importants..."
-            rows={3}
-            autoFocus
-            className="w-full px-3 py-2 text-sm border border-amber-300 rounded-md bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-amber-400"
-          />
-          <div className="flex gap-2 mt-2">
-            <button
-              onClick={handleNotesSave}
-              className="text-sm px-4 py-1.5 bg-amber-600 text-white rounded-md hover:bg-amber-700 font-medium"
-            >
-              Sauvegarder
-            </button>
-            <button
-              onClick={() => setShowNotes(false)}
-              className="text-sm px-3 py-1.5 text-[var(--muted)] hover:text-[var(--foreground)]"
-            >
-              Annuler
-            </button>
-          </div>
-        </div>
+        <ListingNotesPanel
+          notes={notes}
+          onSave={handleNotesSave}
+          onClose={() => setShowNotes(false)}
+        />
       )}
 
       {/* Existing notes preview */}
       {notes && !showNotes && (
         <div
-          onClick={() => {
-            setShowNotes(true);
-            setLocalNotes(notes);
-          }}
-          className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-100:bg-amber-900/30 transition-colors"
+          onClick={() => setShowNotes(true)}
+          className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-100 transition-colors"
         >
           <div className="flex items-center gap-2 mb-1">
             <svg
@@ -864,116 +636,25 @@ export function ListingDetailActions({
         </div>
       )}
 
-      {/* Generated email preview (editable) */}
+      {/* Generated email preview */}
       {generatedEmail && (
-        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg animate-fadeIn">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-green-800 flex items-center gap-1.5">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-              Email genere
-              {profileName && (
-                <span className="text-xs font-normal text-green-600">
-                  (de {profileName})
-                </span>
-              )}
-            </h3>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setShowProfileEditor(true);
-                  setEditingName(profileName);
-                  setEditingContext(profileContext);
-                }}
-                className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg bg-[var(--surface)] text-[var(--foreground)] border border-[var(--border-color)] hover:bg-[var(--border-light)] shadow-sm transition-colors font-medium"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Mon profil
-              </button>
-              <button
-                onClick={() => {
-                  setGeneratedEmail(null);
-                  setEditableEmail(null);
-                }}
-                className="text-green-400 hover:text-green-600:text-green-200 ml-1"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <textarea
-            ref={emailTextareaRef}
-            value={editableEmail ?? ""}
-            onChange={(e) => setEditableEmail(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-green-300 rounded-md bg-[var(--input-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-green-400 leading-relaxed resize-none overflow-hidden"
-          />
-
-          <p className="text-xs text-green-600 text-center mt-3">
-            Vous pouvez modifier le texte avant de le copier
-          </p>
-
-          <div className="flex gap-3 mt-3">
-            <button
-              onClick={handleRegenerateEmail}
-              disabled={emailGenerating}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold border border-green-300 text-green-700 hover:bg-green-100 disabled:opacity-50 transition-all"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Regenerer
-            </button>
-            <button
-              onClick={handleCopyEmail}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
-                copied
-                  ? "bg-green-100 text-green-700 ring-2 ring-green-300"
-                  : "bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] shadow-md hover:shadow-lg"
-              }`}
-            >
-              {copied ? (
-                <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Copie !
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                  </svg>
-                  Copier l&apos;email
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+        <ListingEmailPanel
+          email={generatedEmail}
+          profileName={profileName}
+          emailGenerating={emailGenerating}
+          onCopy={handleCopyEmail}
+          onRegenerate={() => {
+            setGeneratedEmail(null);
+            setEditableEmail(null);
+          }}
+          onEditableChange={setEditableEmail}
+          onOpenProfileEditor={() => setShowProfileEditor(true)}
+          onClose={() => {
+            setGeneratedEmail(null);
+            setEditableEmail(null);
+          }}
+          copied={copied}
+        />
       )}
 
       {/* Toast notification */}

@@ -5,11 +5,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Appartements Bruxelles",
   description:
-    "Appartements 2+ chambres \u00e0 louer \u00e0 Bruxelles, proches d\u2019Ixelles. Annonces \u00e9valu\u00e9es par IA avec score de qualit\u00e9.",
+    "Appartements 2+ chambres à louer à Bruxelles, proches d’Ixelles. Annonces évaluées par IA avec score de qualité.",
   openGraph: {
     title: "Appartements Bruxelles",
     description:
-      "Appartements 2+ chambres \u00e0 louer \u00e0 Bruxelles, proches d\u2019Ixelles. \u00c9valu\u00e9s par IA.",
+      "Appartements 2+ chambres à louer à Bruxelles, proches d’Ixelles. Évalués par IA.",
   },
 };
 
@@ -17,7 +17,7 @@ export default function AppartementsPage() {
   const items = getApartmentsWithEvals();
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">
         Appartements Bruxelles
       </h1>

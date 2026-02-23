@@ -69,7 +69,7 @@ export function AuthButton({ onAuthChange, className, redirectTo }: AuthButtonPr
     setSendingEmail(false);
 
     if (error) {
-      setEmailError("Erreur lors de l'envoi. V\u00e9rifiez votre adresse email.");
+      setEmailError("Erreur lors de l'envoi. Vérifiez votre adresse email.");
     } else {
       setEmailSent(true);
     }

@@ -31,9 +31,9 @@ export function RetreatHeroBanner() {
         Trouvez le lieu parfait pour votre retraite
       </h2>
       <p className="text-gray-600 max-w-2xl">
-        Parcourez notre s\u00e9lection de lieux adapt\u00e9s aux retraites de yoga, m\u00e9ditation,
-        danse et bien-\u00eatre. Filtrez par capacit\u00e9, budget, cadre et \u00e9quipements
-        pour trouver l'endroit id\u00e9al o\u00f9 organiser votre prochaine retraite.
+        Parcourez notre sélection de lieux adaptés aux retraites de yoga, méditation,
+        danse et bien-être. Filtrez par capacité, budget, cadre et équipements
+        pour trouver l'endroit idéal où organiser votre prochaine retraite.
       </p>
     </div>
   );

@@ -41,8 +41,8 @@ function Section({
   );
 }
 
-export function TagsDisplay({ tags }: { tags: ListingTags }) {
-  const [open, setOpen] = useState(false);
+export function TagsDisplay({ tags, defaultOpen = false }: { tags: ListingTags; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
 
   const hasComposition =
     tags.group_size !== null ||
@@ -134,7 +134,7 @@ export function TagsDisplay({ tags }: { tags: ListingTags }) {
           {/* Animaux */}
           {hasPets && (
             <Section title="Animaux">
-              <BooleanBadge value={tags.pets_allowed} trueLabel="Animaux accept\u00e9s" falseLabel="Pas d'animaux" />
+              <BooleanBadge value={tags.pets_allowed} trueLabel="Animaux acceptés" falseLabel="Pas d'animaux" />
               {tags.pet_details.map((p) => (
                 <TagPill key={p} label={TAG_LABELS.pet_details[p] || p} />
               ))}
@@ -148,19 +148,19 @@ export function TagsDisplay({ tags }: { tags: ListingTags }) {
                 <TagPill label={TAG_LABELS.unit_type[tags.unit_type] || tags.unit_type} />
               )}
               {tags.surface_m2 !== null && (
-                <TagPill label={`${tags.surface_m2} m\u00b2`} />
+                <TagPill label={`${tags.surface_m2} m²`} />
               )}
               {tags.num_bedrooms !== null && (
                 <TagPill label={`${tags.num_bedrooms} chambre${tags.num_bedrooms > 1 ? "s" : ""}`} />
               )}
-              <BooleanBadge value={tags.furnished} trueLabel="Meubl\u00e9" falseLabel="Non meubl\u00e9" />
+              <BooleanBadge value={tags.furnished} trueLabel="Meublé" falseLabel="Non meublé" />
               <BooleanBadge value={tags.accessible_pmr} trueLabel="Accessible PMR" falseLabel="Non accessible PMR" />
             </Section>
           )}
 
           {/* Espaces partagés */}
           {tags.shared_spaces.length > 0 && (
-            <Section title="Espaces partag\u00e9s">
+            <Section title="Espaces partagés">
               {tags.shared_spaces.map((s) => (
                 <TagPill key={s} label={TAG_LABELS.shared_spaces[s] || s} />
               ))}

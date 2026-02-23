@@ -161,12 +161,12 @@ export function ProfileVoiceIntro({
         setTranscript(data.text.trim());
         setPhase("reviewing");
       } else {
-        setError("Aucun texte d\u00e9tect\u00e9. Essaie de parler plus fort ou tape ta r\u00e9ponse ci-dessous.");
+        setError("Aucun texte détecté. Essaie de parler plus fort ou tape ta réponse ci-dessous.");
         setPhase("ready");
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Erreur de transcription.";
-      setError(msg + " Tu peux taper ta r\u00e9ponse ci-dessous.");
+      setError(msg + " Tu peux taper ta réponse ci-dessous.");
       setVoiceFailed(true);
       setPhase("ready");
     }
@@ -175,7 +175,7 @@ export function ProfileVoiceIntro({
   const startMediaRecording = useCallback(async () => {
     try {
       if (!hasMediaRecorderSupport()) {
-        throw new Error("Enregistrement audio non support\u00e9 par ce navigateur.");
+        throw new Error("Enregistrement audio non supporté par ce navigateur.");
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -209,7 +209,7 @@ export function ProfileVoiceIntro({
       setPhase("recording");
       startTimers();
     } catch {
-      setError("Impossible d'acc\u00e9der au microphone. Tu peux taper ta r\u00e9ponse ci-dessous.");
+      setError("Impossible d'accéder au microphone. Tu peux taper ta réponse ci-dessous.");
       setVoiceFailed(true);
       setPhase("ready");
     }
@@ -263,7 +263,7 @@ export function ProfileVoiceIntro({
     recognition.onerror = async (event) => {
       if (event.error === "not-allowed") {
         setError(
-          "L'acc\u00e8s au micro a \u00e9t\u00e9 refus\u00e9. Tu peux taper ta r\u00e9ponse ci-dessous."
+          "L'accès au micro a été refusé. Tu peux taper ta réponse ci-dessous."
         );
         setVoiceFailed(true);
         isRecordingRef.current = false;
@@ -619,7 +619,7 @@ export function ProfileVoiceIntro({
               d="M15 19l-7-7 7-7"
             />
           </svg>
-          {currentIndex > 0 ? "Question pr\u00e9c\u00e9dente" : "Retour"}
+          {currentIndex > 0 ? "Question précédente" : "Retour"}
         </button>
 
         {phase !== "recording" && phase !== "cleaning" && phase !== "transcribing" && (

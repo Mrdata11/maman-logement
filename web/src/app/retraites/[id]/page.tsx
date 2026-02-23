@@ -14,10 +14,10 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const item = getRetreatVenueById(id);
-  if (!item) return { title: "Lieu non trouv\u00e9" };
+  if (!item) return { title: "Lieu non trouvé" };
 
   const { venue, evaluation } = item;
-  const title = `${venue.name}${venue.city || venue.region ? ` \u2014 ${venue.city || venue.region}` : ""}`;
+  const title = `${venue.name}${venue.city || venue.region ? ` — ${venue.city || venue.region}` : ""}`;
   const description = evaluation?.ai_description || venue.description.slice(0, 160);
 
   return {
@@ -46,7 +46,7 @@ export default async function RetreatVenuePage({ params }: { params: Promise<{ i
   }
 
   const { venue, evaluation } = item;
-  const title = `${venue.name}${venue.city || venue.region ? ` \u2014 ${venue.city || venue.region}` : ""}`;
+  const title = `${venue.name}${venue.city || venue.region ? ` — ${venue.city || venue.region}` : ""}`;
   const description = evaluation?.ai_description || venue.description.slice(0, 160);
 
   const jsonLd = {
@@ -68,7 +68,7 @@ export default async function RetreatVenuePage({ params }: { params: Promise<{ i
         ...(venue.capacity_max && {
           amenityFeature: {
             "@type": "LocationFeatureSpecification",
-            name: "Capacit\u00e9 maximale",
+            name: "Capacité maximale",
             value: venue.capacity_max,
           },
         }),
@@ -100,7 +100,7 @@ export default async function RetreatVenuePage({ params }: { params: Promise<{ i
   };
 
   return (
-    <article>
+    <article className="max-w-6xl mx-auto">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

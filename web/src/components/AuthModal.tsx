@@ -75,7 +75,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       },
     });
     if (error) {
-      setError("Erreur lors de l\u2019envoi. V\u00e9rifiez votre email.");
+      setError("Erreur lors de l’envoi. Vérifiez votre email.");
       setLoading(false);
     } else {
       setEmailSent(true);

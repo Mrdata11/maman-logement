@@ -26,7 +26,7 @@ export async function generateMetadata({
   const description =
     evaluation?.quality_summary ||
     listing.description?.slice(0, 160) ||
-    `Appartement ${listing.bedrooms ? listing.bedrooms + " chambres" : ""} \u00e0 ${listing.commune || "Bruxelles"}`;
+    `Appartement ${listing.bedrooms ? listing.bedrooms + " chambres" : ""} à ${listing.commune || "Bruxelles"}`;
   const firstImage =
     listing.images.length > 0 ? listing.images[0] : undefined;
 
@@ -161,7 +161,7 @@ export default async function ApartmentDetailPage({
   };
 
   return (
-    <article>
+    <article className="max-w-6xl mx-auto">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -338,8 +338,8 @@ export default async function ApartmentDetailPage({
             [listing.has_parking, `Parking${listing.parking_count && listing.parking_count > 1 ? ` (${listing.parking_count})` : ""}`],
             [listing.has_elevator, "Ascenseur"],
             [listing.has_cellar, "Cave"],
-            [listing.furnished, "Meubl\u00e9"],
-            [listing.pets_allowed, "Animaux accept\u00e9s"],
+            [listing.furnished, "Meublé"],
+            [listing.pets_allowed, "Animaux acceptés"],
           ]
             .filter(([val]) => val === true)
             .map(([, label]) => (

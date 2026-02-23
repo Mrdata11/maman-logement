@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { UIFilterState, UITagFilters, LISTING_TYPE_LABELS, DEFAULT_UI_FILTERS, DEFAULT_TAG_FILTERS, COUNTRY_LABELS, COUNTRY_FLAGS } from "@/lib/types";
+import { UIFilterState, UITagFilters, LISTING_TYPE_LABELS, DEFAULT_UI_FILTERS, DEFAULT_TAG_FILTERS, COUNTRY_LABELS, COUNTRY_FLAGS, LANGUAGE_FLAGS, LANGUAGE_LABELS } from "@/lib/types";
 import { TagFilterPanel, TagFilterCounts } from "./TagFilterPanel";
 import {
   X,
@@ -17,6 +17,7 @@ interface FilterModalProps {
   uiFilters: UIFilterState;
   onUiFiltersChange: (filters: UIFilterState) => void;
   availableCountries: { value: string; count: number }[];
+  availableLanguages: { value: string; count: number }[];
   availableProvinces: { value: string; count: number }[];
   availableListingTypes: { value: string; count: number }[];
   availableSources: { value: string; count: number }[];
@@ -37,6 +38,7 @@ export function FilterModal({
   uiFilters,
   onUiFiltersChange,
   availableCountries,
+  availableLanguages,
   availableProvinces,
   availableListingTypes,
   availableSources,
@@ -73,6 +75,16 @@ export function FilterModal({
         ? uiFilters.countries.filter((c) => c !== country)
         : [...uiFilters.countries, country];
       onUiFiltersChange({ ...uiFilters, countries: next });
+    },
+    [uiFilters, onUiFiltersChange]
+  );
+
+  const toggleLanguage = useCallback(
+    (lang: string) => {
+      const next = uiFilters.languages.includes(lang)
+        ? uiFilters.languages.filter((l) => l !== lang)
+        : [...uiFilters.languages, lang];
+      onUiFiltersChange({ ...uiFilters, languages: next });
     },
     [uiFilters, onUiFiltersChange]
   );
@@ -173,6 +185,43 @@ export function FilterModal({
                       >
                         <span>{COUNTRY_FLAGS[value] || ""}</span>
                         <span>{COUNTRY_LABELS[value] || value}</span>
+                        <span className="text-xs text-[var(--muted-light)] ml-0.5">{count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Language filter */}
+            {availableLanguages.length > 1 && (
+              <div className="mt-5 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-semibold text-[var(--foreground)] tracking-tight">Langue de l&apos;annonce</span>
+                  {uiFilters.languages.length > 0 && (
+                    <button
+                      onClick={() => onUiFiltersChange({ ...uiFilters, languages: [] })}
+                      className="text-xs font-medium text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors"
+                    >
+                      Toutes
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {availableLanguages.map(({ value, count }) => {
+                    const selected = uiFilters.languages.includes(value);
+                    return (
+                      <button
+                        key={value}
+                        onClick={() => toggleLanguage(value)}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 border ${
+                          selected
+                            ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                            : "border-[var(--border-light)] bg-[var(--surface)]/30 text-[var(--foreground)] hover:border-[var(--primary)]/40"
+                        }`}
+                      >
+                        <span>{LANGUAGE_FLAGS[value] || ""}</span>
+                        <span>{LANGUAGE_LABELS[value] || value}</span>
                         <span className="text-xs text-[var(--muted-light)] ml-0.5">{count}</span>
                       </button>
                     );
@@ -308,12 +357,12 @@ export function FilterModal({
                         priceMin: e.target.value ? Number(e.target.value) : null,
                       })
                     }
-                    placeholder={`Min (${priceRange.min}\u00A0\u20AC)`}
+                    placeholder={`Min (${priceRange.min} €)`}
                     step={50}
                     min={0}
                     className={inputClass}
                   />
-                  <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"\u2013"}</span>
+                  <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"–"}</span>
                   <input
                     type="number"
                     aria-label="Prix maximum"
@@ -324,7 +373,7 @@ export function FilterModal({
                         priceMax: e.target.value ? Number(e.target.value) : null,
                       })
                     }
-                    placeholder={`Max (${priceRange.max}\u00A0\u20AC)`}
+                    placeholder={`Max (${priceRange.max} €)`}
                     step={50}
                     min={0}
                     className={inputClass}

@@ -99,7 +99,7 @@ export function CreationPreview() {
 
       if (error) {
         console.error("Error saving project:", error);
-        setSaveError("Erreur lors de la sauvegarde. Veuillez r\u00e9essayer.");
+        setSaveError("Erreur lors de la sauvegarde. Veuillez réessayer.");
         setSaving(false);
         return;
       }
@@ -107,7 +107,7 @@ export function CreationPreview() {
       localStorage.removeItem(CREATION_STORAGE_KEY);
       setSaved(true);
     } catch {
-      setSaveError("Erreur lors de la sauvegarde. Veuillez r\u00e9essayer.");
+      setSaveError("Erreur lors de la sauvegarde. Veuillez réessayer.");
     }
     setSaving(false);
   };
@@ -199,7 +199,7 @@ export function CreationPreview() {
             </svg>
           </div>
           <h1 className="text-xl font-bold text-[var(--foreground)]">
-            {projectName || "Votre projet d\u2019habitat group\u00e9"}
+            {projectName || "Votre projet d’habitat groupé"}
           </h1>
           {projectVision && (
             <p className="text-sm text-[var(--muted)] mt-2 leading-relaxed italic max-w-md mx-auto">

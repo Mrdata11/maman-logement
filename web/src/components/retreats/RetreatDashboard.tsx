@@ -158,7 +158,7 @@ export function RetreatDashboard({
           >
             <option value="score">Score</option>
             <option value="price">Prix</option>
-            <option value="capacity">Capacit\u00e9</option>
+            <option value="capacity">Capacité</option>
           </select>
 
           {/* View mode */}
@@ -200,7 +200,7 @@ export function RetreatDashboard({
       {compareIds.size > 0 && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
           <span className="text-sm text-blue-800">
-            {compareIds.size} lieu{compareIds.size > 1 ? "x" : ""} s\u00e9lectionn\u00e9{compareIds.size > 1 ? "s" : ""} pour comparaison
+            {compareIds.size} lieu{compareIds.size > 1 ? "x" : ""} sélectionné{compareIds.size > 1 ? "s" : ""} pour comparaison
           </span>
           <div className="flex gap-2">
             <button
@@ -230,7 +230,7 @@ export function RetreatDashboard({
             <div className="space-y-3">
               {filteredItems.length === 0 ? (
                 <div className="text-center py-16 text-gray-400">
-                  <p className="text-lg mb-2">Aucun lieu trouv\u00e9</p>
+                  <p className="text-lg mb-2">Aucun lieu trouvé</p>
                   <p className="text-sm">Essayez de modifier vos filtres</p>
                 </div>
               ) : (

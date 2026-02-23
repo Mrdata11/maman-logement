@@ -82,7 +82,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
         setTranscript(data.text.trim());
         setPhase("reviewing");
       } else {
-        setError("Aucun texte d\u00e9tect\u00e9. Essayez de parler plus fort.");
+        setError("Aucun texte détecté. Essayez de parler plus fort.");
         setPhase("idle");
       }
     } catch (err) {
@@ -100,7 +100,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
 
     try {
       if (!hasMediaRecorderSupport()) {
-        throw new Error("Enregistrement audio non support\u00e9.");
+        throw new Error("Enregistrement audio non supporté.");
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -140,7 +140,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
         stopRecording();
       }, 180_000);
     } catch {
-      setError("Impossible d\u2019acc\u00e9der au microphone. Vous pouvez taper votre description ci-dessous.");
+      setError("Impossible d’accéder au microphone. Vous pouvez taper votre description ci-dessous.");
       setVoiceFailed(true);
       setPhase("idle");
     }
@@ -158,7 +158,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
 
   const extractAnswers = useCallback(async () => {
     if (!transcript.trim() || transcript.trim().length < 10) {
-      setError("Le texte est trop court. Essayez de donner plus de d\u00e9tails.");
+      setError("Le texte est trop court. Essayez de donner plus de détails.");
       return;
     }
 
@@ -181,7 +181,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
 
       if (Object.keys(data.answers).length < 2) {
         setError(
-          "Nous n\u2019avons pas pu extraire assez d\u2019informations. Essayez de donner plus de d\u00e9tails, ou utilisez le questionnaire guid\u00e9."
+          "Nous n’avons pas pu extraire assez d’informations. Essayez de donner plus de détails, ou utilisez le questionnaire guidé."
         );
         setPhase("reviewing");
         return;
@@ -205,7 +205,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
         router.push("/creer/apercu");
       }, 2500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de l\u2019analyse.");
+      setError(err instanceof Error ? err.message : "Erreur lors de l’analyse.");
       setPhase("reviewing");
     }
   }, [transcript, router]);
@@ -222,7 +222,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
         {/* Header */}
         <div className="px-5 py-4 border-b border-[var(--border-color)]">
           <h2 className="font-bold text-lg text-[var(--foreground)]">
-            {phase === "done" ? "Projet enregistr\u00e9 !" : "D\u00e9crivez votre projet"}
+            {phase === "done" ? "Projet enregistré !" : "Décrivez votre projet"}
           </h2>
         </div>
 
@@ -339,12 +339,12 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
                   {[
                     "Le lieu",
                     "Type de logement",
-                    "Nombre d\u2019unit\u00e9s",
+                    "Nombre d’unités",
                     "Votre vision",
                     "Les valeurs",
-                    "Espaces partag\u00e9s",
-                    "Public vis\u00e9",
-                    "Mod\u00e8le financier",
+                    "Espaces partagés",
+                    "Public visé",
+                    "Modèle financier",
                   ].map((topic) => (
                     <span
                       key={topic}

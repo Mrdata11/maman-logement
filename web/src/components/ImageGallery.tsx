@@ -44,143 +44,251 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
 
   if (images.length === 0) return null;
 
+  // Single image: full width
+  if (images.length === 1) {
+    return (
+      <>
+        <button
+          onClick={() => setLightboxIndex(0)}
+          className="group relative w-full overflow-hidden rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={images[0]}
+            alt={title}
+            className="w-full h-64 sm:h-80 object-cover group-hover:scale-[1.02] transition-transform duration-300"
+            loading="eager"
+            onError={(e) => {
+              (e.target as HTMLImageElement).parentElement!.style.display = "none";
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
+        <Lightbox
+          images={images}
+          index={lightboxIndex}
+          title={title}
+          onClose={closeLightbox}
+          onNavigate={navigateLightbox}
+          onSetIndex={setLightboxIndex}
+        />
+      </>
+    );
+  }
+
+  // 2-3 images: hero + side column
+  if (images.length <= 3) {
+    return (
+      <>
+        <div className="grid grid-cols-3 gap-2 rounded-xl overflow-hidden">
+          <button
+            onClick={() => setLightboxIndex(0)}
+            className="group relative col-span-2 overflow-hidden focus:outline-none"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images[0]}
+              alt={`${title} - 1`}
+              className="w-full h-64 sm:h-72 object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              loading="eager"
+              onError={(e) => {
+                (e.target as HTMLImageElement).parentElement!.style.display = "none";
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+          <div className="flex flex-col gap-2">
+            {images.slice(1, 3).map((src, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setLightboxIndex(i + 1)}
+                className="group relative flex-1 overflow-hidden focus:outline-none"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt={`${title} - ${i + 2}`}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).parentElement!.style.display = "none";
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            ))}
+          </div>
+        </div>
+        <Lightbox
+          images={images}
+          index={lightboxIndex}
+          title={title}
+          onClose={closeLightbox}
+          onNavigate={navigateLightbox}
+          onSetIndex={setLightboxIndex}
+        />
+      </>
+    );
+  }
+
+  // 4+ images: hero + 2x2 grid with "show all" overlay
+  const visibleSide = images.slice(1, 5);
+  const remainingCount = images.length - 5;
+
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-        {images.map((src, i) => (
+      <div className="grid grid-cols-4 grid-rows-2 gap-2 rounded-xl overflow-hidden h-64 sm:h-80">
+        {/* Hero (left half, full height) */}
+        <button
+          onClick={() => setLightboxIndex(0)}
+          className="group relative col-span-2 row-span-2 overflow-hidden focus:outline-none"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={images[0]}
+            alt={`${title} - 1`}
+            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+            loading="eager"
+            onError={(e) => {
+              (e.target as HTMLImageElement).parentElement!.style.display = "none";
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
+
+        {/* Side grid (right half, 2x2) */}
+        {visibleSide.map((src, i) => (
           <button
-            key={i}
-            onClick={() => setLightboxIndex(i)}
-            className="group relative overflow-hidden rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+            key={i + 1}
+            onClick={() => setLightboxIndex(i + 1)}
+            className="group relative overflow-hidden focus:outline-none"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
-              alt={`${title} - Image ${i + 1}`}
-              className="w-full h-48 object-cover rounded-lg border border-[var(--border-color)] group-hover:scale-105 transition-transform duration-200"
+              alt={`${title} - ${i + 2}`}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               loading="lazy"
               onError={(e) => {
-                (e.target as HTMLImageElement).parentElement!.style.display =
-                  "none";
+                (e.target as HTMLImageElement).parentElement!.style.display = "none";
               }}
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-                />
-              </svg>
-            </div>
-            {i === 0 && images.length > 1 && (
-              <span className="absolute bottom-2 right-2 text-xs bg-black/60 text-white px-2 py-0.5 rounded">
-                1/{images.length}
-              </span>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            {/* "Show all" overlay on last visible image */}
+            {i === visibleSide.length - 1 && remainingCount > 0 && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <span className="text-white font-semibold text-sm">
+                  +{remainingCount + 1} photos
+                </span>
+              </div>
             )}
           </button>
         ))}
       </div>
-
-      {/* Lightbox */}
-      {lightboxIndex !== null && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
-            onClick={closeLightbox}
-          >
-            {/* Close button */}
-            <button
-              onClick={closeLightbox}
-              className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
-            >
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-            {/* Counter */}
-            <div className="absolute top-4 left-4 text-white/70 text-sm">
-              {lightboxIndex + 1} / {images.length}
-            </div>
-
-            {/* Previous button */}
-            {lightboxIndex > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigateLightbox("prev");
-                }}
-                className="absolute left-4 p-3 text-white/70 hover:text-white bg-black/30 hover:bg-black/50 rounded-full transition-colors z-10"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-            )}
-
-            {/* Image */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={images[lightboxIndex]}
-              alt={`${title} - Image ${lightboxIndex + 1}`}
-              className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-            />
-
-            {/* Next button */}
-            {lightboxIndex < images.length - 1 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigateLightbox("next");
-                }}
-                className="absolute right-4 p-3 text-white/70 hover:text-white bg-black/30 hover:bg-black/50 rounded-full transition-colors z-10"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            )}
-          </div>
-        </>
-      )}
+      <Lightbox
+        images={images}
+        index={lightboxIndex}
+        title={title}
+        onClose={closeLightbox}
+        onNavigate={navigateLightbox}
+        onSetIndex={setLightboxIndex}
+      />
     </>
+  );
+}
+
+function Lightbox({
+  images,
+  index,
+  title,
+  onClose,
+  onNavigate,
+  onSetIndex,
+}: {
+  images: string[];
+  index: number | null;
+  title: string;
+  onClose: () => void;
+  onNavigate: (direction: "prev" | "next") => void;
+  onSetIndex: (i: number) => void;
+}) {
+  if (index === null) return null;
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
+      onClick={onClose}
+    >
+      {/* Close */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+      >
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Counter */}
+      <div className="absolute top-4 left-4 text-white/70 text-sm">
+        {index + 1} / {images.length}
+      </div>
+
+      {/* Prev */}
+      {index > 0 && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onNavigate("prev"); }}
+          className="absolute left-4 p-3 text-white/70 hover:text-white bg-black/30 hover:bg-black/50 rounded-full transition-colors z-10"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Image */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={images[index]}
+        alt={`${title} - ${index + 1}`}
+        className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+        onClick={(e) => e.stopPropagation()}
+      />
+
+      {/* Next */}
+      {index < images.length - 1 && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onNavigate("next"); }}
+          className="absolute right-4 p-3 text-white/70 hover:text-white bg-black/30 hover:bg-black/50 rounded-full transition-colors z-10"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Thumbnail strip */}
+      {images.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 max-w-[80vw] overflow-x-auto py-2 px-1">
+          {images.map((src, i) => (
+            <button
+              key={i}
+              onClick={(e) => { e.stopPropagation(); onSetIndex(i); }}
+              className={`shrink-0 w-12 h-12 rounded overflow-hidden border-2 transition-all ${
+                i === index ? "border-white scale-110" : "border-transparent opacity-60 hover:opacity-100"
+              }`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt=""
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

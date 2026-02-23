@@ -17,6 +17,11 @@ export function applyRetreatFilters(
     if (!venue.country || !filters.countries.includes(venue.country)) return false;
   }
 
+  // Languages
+  if (filters.languages.length > 0) {
+    if (!venue.languages_spoken || !filters.languages.some((l) => venue.languages_spoken.includes(l))) return false;
+  }
+
   // Setting
   if (filters.settings.length > 0) {
     if (!venue.setting.some((s) => filters.settings.includes(s))) return false;
@@ -84,6 +89,16 @@ export function applyRetreatFilters(
     if (!filters.outdoorSpaces.some((o) => venue.outdoor_spaces.includes(o))) return false;
   }
 
+  // Specialized equipment
+  if (filters.specializedEquipment.length > 0) {
+    if (!venue.specialized_equipment || !filters.specializedEquipment.some((e) => venue.specialized_equipment.includes(e))) return false;
+  }
+
+  // Ceremonies allowed
+  if (filters.ceremoniesAllowed !== null) {
+    if (venue.ceremonies_allowed !== filters.ceremoniesAllowed) return false;
+  }
+
   return true;
 }
 
@@ -91,6 +106,7 @@ export function countActiveFilters(filters: RetreatFilterState): number {
   let count = 0;
   if (filters.searchText) count++;
   if (filters.countries.length > 0) count++;
+  if (filters.languages.length > 0) count++;
   if (filters.settings.length > 0) count++;
   if (filters.styles.length > 0) count++;
   if (filters.capacityMin !== null) count++;
@@ -105,5 +121,7 @@ export function countActiveFilters(filters: RetreatFilterState): number {
   if (filters.scoreMin !== null) count++;
   if (filters.accommodationTypes.length > 0) count++;
   if (filters.outdoorSpaces.length > 0) count++;
+  if (filters.specializedEquipment.length > 0) count++;
+  if (filters.ceremoniesAllowed !== null) count++;
   return count;
 }

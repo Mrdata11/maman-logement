@@ -9,12 +9,12 @@ interface RetreatImageGalleryProps {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  exterior: "Ext\u00e9rieur",
+  exterior: "Extérieur",
   rooms: "Chambres",
   practice_spaces: "Espaces de pratique",
   dining: "Restauration",
   surroundings: "Environnement",
-  outdoor: "Ext\u00e9rieurs",
+  outdoor: "Extérieurs",
 };
 
 export function RetreatImageGallery({ images, imageCategories, name }: RetreatImageGalleryProps) {

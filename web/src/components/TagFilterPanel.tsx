@@ -300,7 +300,7 @@ export function TagFilterPanel({
 
         <fieldset>
           <legend className="block text-sm font-semibold text-[var(--foreground)] mb-3 tracking-tight">
-            Surface (m\u00B2)
+            Surface (m²)
           </legend>
           <div className="flex items-center gap-3">
             <input
@@ -318,7 +318,7 @@ export function TagFilterPanel({
               step={10}
               className={inputClass}
             />
-            <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"\u2013"}</span>
+            <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"–"}</span>
             <input
               type="number"
               aria-label="Surface maximum"
@@ -390,7 +390,7 @@ export function TagFilterPanel({
               min={1}
               className={inputClass}
             />
-            <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"\u2013"}</span>
+            <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"–"}</span>
             <input
               type="number"
               aria-label="Taille maximum"

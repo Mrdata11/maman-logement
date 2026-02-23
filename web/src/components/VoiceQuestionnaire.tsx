@@ -143,7 +143,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
         setTranscript(data.text.trim());
         setPhase("reviewing");
       } else {
-        setError("Aucun texte d\u00e9tect\u00e9. Essaie de parler plus fort.");
+        setError("Aucun texte détecté. Essaie de parler plus fort.");
         setPhase("idle");
       }
     } catch (err) {
@@ -157,7 +157,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
   const startMediaRecording = useCallback(async () => {
     try {
       if (!hasMediaRecorderSupport()) {
-        throw new Error("Enregistrement audio non support\u00e9.");
+        throw new Error("Enregistrement audio non supporté.");
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -191,7 +191,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
       setPhase("recording");
       startTimers();
     } catch {
-      setError("Impossible d'acc\u00e9der au microphone. Tu peux taper ta description ci-dessous.");
+      setError("Impossible d'accéder au microphone. Tu peux taper ta description ci-dessous.");
       setVoiceFailed(true);
       setPhase("idle");
     }
@@ -307,7 +307,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
 
   const extractAnswers = useCallback(async () => {
     if (!transcript.trim() || transcript.trim().length < 10) {
-      setError("Le texte est trop court. Essaie de donner plus de d\u00e9tails.");
+      setError("Le texte est trop court. Essaie de donner plus de détails.");
       return;
     }
 
@@ -330,7 +330,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
 
       if (Object.keys(data.answers).length < 2) {
         setError(
-          "Nous n'avons pas pu extraire assez d'informations. Essaie de donner plus de d\u00e9tails, ou utilise le questionnaire \u00e9crit."
+          "Nous n'avons pas pu extraire assez d'informations. Essaie de donner plus de détails, ou utilise le questionnaire écrit."
         );
         setPhase("reviewing");
         return;
@@ -434,7 +434,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
                     value={transcript}
                     onChange={(e) => setTranscript(e.target.value)}
                     rows={5}
-                    placeholder="D\u00e9cris ce que tu recherches : budget, r\u00e9gion, type de communaut\u00e9, valeurs..."
+                    placeholder="Décris ce que tu recherches : budget, région, type de communauté, valeurs..."
                     className="w-full px-3 py-2 border border-[var(--input-border)] rounded-lg text-sm bg-[var(--input-bg)] text-[var(--foreground)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                   />
                   <button
@@ -490,14 +490,14 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
               <div className="space-y-1.5">
                 <p className="text-xs font-medium text-[var(--muted)]">Par exemple :</p>
                 {[
-                  "Quel est ton budget\u00a0?",
-                  "Dans quelle r\u00e9gion tu cherches\u00a0?",
-                  "Quel type de logement tu veux\u00a0?",
-                  "Qu'est-ce qui te motive\u00a0?",
-                  "Quelle taille de communaut\u00e9 tu imagines\u00a0?",
-                  "Quelles activit\u00e9s t'int\u00e9ressent\u00a0?",
-                  "Quelles sont tes valeurs\u00a0?",
-                  "Qu'est-ce que tu veux \u00e9viter\u00a0?",
+                  "Quel est ton budget ?",
+                  "Dans quelle région tu cherches ?",
+                  "Quel type de logement tu veux ?",
+                  "Qu'est-ce qui te motive ?",
+                  "Quelle taille de communauté tu imagines ?",
+                  "Quelles activités t'intéressent ?",
+                  "Quelles sont tes valeurs ?",
+                  "Qu'est-ce que tu veux éviter ?",
                 ].map((question) => (
                   <p
                     key={question}

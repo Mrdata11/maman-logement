@@ -49,7 +49,7 @@ export default function MonProfilPage() {
   }, [supabase, loadProfile]);
 
   const handleDelete = useCallback(async () => {
-    if (!profile || !confirm("Supprimer d\u00e9finitivement ton profil ?"))
+    if (!profile || !confirm("Supprimer définitivement ton profil ?"))
       return;
 
     setDeleting(true);
@@ -236,7 +236,7 @@ export default function MonProfilPage() {
               profile.is_published ? "bg-emerald-500" : "bg-amber-500"
             }`}
           />
-          {profile.is_published ? "Publi\u00e9" : "Brouillon"}
+          {profile.is_published ? "Publié" : "Brouillon"}
         </span>
       </div>
 
@@ -262,7 +262,7 @@ export default function MonProfilPage() {
             </h2>
             {demographicParts.length > 0 && (
               <p className="text-sm text-[var(--foreground)]/70 mt-0.5">
-                {demographicParts.join(" \u00B7 ")}
+                {demographicParts.join(" · ")}
               </p>
             )}
             {profile.location && (
@@ -358,7 +358,7 @@ export default function MonProfilPage() {
       {questionnaireDetails.length > 0 && (
         <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 space-y-5">
           <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide flex items-center gap-2">
-            <span className="text-base">{"\uD83D\uDD0D"}</span>
+            <span className="text-base">{"🔍"}</span>
             Ce que tu recherches
           </h3>
 
@@ -510,7 +510,7 @@ export default function MonProfilPage() {
               disabled={deleting}
               className="px-5 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
             >
-              {deleting ? "Suppression..." : "Supprimer d\u00e9finitivement"}
+              {deleting ? "Suppression..." : "Supprimer définitivement"}
             </button>
           </div>
         </details>

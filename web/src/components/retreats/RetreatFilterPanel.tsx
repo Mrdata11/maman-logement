@@ -15,6 +15,9 @@ import {
   SUITABLE_FOR_LABELS,
   ACCOMMODATION_LABELS,
   OUTDOOR_SPACE_LABELS,
+  LANGUAGE_LABELS,
+  LANGUAGE_FLAGS,
+  SPECIALIZED_EQUIPMENT_LABELS,
 } from "@/lib/retreats/types";
 import { countActiveFilters } from "@/lib/retreats/filters";
 
@@ -100,7 +103,7 @@ export function RetreatFilterPanel({
         </h3>
         {activeCount > 0 && (
           <button onClick={reset} className="text-xs text-gray-500 hover:text-gray-700 underline">
-            R\u00e9initialiser
+            Réinitialiser
           </button>
         )}
       </div>
@@ -126,9 +129,22 @@ export function RetreatFilterPanel({
         />
       )}
 
+      {/* Languages */}
+      <CheckboxGroup
+        label="Langues parlées"
+        options={Object.fromEntries(
+          Object.entries(LANGUAGE_LABELS).map(([code, name]) => [
+            code,
+            `${LANGUAGE_FLAGS[code] || ""} ${name}`,
+          ])
+        )}
+        selected={filters.languages}
+        onChange={(v) => updateFilter("languages", v)}
+      />
+
       {/* Capacity */}
       <div className="mb-4">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Capacit\u00e9 du groupe</h4>
+        <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Capacité du groupe</h4>
         <div className="flex gap-2">
           <input
             type="number"
@@ -198,7 +214,7 @@ export function RetreatFilterPanel({
 
       {/* Suitable for */}
       <CheckboxGroup
-        label="Adapt\u00e9 pour"
+        label="Adapté pour"
         options={SUITABLE_FOR_LABELS}
         selected={filters.suitableFor}
         onChange={(v) => updateFilter("suitableFor", v)}
@@ -222,7 +238,7 @@ export function RetreatFilterPanel({
 
       {/* Accommodation */}
       <CheckboxGroup
-        label="H\u00e9bergement"
+        label="Hébergement"
         options={ACCOMMODATION_LABELS}
         selected={filters.accommodationTypes}
         onChange={(v) => updateFilter("accommodationTypes", v)}
@@ -230,7 +246,7 @@ export function RetreatFilterPanel({
 
       {/* Outdoor spaces */}
       <CheckboxGroup
-        label="Espaces ext\u00e9rieurs"
+        label="Espaces extérieurs"
         options={OUTDOOR_SPACE_LABELS}
         selected={filters.outdoorSpaces}
         onChange={(v) => updateFilter("outdoorSpaces", v)}
@@ -243,6 +259,38 @@ export function RetreatFilterPanel({
         selected={filters.services}
         onChange={(v) => updateFilter("services", v)}
       />
+
+      {/* Specialized equipment */}
+      <CheckboxGroup
+        label="Équipement spécialisé"
+        options={SPECIALIZED_EQUIPMENT_LABELS}
+        selected={filters.specializedEquipment}
+        onChange={(v) => updateFilter("specializedEquipment", v)}
+      />
+
+      {/* Ceremonies allowed */}
+      <div className="mb-4">
+        <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Cérémonies / rituels</h4>
+        <div className="flex gap-1.5">
+          {([
+            { value: null, label: "Indifférent" },
+            { value: true, label: "Autorisé" },
+            { value: false, label: "Non" },
+          ] as { value: boolean | null; label: string }[]).map((opt) => (
+            <button
+              key={String(opt.value)}
+              onClick={() => updateFilter("ceremoniesAllowed", opt.value)}
+              className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                filters.ceremoniesAllowed === opt.value
+                  ? "bg-gray-900 text-white border-gray-900"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Score minimum */}
       <div className="mb-4">

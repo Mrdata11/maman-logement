@@ -61,6 +61,10 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    isEditing ? existingProfile.avatar_url : null
+  );
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [photos, setPhotos] = useState<string[]>(
     isEditing ? existingProfile.photos : []
   );
@@ -72,8 +76,8 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
 
   const steps: { id: Step; label: string }[] = [
     { id: "questionnaire", label: "Questionnaire" },
-    { id: "introduction", label: "Pr\u00e9sentation" },
-    { id: "preview", label: "Aper\u00e7u" },
+    { id: "introduction", label: "Présentation" },
+    { id: "preview", label: "Aperçu" },
     { id: "publish", label: "Publication" },
   ];
 
@@ -103,6 +107,8 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
           if (!displayName)
             setDisplayName(user.user_metadata?.full_name || "");
           if (!contactEmail) setContactEmail(user.email || "");
+          if (!avatarUrl && user.user_metadata?.avatar_url)
+            setAvatarUrl(user.user_metadata.avatar_url);
         }
       }
     });
@@ -133,10 +139,10 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
         setAiSummary(data.summary);
         setAiTags(data.tags);
       } else {
-        setError("Impossible de g\u00e9n\u00e9rer le r\u00e9sum\u00e9. Tu peux continuer sans.");
+        setError("Impossible de générer le résumé. Tu peux continuer sans.");
       }
     } catch {
-      setError("Erreur r\u00e9seau. Tu peux continuer sans r\u00e9sum\u00e9.");
+      setError("Erreur réseau. Tu peux continuer sans résumé.");
     }
     setGeneratingSummary(false);
   }, [questionnaireAnswers, introduction]);
@@ -158,7 +164,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
         {
           user_id: user.id,
           display_name: displayName.trim() || "Anonyme",
-          avatar_url: user.user_metadata?.avatar_url || null,
+          avatar_url: avatarUrl || user.user_metadata?.avatar_url || null,
           location: location.trim() || null,
           contact_email: contactEmail.trim() || user.email,
           questionnaire_answers: questionnaireAnswers,
@@ -192,9 +198,48 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
     questionnaireAnswers,
     introduction,
     photos,
+    avatarUrl,
     aiSummary,
     aiTags,
   ]);
+
+  const handleAvatarUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) return;
+      if (file.size > 5 * 1024 * 1024) {
+        setError("L'image doit faire moins de 5 Mo.");
+        return;
+      }
+
+      setUploadingAvatar(true);
+      setError(null);
+
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `avatars/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("profile-photos")
+        .upload(path, file, { contentType: file.type });
+
+      if (uploadError) {
+        setError(`Erreur d'upload : ${uploadError.message}`);
+        setUploadingAvatar(false);
+        e.target.value = "";
+        return;
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("profile-photos").getPublicUrl(path);
+
+      if (publicUrl) setAvatarUrl(publicUrl);
+      setUploadingAvatar(false);
+      e.target.value = "";
+    },
+    [supabase]
+  );
 
   const handlePhotoUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,9 +296,11 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
         if (!displayName)
           setDisplayName(newUser.user_metadata?.full_name || "");
         if (!contactEmail) setContactEmail(newUser.email || "");
+        if (!avatarUrl && newUser.user_metadata?.avatar_url)
+          setAvatarUrl(newUser.user_metadata.avatar_url);
       }
     },
-    [displayName, contactEmail, isEditing]
+    [displayName, contactEmail, avatarUrl, isEditing]
   );
 
   // Derive questionnaire display data
@@ -303,7 +350,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
         </div>
         <div>
           <h2 className="text-2xl font-bold text-[var(--foreground)]">
-            {isEditing ? "Ton profil a \u00e9t\u00e9 mis \u00e0 jour !" : "Ton profil est publi\u00e9 !"}
+            {isEditing ? "Ton profil a été mis à jour !" : "Ton profil est publié !"}
           </h2>
           <p className="text-[var(--muted)] mt-2">
             Les porteurs de projets peuvent maintenant te d&eacute;couvrir et te contacter.
@@ -505,6 +552,48 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
               </p>
             </div>
 
+            {/* Photo de profil */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-[var(--foreground)]">
+                Photo de profil
+              </label>
+              <div className="flex items-center gap-4">
+                {avatarUrl ? (
+                  <div className="relative group">
+                    <img
+                      src={avatarUrl}
+                      alt="Photo de profil"
+                      className="w-20 h-20 rounded-full object-cover"
+                    />
+                    <button
+                      onClick={() => setAvatarUrl(null)}
+                      className="absolute -top-1 -right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-[var(--surface)] flex items-center justify-center">
+                    <svg className="w-8 h-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                )}
+                <label className="cursor-pointer px-4 py-2 border border-[var(--border-color)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    disabled={uploadingAvatar}
+                  />
+                  {uploadingAvatar ? "Upload..." : avatarUrl ? "Changer" : "Ajouter une photo"}
+                </label>
+              </div>
+            </div>
+
             {/* Editable fields */}
             <div className="space-y-4">
               <div>
@@ -515,7 +604,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Ton pr\u00e9nom ou pseudo"
+                  placeholder="Ton prénom ou pseudo"
                   className="w-full px-3 py-2 border border-[var(--input-border)] rounded-lg text-sm bg-[var(--input-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 />
               </div>
@@ -527,7 +616,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Ville ou r\u00e9gion"
+                  placeholder="Ville ou région"
                   className="w-full px-3 py-2 border border-[var(--input-border)] rounded-lg text-sm bg-[var(--input-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 />
               </div>
@@ -737,12 +826,12 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
           <div className="space-y-6">
             <div className="text-center">
               <h2 className="text-xl font-bold text-[var(--foreground)]">
-                {isEditing ? "Mettre \u00e0 jour ton profil" : "Publier ton profil"}
+                {isEditing ? "Mettre à jour ton profil" : "Publier ton profil"}
               </h2>
               <p className="text-sm text-[var(--muted)] mt-1">
                 {isEditing
-                  ? "V\u00e9rifie et confirme les modifications."
-                  : "Connecte-toi pour publier et g\u00e9rer ton profil."}
+                  ? "Vérifie et confirme les modifications."
+                  : "Connecte-toi pour publier et gérer ton profil."}
               </p>
             </div>
 
@@ -837,10 +926,10 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
                           />
                         ))}
                       </div>
-                      {isEditing ? "Mise \u00e0 jour en cours..." : "Publication en cours..."}
+                      {isEditing ? "Mise à jour en cours..." : "Publication en cours..."}
                     </>
                   ) : (
-                    isEditing ? "Mettre \u00e0 jour" : "Publier mon profil"
+                    isEditing ? "Mettre à jour" : "Publier mon profil"
                   )}
                 </button>
               </div>

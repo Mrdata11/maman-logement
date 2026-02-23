@@ -5,16 +5,16 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Lieux de retraite",
   description:
-    "Annuaire de lieux adapt\u00e9s aux retraites de yoga, m\u00e9ditation, danse et bien-\u00eatre. Filtrez par capacit\u00e9, budget, cadre et \u00e9quipements.",
+    "Annuaire de lieux adaptés aux retraites de yoga, méditation, danse et bien-être. Filtrez par capacité, budget, cadre et équipements.",
   openGraph: {
     title: "Lieux de retraite",
     description:
-      "Trouvez le lieu parfait pour organiser votre retraite. Filtrez par capacit\u00e9, budget et \u00e9quipements.",
+      "Trouvez le lieu parfait pour organiser votre retraite. Filtrez par capacité, budget et équipements.",
   },
 };
 
 export default function RetraitesPage() {
   const items = getRetreatVenuesWithEvals();
 
-  return <RetreatDashboard initialItems={items} />;
+  return <div className="max-w-6xl mx-auto"><RetreatDashboard initialItems={items} /></div>;
 }

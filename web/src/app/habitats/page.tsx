@@ -3,13 +3,13 @@ import { Dashboard } from "@/components/Dashboard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Habitats group\u00e9s en Europe",
+  title: "Habitats groupés en Europe",
   description:
-    "Parcourez toutes les annonces d\u2019habitats group\u00e9s en Europe, \u00e9valu\u00e9es automatiquement par IA selon vos crit\u00e8res de recherche.",
+    "Parcourez toutes les annonces d’habitats groupés en Europe, évaluées automatiquement par IA selon vos critères de recherche.",
   openGraph: {
-    title: "Habitats group\u00e9s en Europe",
+    title: "Habitats groupés en Europe",
     description:
-      "Parcourez toutes les annonces d\u2019habitats group\u00e9s en Europe, \u00e9valu\u00e9es automatiquement par IA.",
+      "Parcourez toutes les annonces d’habitats groupés en Europe, évaluées automatiquement par IA.",
   },
 };
 
@@ -17,7 +17,7 @@ export default function HabitatsPage() {
   const items = getListingsWithEvals();
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold text-[var(--foreground)] mb-3">
         Recherche Habitat Group&eacute;
       </h1>
