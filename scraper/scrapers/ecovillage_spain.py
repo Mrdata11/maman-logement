@@ -1,6 +1,7 @@
 """Scraper for ecovillage.org Spanish ecovillages.
 
 Reuses the same pattern as ecovillage.py (Belgium) but for Spain.
+Only keeps ecovillages located near the Camino de Santiago routes.
 """
 
 import re
@@ -12,6 +13,29 @@ from bs4 import BeautifulSoup
 from scraper.scrapers.base import BaseScraper
 from scraper.models import Listing
 from scraper.config import CAMINO_PROVINCES_ES
+
+
+# Locations on/near the Camino de Santiago (used for filtering)
+CAMINO_LOCATIONS = {
+    "Pamplona": "Navarra", "Burgos": "Burgos", "León": "León",
+    "Santiago": "Galicia", "Salamanca": "Salamanca",
+    "Navarra": "Navarra", "Galicia": "Galicia",
+    "Asturias": "Asturias", "Cantabria": "Cantabria",
+    "La Rioja": "La Rioja", "Basque": "País Vasco",
+    "Lugo": "Galicia", "Ponferrada": "León",
+    "Oviedo": "Asturias", "Santander": "Cantabria",
+    "Bilbao": "País Vasco", "San Sebastián": "País Vasco",
+    "Huesca": "Aragón", "Jaca": "Aragón",
+    "Zamora": "Castilla y León",
+}
+
+# Locations NOT on the Camino - reject these
+NON_CAMINO = {
+    "tenerife", "canarias", "canary", "barcelona", "cataluña", "catalonia",
+    "andalucía", "andalusia", "málaga", "malaga", "granada", "sevilla",
+    "seville", "cádiz", "cadiz", "almería", "almeria", "murcia",
+    "valencia", "alicante", "southern spain", "salobreña",
+}
 
 
 class EcovillageSpainScraper(BaseScraper):
@@ -56,22 +80,6 @@ class EcovillageSpainScraper(BaseScraper):
             if listing:
                 listings.append(listing)
 
-        # If no individual listings, create from overview page
-        if not listings:
-            content = soup.get_text(separator="\n", strip=True)
-            if len(content) > 200:
-                listings.append(Listing(
-                    source=self.name,
-                    source_url=self.spain_url,
-                    title="Ecovillages in Spain - GEN Overview",
-                    description=content[:5000],
-                    location="Spain",
-                    listing_type="directory",
-                    country="ES",
-                    original_language="en",
-                    date_scraped=datetime.utcnow().isoformat(),
-                ))
-
         print(f"  [{self.name}] Total: {len(listings)} entries scraped")
         return listings
 
@@ -84,25 +92,51 @@ class EcovillageSpainScraper(BaseScraper):
 
         soup = BeautifulSoup(resp.text, "lxml")
 
-        title_el = soup.select_one("h1, .entry-title")
-        title = title_el.get_text(strip=True) if title_el else "Unknown"
+        # Title: use only the h1 text content, not children
+        title_el = soup.select_one("h1.entry-title, h1")
+        title = ""
+        if title_el:
+            # Get only the direct text of h1, not nested elements
+            title = title_el.find(string=True, recursive=False)
+            if not title:
+                title = title_el.get_text(strip=True)
+            title = title.strip()
+        if not title or title == "Unknown":
+            return None
 
+        # Content: skip breadcrumbs and navigation
         content_el = soup.select_one(".entry-content, article, main")
         description = ""
         if content_el:
-            for tag in content_el.find_all(["script", "style"]):
+            for tag in content_el.find_all(["script", "style", "nav"]):
                 tag.decompose()
+            # Remove breadcrumb text
+            for bc in content_el.select(".breadcrumb, .breadcrumbs, [class*='crumb']"):
+                bc.decompose()
             description = content_el.get_text(separator="\n", strip=True)
+
+        # Clean breadcrumb remnants from beginning
+        if description.startswith("You are here"):
+            lines = description.split("\n")
+            # Skip lines until we find actual content (after breadcrumb)
+            start_idx = 0
+            for i, line in enumerate(lines):
+                stripped = line.strip()
+                if stripped and stripped not in ("You are here:", "Home", "/", "Ecovillages", title) and len(stripped) > 20:
+                    start_idx = i
+                    break
+            description = "\n".join(lines[start_idx:])
 
         if len(description) < 50:
             return None
 
-        # Try to extract location
+        # Extract location and filter by Camino proximity
         location = self._extract_location(description, title)
+        if not location:
+            return None  # Not on the Camino, skip
 
-        # Determine language (ecovillage.org is in English but projects may describe in Spanish)
+        # Determine language
         original_language = "en"
-        # Simple heuristic: if lots of Spanish words, it's Spanish
         spanish_words = ["proyecto", "comunidad", "vivienda", "huerta", "sostenible", "convivencia"]
         if sum(1 for w in spanish_words if w in description.lower()) >= 2:
             original_language = "es"
@@ -128,23 +162,18 @@ class EcovillageSpainScraper(BaseScraper):
         )
 
     def _extract_location(self, text: str, title: str) -> Optional[str]:
-        """Try to extract location from text."""
-        combined = f"{title} {text}"
+        """Extract location from text. Returns None if not on the Camino."""
+        combined = f"{title} {text}".lower()
 
-        # Look for known Camino regions/cities
-        camino_locations = {
-            "Pamplona": "Navarra", "Burgos": "Burgos", "León": "León",
-            "Santiago": "Galicia", "Salamanca": "Salamanca",
-            "Navarra": "Navarra", "Galicia": "Galicia",
-            "Asturias": "Asturias", "Cantabria": "Cantabria",
-            "La Rioja": "La Rioja", "Basque": "País Vasco",
-            "Tenerife": "Canarias", "Barcelona": "Barcelona",
-            "Southern Spain": "Andalucía", "Salobreña": "Granada",
-        }
+        # First check: reject if clearly NOT on the Camino
+        for non_camino in NON_CAMINO:
+            if non_camino in combined:
+                return None
 
-        for city, region in camino_locations.items():
-            if city.lower() in combined.lower():
+        # Then check: accept if on the Camino
+        for city, region in CAMINO_LOCATIONS.items():
+            if city.lower() in combined:
                 return f"{city}, {region}"
 
-        # Generic "Spain" fallback
-        return "Spain"
+        # No Camino match found - skip this listing
+        return None

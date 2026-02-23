@@ -72,7 +72,12 @@ class EcovillageFRScraper(BaseScraper):
                 href = link["href"]
                 # SPIP article URLs: /article123 or spip.php?article123
                 if re.search(r"/\d+$", href) or "article" in href:
-                    full_url = href if href.startswith("http") else self.base_url + href
+                    if href.startswith("http"):
+                        full_url = href
+                    elif href.startswith("/"):
+                        full_url = self.base_url + href
+                    else:
+                        full_url = self.base_url + "/" + href
                     if full_url not in seen_urls and full_url not in article_links:
                         article_links.append(full_url)
 
@@ -80,7 +85,12 @@ class EcovillageFRScraper(BaseScraper):
             for link in soup.find_all("a", string=re.compile(r"[Ll]ire la suite")):
                 href = link.get("href", "")
                 if href:
-                    full_url = href if href.startswith("http") else self.base_url + href
+                    if href.startswith("http"):
+                        full_url = href
+                    elif href.startswith("/"):
+                        full_url = self.base_url + href
+                    else:
+                        full_url = self.base_url + "/" + href
                     if full_url not in seen_urls and full_url not in article_links:
                         article_links.append(full_url)
 
@@ -107,7 +117,7 @@ class EcovillageFRScraper(BaseScraper):
         # Title
         title_el = soup.select_one("h1, .titre-article, .entry-title")
         title = title_el.get_text(strip=True) if title_el else ""
-        if not title:
+        if not title or title.lower() in ("bienvenue", "accueil"):
             return None
 
         # Content
@@ -121,20 +131,12 @@ class EcovillageFRScraper(BaseScraper):
         if len(description) < 50:
             return None
 
-        # Try to extract department from content
-        location = None
-        province = None
-        dept_match = self._extract_department(description + " " + title)
-        if dept_match:
-            province = dept_match
-            location = dept_match
+        # Try to extract department from content - MUST match a Camino department
+        province = self._extract_department(description + " " + title)
+        if not province:
+            return None  # No identifiable Camino department, skip
 
-        # Filter: only keep listings in Camino departments
-        camino_dept_names = set(DEPARTMENT_NAMES.values())
-        if province and province not in camino_dept_names:
-            # Check if it's a Camino region by loose matching
-            if not any(d.lower() in (description + " " + title).lower() for d in camino_dept_names):
-                return None
+        location = province
 
         # Images
         images = []
@@ -142,7 +144,7 @@ class EcovillageFRScraper(BaseScraper):
             for img in content_el.find_all("img", src=True):
                 src = img["src"]
                 if not src.startswith("http"):
-                    src = self.base_url + src
+                    src = self.base_url + ("/" if not src.startswith("/") else "") + src
                 if "logo" not in src.lower() and "icon" not in src.lower():
                     images.append(src)
 

@@ -168,7 +168,14 @@ export function ListingCard({
                     {listing.price}
                   </span>
                 )}
-                <span>{listing.source}</span>
+                <a
+                  href={listing.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[var(--primary)] hover:underline transition-colors"
+                >
+                  {listing.source}
+                </a>
                 {listing.date_published && (
                   <span className="text-[var(--muted-light)]">
                     {new Date(listing.date_published).toLocaleDateString("fr-BE", { day: "numeric", month: "short", year: "numeric" })}
@@ -226,6 +233,23 @@ export function ListingCard({
                   </span>
                 </div>
               )}
+              {/* Notes icon */}
+              <button
+                onClick={() => {
+                  setShowNotes(!showNotes);
+                  setLocalNotes(notes);
+                }}
+                className={`p-1.5 rounded-full transition-colors ${
+                  notes
+                    ? "text-amber-500 hover:text-amber-600"
+                    : "text-[var(--muted-light)] hover:text-amber-400"
+                }`}
+                title={notes ? "Modifier la note" : "Ajouter une note"}
+              >
+                <svg className="w-5 h-5" fill={notes ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
               {/* Archive toggle */}
               <button
                 onClick={() =>
@@ -273,55 +297,28 @@ export function ListingCard({
             </div>
           )}
 
-          {/* Actions row */}
-          <div className="mt-3 flex items-center gap-2 flex-wrap">
+          {/* Voir détail + Status row */}
+          <div className="mt-2 flex items-center justify-between">
             <Link
               href={`/listing/${listing.id}`}
-              className="text-sm px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary-hover)] min-h-[44px] inline-flex items-center"
+              className="text-sm text-[var(--muted)] underline hover:text-[var(--primary)] transition-colors"
             >
-              Voir detail
+              Voir détail
             </Link>
-            <a
-              href={listing.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm px-4 py-2 border border-[var(--border-color)] text-[var(--muted)] rounded-lg hover:bg-[var(--surface)] min-h-[44px] inline-flex items-center"
-            >
-              Source
-            </a>
-
-            {/* Notes toggle */}
-            <button
-              onClick={() => {
-                setShowNotes(!showNotes);
-                setLocalNotes(notes);
-              }}
-              className={`text-sm px-3 py-2 border rounded-lg transition-colors min-h-[44px] inline-flex items-center ${
-                notes
-                  ? "border-amber-300 text-amber-700 hover:bg-amber-50:bg-amber-900/20"
-                  : "border-[var(--border-color)] text-[var(--muted)] hover:bg-[var(--surface)]"
-              }`}
-              title="Notes"
-            >
-              <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              {notes ? "Notes" : "Ajouter note"}
-            </button>
 
             {/* Status menu */}
             <div className="relative">
               <button
                 onClick={() => setShowStatusMenu(!showStatusMenu)}
-                className="text-sm px-3 py-2 border border-[var(--border-color)] text-[var(--muted)] rounded-lg hover:bg-[var(--surface)] min-h-[44px] inline-flex items-center"
+                className="text-xs px-2.5 py-1 border border-[var(--border-color)] text-[var(--muted)] rounded-md hover:bg-[var(--surface)] inline-flex items-center gap-1 transition-colors"
               >
-                Changer statut
-                <svg className="w-3 h-3 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                Statut
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               {showStatusMenu && (
-                <div className="absolute z-10 mt-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg py-1 min-w-[180px]">
+                <div className="absolute right-0 z-10 mt-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg py-1 min-w-[180px]">
                   {(Object.keys(STATUS_CONFIG) as ListingStatus[])
                     .filter((s) => s !== status && s !== "archived" && s !== "rejected")
                     .map((s) => (

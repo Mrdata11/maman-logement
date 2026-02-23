@@ -35,6 +35,8 @@ export function ProfileCreationFlow() {
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
@@ -130,6 +132,7 @@ export function ProfileCreationFlow() {
           contact_email: contactEmail.trim() || user.email,
           questionnaire_answers: questionnaireAnswers,
           introduction,
+          photos,
           ai_summary: aiSummary,
           ai_tags: aiTags,
           is_published: true,
@@ -157,9 +160,58 @@ export function ProfileCreationFlow() {
     contactEmail,
     questionnaireAnswers,
     introduction,
+    photos,
     aiSummary,
     aiTags,
   ]);
+
+  const handlePhotoUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      setUploadingPhotos(true);
+      setError(null);
+      const newUrls: string[] = [];
+
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith("image/")) continue;
+        if (file.size > 5 * 1024 * 1024) {
+          setError("Les images doivent faire moins de 5 Mo.");
+          continue;
+        }
+
+        const ext = file.name.split(".").pop() || "jpg";
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("profile-photos")
+          .upload(path, file, { contentType: file.type });
+
+        if (uploadError) {
+          setError(`Erreur d'upload : ${uploadError.message}`);
+          continue;
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("profile-photos").getPublicUrl(path);
+
+        if (publicUrl) newUrls.push(publicUrl);
+      }
+
+      if (newUrls.length > 0) {
+        setPhotos((prev) => [...prev, ...newUrls].slice(0, 6));
+      }
+      setUploadingPhotos(false);
+      e.target.value = "";
+    },
+    [supabase]
+  );
+
+  const removePhoto = useCallback((index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
   const handleAuthChange = useCallback(
     (newUser: User | null) => {
@@ -231,7 +283,7 @@ export function ProfileCreationFlow() {
             href="/profils"
             className="px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
           >
-            Voir la librairie
+            Voir les profils
           </a>
           <a
             href="/profils/mon-profil"
@@ -462,6 +514,59 @@ export function ProfileCreationFlow() {
               </div>
             </div>
 
+            {/* Photos */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-[var(--foreground)]">
+                Photos (optionnel, max 6)
+              </label>
+              <p className="text-xs text-[var(--muted)]">
+                Ajoute des photos de toi pour que les gens puissent mieux te conna&icirc;tre.
+              </p>
+
+              {photos.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {photos.map((url, i) => (
+                    <div key={i} className="relative aspect-square rounded-lg overflow-hidden group">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => removePhoto(i)}
+                        className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {photos.length < 6 && (
+                <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[var(--border-color)] rounded-xl cursor-pointer hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                    disabled={uploadingPhotos}
+                  />
+                  {uploadingPhotos ? (
+                    <span className="text-sm text-[var(--muted)]">Upload en cours...</span>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm text-[var(--muted)]">
+                        Ajouter des photos
+                      </span>
+                    </>
+                  )}
+                </label>
+              )}
+            </div>
+
             {/* AI Summary */}
             {generatingSummary ? (
               <div className="text-center py-4 space-y-2">
@@ -629,7 +734,7 @@ export function ProfileCreationFlow() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      Publier ton profil dans la librairie
+                      Publier ton profil
                     </li>
                     <li className="flex items-start gap-2">
                       <svg

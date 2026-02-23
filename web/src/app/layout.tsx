@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { FavoritesNav } from "@/components/FavoritesNav";
 import { ProfileNav } from "@/components/ProfileNav";
 import { AppModeToggle } from "@/components/AppModeToggle";
 import "./globals.css";
@@ -34,8 +32,6 @@ export default function RootLayout({
             <AppModeToggle />
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <ProfileNav />
-              <FavoritesNav />
-              <ThemeToggle />
             </div>
           </div>
         </header>

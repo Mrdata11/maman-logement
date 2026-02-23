@@ -113,8 +113,13 @@ class SamenhuizenScraper(BaseScraper):
 
         soup = BeautifulSoup(resp.text, "lxml")
 
-        # Extract title (h1 or h2)
-        title_el = soup.select_one("h1, h2.page-title, h2")
+        # Parse all structured fields from classified labels
+        fields = self._extract_classified_fields(soup)
+
+        # Extract title from classified-full-title (NOT generic h2 which hits breadcrumb)
+        title_el = soup.select_one("h2.classified-full-title")
+        if not title_el:
+            title_el = soup.select_one("h1")
         title = title_el.get_text(strip=True) if title_el else "Sans titre"
 
         # Skip "medebewoner" category (roommate ads)
@@ -128,14 +133,14 @@ class SamenhuizenScraper(BaseScraper):
         if not description:
             return None
 
-        # Extract structured fields
-        location, region = self._extract_location(soup)
+        # Extract structured fields using parsed classified labels
+        location, region = self._extract_location_from_fields(fields)
         province = self._map_province(region)
-        price, price_amount = self._extract_price(soup, description)
+        price, price_amount = self._extract_price_from_fields(fields, description)
         date_published = self._extract_date(soup)
         contact = self._extract_contact(soup, description)
         images = self._extract_images(soup)
-        listing_type = self._determine_type(soup, description)
+        listing_type = self._determine_type_from_fields(fields, description)
 
         return Listing(
             id=hashlib.md5(url.encode()).hexdigest()[:12],
@@ -154,23 +159,28 @@ class SamenhuizenScraper(BaseScraper):
             date_scraped=datetime.utcnow().isoformat(),
         )
 
-    def _extract_category(self, soup: BeautifulSoup) -> Optional[str]:
-        """Extract listing category (Woongemeenschap, Pand of site, Medebewoner, etc.)."""
-        # Look for category/type field in structured data
-        for label_el in soup.find_all(["dt", "label", "strong", "span"]):
-            text = label_el.get_text(strip=True).lower()
-            if "categorie" in text or "type" in text or "soort" in text:
-                value_el = label_el.find_next(["dd", "span", "div", "p"])
-                if value_el:
-                    return value_el.get_text(strip=True)
+    def _extract_classified_fields(self, soup: BeautifulSoup) -> dict:
+        """Extract all structured fields from classified detail labels."""
+        fields = {}
+        for label in soup.select(".classified-full-detail-label"):
+            key = label.get_text(strip=True).rstrip(":").lower()
+            value_parts = []
+            for sibling in label.next_siblings:
+                if hasattr(sibling, "name") and sibling.name == "br":
+                    continue
+                if hasattr(sibling, "name") and sibling.name in ("span", "div", "a"):
+                    value_parts.append(sibling.get_text(strip=True))
+                elif isinstance(sibling, str) and sibling.strip():
+                    value_parts.append(sibling.strip())
+            if value_parts:
+                fields[key] = " ".join(value_parts).strip()
+        return fields
 
-        # Look for category badges/tags in the page
-        page_text = soup.get_text().lower()
-        if "medebewoner" in page_text:
-            # Check if it's the primary category
-            for el in soup.find_all(["span", "div", "a"]):
-                if el.get_text(strip=True).lower() == "medebewoner":
-                    return "Medebewoner"
+    def _extract_category(self, soup: BeautifulSoup) -> Optional[str]:
+        """Extract listing category from the classified-full-type element."""
+        cat_el = soup.select_one(".classified-full-type")
+        if cat_el:
+            return cat_el.get_text(strip=True)
         return None
 
     def _extract_description(self, soup: BeautifulSoup) -> str:
@@ -194,31 +204,13 @@ class SamenhuizenScraper(BaseScraper):
         text = "\n".join(p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 20)
         return text
 
-    def _extract_location(self, soup: BeautifulSoup) -> Tuple[Optional[str], Optional[str]]:
-        """Extract municipality and region. Returns (municipality, region)."""
-        municipality = None
-        region = None
-
-        # Look for structured fields: Regio, Gemeente
-        for label_el in soup.find_all(["dt", "label", "strong", "span", "div"]):
-            text = label_el.get_text(strip=True).lower()
-            if text in ("regio", "regio:"):
-                value_el = label_el.find_next(["dd", "span", "div", "p"])
-                if value_el and value_el != label_el:
-                    region = value_el.get_text(strip=True)
-            elif "gemeente" in text or "stad" in text:
-                value_el = label_el.find_next(["dd", "span", "div", "p"])
-                if value_el and value_el != label_el:
-                    municipality = value_el.get_text(strip=True)
-
-        # Fallback: search for known region names in text
-        if not region:
-            page_text = soup.get_text()
-            for known_region in self.REGION_TO_PROVINCE:
-                if known_region in page_text.lower():
-                    region = known_region.title()
-                    break
-
+    def _extract_location_from_fields(self, fields: dict) -> Tuple[Optional[str], Optional[str]]:
+        """Extract municipality and region from classified fields."""
+        municipality = fields.get("gemeente of stad") or fields.get("gemeente") or fields.get("stad")
+        region = fields.get("regio")
+        # Clean up municipality (remove postal codes, semicolons, numbers prefix)
+        if municipality:
+            municipality = re.sub(r"^\d+[;,.]?\s*", "", municipality).strip()
         location = municipality or region
         return location, region
 
@@ -228,18 +220,18 @@ class SamenhuizenScraper(BaseScraper):
             return None
         return self.REGION_TO_PROVINCE.get(region.lower(), "Flandre")
 
-    def _extract_price(self, soup: BeautifulSoup, description: str) -> Tuple[Optional[str], Optional[float]]:
-        """Extract price from structured fields or description."""
-        # Look for structured price field (Bedrag, Huurprijs)
-        for label_el in soup.find_all(["dt", "label", "strong", "span", "div"]):
-            text = label_el.get_text(strip=True).lower()
-            if text in ("bedrag", "huurprijs", "bedrag:", "huurprijs:", "prijs", "prijs:"):
-                value_el = label_el.find_next(["dd", "span", "div", "p"])
-                if value_el:
-                    price_text = value_el.get_text(strip=True)
-                    amount = self._parse_price_amount(price_text)
-                    if amount:
-                        return f"{int(amount)}\u20ac/mois", amount
+    def _extract_price_from_fields(self, fields: dict, description: str) -> Tuple[Optional[str], Optional[float]]:
+        """Extract price from classified fields or description."""
+        huur_koop = (fields.get("huur of koop") or "").lower()
+        is_sale = "te koop" in huur_koop
+
+        price_text = fields.get("bedrag") or fields.get("huurprijs") or fields.get("prijs")
+        if price_text:
+            amount = self._parse_price_amount(price_text)
+            if amount:
+                if is_sale or amount > 10000:
+                    return f"{int(amount)}\u20ac", amount
+                return f"{int(amount)}\u20ac/mois", amount
 
         # Fallback: search description for price patterns
         patterns = [
@@ -260,11 +252,15 @@ class SamenhuizenScraper(BaseScraper):
 
     def _parse_price_amount(self, text: str) -> Optional[float]:
         """Parse a numeric price from text like '€510' or '510 euro'."""
-        match = re.search(r"(\d{2,4})", text)
+        match = re.search(r"(\d[\d\s.,]*)", text)
         if match:
-            amount = float(match.group(1))
-            if 100 <= amount <= 5000:
-                return amount
+            raw = match.group(1).replace(" ", "").replace(",", ".")
+            try:
+                amount = float(raw)
+                if 50 <= amount <= 500000:
+                    return amount
+            except ValueError:
+                pass
         return None
 
     def _extract_date(self, soup: BeautifulSoup) -> Optional[str]:
@@ -305,32 +301,40 @@ class SamenhuizenScraper(BaseScraper):
         return None
 
     def _extract_images(self, soup: BeautifulSoup) -> List[str]:
-        """Extract image URLs."""
+        """Extract image URLs from listing content."""
         images = []
+        # Skip partner logos and theme assets
+        skip_patterns = ["logo", "icon", "themes/custom", "vdk250", "verbeelding"]
         for img in soup.find_all("img", src=True):
             src = img["src"]
-            # Make absolute URL
             if src.startswith("/"):
                 src = self.base_url + src
-            if src.startswith("http") and "logo" not in src.lower() and "icon" not in src.lower():
-                # Skip tiny images (likely icons/avatars)
-                width = img.get("width", "")
-                if width and width.isdigit() and int(width) < 50:
-                    continue
-                if src not in images:
-                    images.append(src)
+            if not src.startswith("http"):
+                continue
+            if any(p in src.lower() for p in skip_patterns):
+                continue
+            width = img.get("width", "")
+            if width and width.isdigit() and int(width) < 50:
+                continue
+            if src not in images:
+                images.append(src)
         return images
 
-    def _determine_type(self, soup: BeautifulSoup, description: str) -> str:
-        """Determine listing type based on page content."""
-        page_text = (soup.get_text() + " " + description).lower()
-
-        if "te huur" in page_text or "huurprijs" in page_text or "huur" in page_text:
+    def _determine_type_from_fields(self, fields: dict, description: str) -> str:
+        """Determine listing type from classified fields and description."""
+        huur_koop = (fields.get("huur of koop") or "").lower()
+        if "te huur" in huur_koop:
             return "offre-location"
-        elif "te koop" in page_text or "verkoopprijs" in page_text:
+        if "te koop" in huur_koop:
             return "offre-vente"
-        elif "woongemeenschap" in page_text or "cohousing" in page_text:
+
+        desc_lower = description.lower()
+        if "te huur" in desc_lower or "huurprijs" in desc_lower:
+            return "offre-location"
+        if "te koop" in desc_lower or "verkoopprijs" in desc_lower:
+            return "offre-vente"
+        if "woongemeenschap" in desc_lower or "cohousing" in desc_lower:
             return "creation-groupe"
-        elif "grond" in page_text or "pand" in page_text or "site" in page_text:
+        if "grond" in desc_lower or "pand" in desc_lower:
             return "creation-groupe"
-        return "autre"
+        return "cohousing"

@@ -17,15 +17,13 @@ from scraper.scrapers.ecovillage import EcovillageScraper
 from scraper.scrapers.samenhuizen import SamenhuizenScraper
 from scraper.scrapers.findacohouse import FindACoHouseScraper
 from scraper.scrapers.habitat_participatif_fr import HabitatParticipatifFRScraper
-from scraper.scrapers.ecovillage_fr import EcovillageFRScraper
-from scraper.scrapers.cohousing_spain import CohousingSpainScraper
-from scraper.scrapers.ecovillage_spain import EcovillageSpainScraper
 from scraper.evaluator import evaluate_all
 from scraper.tag_extractor import extract_all_tags
 from scraper.content_generator import generate_all_content
 from scraper.quality_filter import pre_filter, post_filter_evaluations
 from scraper.description_cleaner import clean_all_descriptions
 from scraper.translator import translate_listings
+from scraper.image_filter import filter_all_listings as filter_all_images
 
 
 def load_existing_listings() -> Dict[str, Listing]:
@@ -98,11 +96,8 @@ def main():
         FindACoHouseScraper(),
         ICOrgScraper(),
         EcovillageScraper(),
-        # France & Spain (Camino de Santiago)
+        # France (Camino de Santiago)
         HabitatParticipatifFRScraper(),
-        EcovillageFRScraper(),
-        CohousingSpainScraper(),
-        EcovillageSpainScraper(),
     ]
 
     all_new_listings = []
@@ -148,6 +143,13 @@ def main():
     for listing_id, clean_desc in cleaned.items():
         if listing_id in existing_listings:
             existing_listings[listing_id].description = clean_desc
+
+    # Filter images: remove avatars, banners, icons, non-photo content
+    print(f"\n--- Image Filtering ---")
+    image_updates = filter_all_images(list(existing_listings.values()))
+    for lid, clean_images in image_updates.items():
+        if lid in existing_listings:
+            existing_listings[lid].images = clean_images
 
     # Save ALL listings (unfiltered) for reference
     save_listings(existing_listings)

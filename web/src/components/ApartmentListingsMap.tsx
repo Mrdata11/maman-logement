@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
@@ -92,6 +92,9 @@ function createPopupContent(item: ApartmentWithEval): string {
       <div class="map-popup-actions">
         <a href="/appartements/listing/${listing.id}" class="map-popup-link">Voir d\u00e9tail</a>
         <a href="${listing.source_url}" target="_blank" rel="noopener noreferrer" class="map-popup-link-secondary">Immoweb</a>
+        <button class="map-popup-archive-btn" data-archive-id="${listing.id}" title="Archiver">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+        </button>
       </div>
     </div>
   </div>`;
@@ -117,13 +120,32 @@ interface ApartmentListingsMapProps {
   items: ApartmentWithEval[];
   hoveredListingId: string | null;
   onMarkerHover: (id: string | null) => void;
+  onArchive?: (id: string) => void;
 }
 
 export default function ApartmentListingsMap({
   items,
   hoveredListingId,
   onMarkerHover,
+  onArchive,
 }: ApartmentListingsMapProps) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = mapContainerRef.current;
+    if (!container || !onArchive) return;
+    const handleClick = (e: MouseEvent) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>(".map-popup-archive-btn");
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = btn.dataset.archiveId;
+        if (id) onArchive(id);
+      }
+    };
+    container.addEventListener("click", handleClick);
+    return () => container.removeEventListener("click", handleClick);
+  }, [onArchive]);
   const mappableItems = useMemo(() => {
     return items
       .filter((item) => item.listing.latitude && item.listing.longitude)
@@ -150,7 +172,7 @@ export default function ApartmentListingsMap({
   );
 
   return (
-    <div className="relative w-full h-full min-h-[400px] rounded-xl overflow-hidden border border-[var(--border-color)]">
+    <div ref={mapContainerRef} className="relative w-full h-full min-h-[400px] rounded-xl overflow-hidden border border-[var(--border-color)]">
       <MapContainer
         center={[BRUSSELS_MAP_CENTER.lat, BRUSSELS_MAP_CENTER.lng]}
         zoom={BRUSSELS_DEFAULT_ZOOM}

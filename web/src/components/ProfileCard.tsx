@@ -5,9 +5,11 @@ import { ProfileCard as ProfileCardType } from "@/lib/profile-types";
 
 interface ProfileCardProps {
   profile: ProfileCardType;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
 }
 
-export function ProfileCard({ profile }: ProfileCardProps) {
+export function ProfileCard({ profile, isFavorite, onToggleFavorite }: ProfileCardProps) {
   const initials = profile.display_name
     .split(" ")
     .map((n) => n[0])
@@ -29,7 +31,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
 
   return (
     <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-5 hover:shadow-md transition-shadow">
-      {/* Header: avatar + name */}
+      {/* Header: avatar + name + favorite */}
       <div className="flex items-start gap-3 mb-3">
         {profile.avatar_url ? (
           <img
@@ -44,7 +46,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
             </span>
           </div>
         )}
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h3 className="font-semibold text-[var(--foreground)] truncate">
             {profile.display_name}
           </h3>
@@ -78,6 +80,25 @@ export function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           )}
         </div>
+        {onToggleFavorite && (
+          <button
+            onClick={(e) => { e.preventDefault(); onToggleFavorite(profile.id); }}
+            className="shrink-0 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+            title={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+          >
+            <svg
+              className={`w-5 h-5 transition-colors ${isFavorite ? "text-rose-500 fill-rose-500" : "text-[var(--muted)] hover:text-rose-400"}`}
+              viewBox="0 0 24 24"
+              fill={isFavorite ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Intro snippet - first person voice */}

@@ -21,7 +21,7 @@ export function QuestionnaireBanner({ state, matchCount, questionnaireSummary, o
   if (isCompleted) {
     const hasSummary = questionnaireSummary && questionnaireSummary.length > 0;
     return (
-      <div className="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-300 rounded-xl print:hidden">
+      <div className="mb-6 px-5 py-4 bg-emerald-50 border border-emerald-300 rounded-xl print:hidden">
         {/* Top row: match count + actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -93,7 +93,7 @@ export function QuestionnaireBanner({ state, matchCount, questionnaireSummary, o
   if (hasStarted) {
     const stepLabel = state!.currentStep + 1;
     return (
-      <div className="mb-4 p-4 bg-gradient-to-r from-[var(--surface)] to-emerald-50/30 border border-[var(--primary)]/30 rounded-xl print:hidden">
+      <div className="mb-6 p-5 bg-gradient-to-r from-[var(--surface)] to-emerald-50/30 border border-[var(--primary)]/30 rounded-xl print:hidden">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-[var(--foreground)] text-sm">
@@ -116,7 +116,7 @@ export function QuestionnaireBanner({ state, matchCount, questionnaireSummary, o
 
   // Not started: prominent banner
   return (
-    <div className="mb-4 p-5 bg-gradient-to-r from-[var(--surface)] to-emerald-50/30 border border-[var(--primary)]/30 rounded-xl print:hidden">
+    <div className="mb-6 p-6 bg-gradient-to-r from-[var(--surface)] to-emerald-50/30 border border-[var(--primary)]/30 rounded-xl print:hidden">
       <div className="flex items-start gap-4">
         <div className="shrink-0 w-10 h-10 bg-[var(--primary)]/10 rounded-full flex items-center justify-center">
           <svg className="w-5 h-5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

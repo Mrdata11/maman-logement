@@ -40,7 +40,7 @@ interface VoiceQuestionnaireProps {
   onComplete: () => void;
 }
 
-type Phase = "idle" | "recording" | "reviewing" | "extracting" | "done";
+type Phase = "idle" | "recording" | "transcribing" | "reviewing" | "extracting" | "done";
 
 // Check SpeechRecognition support
 function getSpeechRecognition(): (new () => SpeechRecognitionInstance) | null {
@@ -49,6 +49,11 @@ function getSpeechRecognition(): (new () => SpeechRecognitionInstance) | null {
     (window as unknown as Record<string, unknown>).SpeechRecognition ||
     (window as unknown as Record<string, unknown>).webkitSpeechRecognition
   ) as (new () => SpeechRecognitionInstance) | null;
+}
+
+function hasMediaRecorderSupport(): boolean {
+  if (typeof window === "undefined") return false;
+  return typeof MediaRecorder !== "undefined" && !!navigator?.mediaDevices?.getUserMedia;
 }
 
 const totalQuestions = QUESTIONNAIRE_STEPS.reduce(
@@ -64,13 +69,23 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
   const [error, setError] = useState<string | null>(null);
   const [coverage, setCoverage] = useState(0);
   const [summary, setSummary] = useState("");
-  const [speechFailed, setSpeechFailed] = useState(false);
+  const [voiceFailed, setVoiceFailed] = useState(false);
 
+  // Web Speech API refs
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+
+  // MediaRecorder refs
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const useMediaRecorderRef = useRef(false);
+
+  // Shared refs
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const maxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isRecordingRef = useRef(false);
 
-  const isSpeechSupported = getSpeechRecognition() !== null && !speechFailed;
+  const canUseVoice = !voiceFailed && (getSpeechRecognition() !== null || hasMediaRecorderSupport());
 
   // Cleanup on unmount
   useEffect(() => {
@@ -78,25 +93,137 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
       }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        try { mediaRecorderRef.current.stop(); } catch {}
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
       if (timerRef.current) clearInterval(timerRef.current);
       if (maxTimerRef.current) clearTimeout(maxTimerRef.current);
     };
   }, []);
 
-  const startRecording = useCallback(() => {
+  const clearTimers = useCallback(() => {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    if (maxTimerRef.current) { clearTimeout(maxTimerRef.current); maxTimerRef.current = null; }
+  }, []);
+
+  const startTimers = useCallback(() => {
+    timerRef.current = setInterval(() => {
+      setSeconds((s) => s + 1);
+    }, 1000);
+    maxTimerRef.current = setTimeout(() => {
+      stopRecording();
+    }, 180_000);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // --- MediaRecorder fallback ---
+
+  const transcribeAudio = useCallback(async (audioBlob: Blob) => {
+    setPhase("transcribing");
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, `recording.${audioBlob.type.includes("mp4") ? "m4a" : "webm"}`);
+
+      const res = await fetch("/api/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: "Erreur serveur" }));
+        throw new Error(data.error || `Erreur ${res.status}`);
+      }
+
+      const data = await res.json();
+      if (data.text?.trim()) {
+        setTranscript(data.text.trim());
+        setPhase("reviewing");
+      } else {
+        setError("Aucun texte d\u00e9tect\u00e9. Essaie de parler plus fort.");
+        setPhase("idle");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erreur de transcription.";
+      setError(msg + " Tu peux taper ta description ci-dessous.");
+      setVoiceFailed(true);
+      setPhase("idle");
+    }
+  }, []);
+
+  const startMediaRecording = useCallback(async () => {
+    try {
+      if (!hasMediaRecorderSupport()) {
+        throw new Error("Enregistrement audio non support\u00e9.");
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const mediaRecorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+        }
+        const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType });
+        mediaRecorderRef.current = null;
+        if (audioBlob.size > 0) {
+          transcribeAudio(audioBlob);
+        } else {
+          setPhase("idle");
+        }
+      };
+
+      mediaRecorder.start(1000);
+      isRecordingRef.current = true;
+      setPhase("recording");
+      startTimers();
+    } catch {
+      setError("Impossible d'acc\u00e9der au microphone. Tu peux taper ta description ci-dessous.");
+      setVoiceFailed(true);
+      setPhase("idle");
+    }
+  }, [transcribeAudio, startTimers]);
+
+  // --- Main recording logic ---
+
+  const startRecording = useCallback(async () => {
     setError(null);
     setTranscript("");
     setInterimText("");
     setSeconds(0);
 
+    // If we already know Web Speech API doesn't work, go straight to MediaRecorder
+    if (useMediaRecorderRef.current) {
+      await startMediaRecording();
+      return;
+    }
+
     const SpeechRecognitionClass = getSpeechRecognition();
-    if (!SpeechRecognitionClass) return;
+    if (!SpeechRecognitionClass) {
+      useMediaRecorderRef.current = true;
+      await startMediaRecording();
+      return;
+    }
 
     const recognition = new SpeechRecognitionClass();
     recognition.lang = "fr-BE";
     recognition.continuous = true;
     recognition.interimResults = true;
     recognitionRef.current = recognition;
+    isRecordingRef.current = true;
 
     let finalTranscript = "";
 
@@ -114,17 +241,23 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
       setInterimText(interim);
     };
 
-    recognition.onerror = (event) => {
+    recognition.onerror = async (event) => {
       if (event.error === "not-allowed") {
-        setSpeechFailed(true);
+        setVoiceFailed(true);
         setError(null);
-        stopRecording();
+        isRecordingRef.current = false;
+        try { recognition.onend = null; recognition.stop(); } catch {}
+        recognitionRef.current = null;
+        clearTimers();
         setPhase("idle");
       } else if (event.error === "network") {
-        setSpeechFailed(true);
-        setError(null);
-        stopRecording();
-        setPhase("idle");
+        // Silently switch to MediaRecorder
+        try { recognition.onend = null; recognition.stop(); } catch {}
+        recognitionRef.current = null;
+        clearTimers();
+
+        useMediaRecorderRef.current = true;
+        await startMediaRecording();
       } else if (event.error !== "no-speech" && event.error !== "aborted") {
         setError(`Erreur de reconnaissance : ${event.error}`);
       }
@@ -132,7 +265,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
 
     // Auto-restart on end (iOS Safari stops after ~60s)
     recognition.onend = () => {
-      if (phase === "recording" && recognitionRef.current === recognition) {
+      if (isRecordingRef.current && recognitionRef.current === recognition) {
         try {
           recognition.start();
         } catch {
@@ -144,44 +277,37 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
     try {
       recognition.start();
       setPhase("recording");
-
-      // Timer
-      timerRef.current = setInterval(() => {
-        setSeconds((s) => s + 1);
-      }, 1000);
-
-      // Max 3 minutes
-      maxTimerRef.current = setTimeout(() => {
-        stopRecording();
-      }, 180_000);
+      startTimers();
     } catch {
-      setError("Impossible de démarrer la reconnaissance vocale.");
+      useMediaRecorderRef.current = true;
+      await startMediaRecording();
     }
-  }, [phase]);
+  }, [startMediaRecording, clearTimers, startTimers]);
 
   const stopRecording = useCallback(() => {
+    isRecordingRef.current = false;
+    clearTimers();
+    setInterimText("");
+
+    // Stop Web Speech API
     if (recognitionRef.current) {
       try {
-        recognitionRef.current.onend = null; // Prevent auto-restart
+        recognitionRef.current.onend = null;
         recognitionRef.current.stop();
       } catch {}
       recognitionRef.current = null;
+      setPhase("reviewing");
     }
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+
+    // Stop MediaRecorder (onstop handler will call transcribeAudio)
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
     }
-    if (maxTimerRef.current) {
-      clearTimeout(maxTimerRef.current);
-      maxTimerRef.current = null;
-    }
-    setInterimText("");
-    setPhase("reviewing");
-  }, []);
+  }, [clearTimers]);
 
   const extractAnswers = useCallback(async () => {
     if (!transcript.trim() || transcript.trim().length < 10) {
-      setError("Le texte est trop court. Essaie de donner plus de détails.");
+      setError("Le texte est trop court. Essaie de donner plus de d\u00e9tails.");
       return;
     }
 
@@ -204,7 +330,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
 
       if (Object.keys(data.answers).length < 2) {
         setError(
-          "Nous n'avons pas pu extraire assez d'informations. Essaie de donner plus de détails, ou utilise le questionnaire écrit."
+          "Nous n'avons pas pu extraire assez d'informations. Essaie de donner plus de d\u00e9tails, ou utilise le questionnaire \u00e9crit."
         );
         setPhase("reviewing");
         return;
@@ -274,11 +400,11 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
 
               <div>
                 <p className="text-[var(--foreground)] font-medium">
-                  Décris en quelques mots ce que tu recherches
+                  D&eacute;cris en quelques mots ce que tu recherches
                 </p>
                 <p className="text-sm text-[var(--muted)] mt-1.5 leading-relaxed">
-                  Parle de ton budget, la région, le type de communauté, tes valeurs, ce que tu veux éviter...
-                  L&apos;IA extraira tes préférences automatiquement.
+                  Parle de ton budget, la r&eacute;gion, le type de communaut&eacute;, tes valeurs, ce que tu veux &eacute;viter...
+                  L&apos;IA extraira tes pr&eacute;f&eacute;rences automatiquement.
                 </p>
               </div>
 
@@ -288,7 +414,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
                 </div>
               )}
 
-              {isSpeechSupported ? (
+              {canUseVoice ? (
                 <button
                   onClick={startRecording}
                   className="w-full px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center justify-center gap-2"
@@ -299,7 +425,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
                   Commencer l&apos;enregistrement
                 </button>
               ) : (
-                /* Fallback: textarea for browsers without SpeechRecognition */
+                /* Fallback: textarea for browsers without any voice support */
                 <div className="space-y-3">
                   <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
                     Ton navigateur ne supporte pas la reconnaissance vocale. Tu peux taper ta description ci-dessous.
@@ -308,7 +434,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
                     value={transcript}
                     onChange={(e) => setTranscript(e.target.value)}
                     rows={5}
-                    placeholder="Décris ce que tu recherches : budget, région, type de communauté, valeurs..."
+                    placeholder="D\u00e9cris ce que tu recherches : budget, r\u00e9gion, type de communaut\u00e9, valeurs..."
                     className="w-full px-3 py-2 border border-[var(--input-border)] rounded-lg text-sm bg-[var(--input-bg)] text-[var(--foreground)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                   />
                   <button
@@ -329,7 +455,7 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
                 href="/questionnaire"
                 className="inline-block text-sm text-[var(--muted)] hover:text-[var(--primary)] transition-colors"
               >
-                Ou remplir le questionnaire étape par étape &rarr;
+                Ou remplir le questionnaire &eacute;tape par &eacute;tape &rarr;
               </a>
             </div>
           )}
@@ -344,38 +470,42 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
                 <span className="text-[var(--muted)] font-mono text-sm">{formatTime(seconds)}</span>
               </div>
 
-              {/* Live transcript */}
-              {(transcript || interimText) && (
+              {/* Live transcript (Web Speech API) or hint (MediaRecorder) */}
+              {(transcript || interimText) ? (
                 <div className="min-h-[60px] max-h-[200px] overflow-y-auto p-3 bg-[var(--surface)] rounded-lg text-sm text-[var(--foreground)] leading-relaxed">
                   {transcript}
                   {interimText && (
                     <span className="text-[var(--muted)]"> {interimText}</span>
                   )}
                 </div>
-              )}
-
-              {/* Suggested topics */}
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-[var(--muted)]">Tu peux parler de :</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    "Ton budget",
-                    "La région souhaitée",
-                    "Type de logement",
-                    "Tes motivations",
-                    "Taille de la communauté",
-                    "Activités souhaitées",
-                    "Tes valeurs",
-                    "Ce que tu veux éviter",
-                  ].map((topic) => (
-                    <span
-                      key={topic}
-                      className="text-xs px-2.5 py-1 bg-[var(--surface)] text-[var(--muted)] rounded-full border border-[var(--border-color)]"
-                    >
-                      {topic}
-                    </span>
-                  ))}
+              ) : useMediaRecorderRef.current ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-[var(--muted)]">
+                    Parle, ton audio est enregistr&eacute;...
+                  </p>
                 </div>
+              ) : null}
+
+              {/* Suggested questions */}
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-[var(--muted)]">Par exemple :</p>
+                {[
+                  "Quel est ton budget\u00a0?",
+                  "Dans quelle r\u00e9gion tu cherches\u00a0?",
+                  "Quel type de logement tu veux\u00a0?",
+                  "Qu'est-ce qui te motive\u00a0?",
+                  "Quelle taille de communaut\u00e9 tu imagines\u00a0?",
+                  "Quelles activit\u00e9s t'int\u00e9ressent\u00a0?",
+                  "Quelles sont tes valeurs\u00a0?",
+                  "Qu'est-ce que tu veux \u00e9viter\u00a0?",
+                ].map((question) => (
+                  <p
+                    key={question}
+                    className="text-xs text-[var(--muted)] leading-relaxed italic"
+                  >
+                    {question}
+                  </p>
+                ))}
               </div>
 
               <button
@@ -390,11 +520,34 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
             </div>
           )}
 
+          {/* TRANSCRIBING phase (MediaRecorder mode) */}
+          {phase === "transcribing" && (
+            <div className="text-center py-8 space-y-4">
+              <div className="flex justify-center gap-1.5">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-2.5 h-2.5 bg-[var(--primary)] rounded-full"
+                    style={{
+                      animation: `recording-pulse 1s ease-in-out ${i * 0.2}s infinite`,
+                    }}
+                  />
+                ))}
+              </div>
+              <p className="text-[var(--foreground)] font-medium">
+                Transcription en cours...
+              </p>
+              <p className="text-sm text-[var(--muted)]">
+                Conversion de l&apos;audio en texte
+              </p>
+            </div>
+          )}
+
           {/* REVIEWING phase */}
           {phase === "reviewing" && (
             <div className="space-y-4">
               <p className="text-sm text-[var(--muted)]">
-                Vérifie et corrige le texte si besoin, puis lance l&apos;analyse.
+                V&eacute;rifie et corrige le texte si besoin, puis lance l&apos;analyse.
               </p>
 
               <textarea
@@ -446,10 +599,10 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
                 ))}
               </div>
               <p className="text-[var(--foreground)] font-medium">
-                Analyse de tes préférences en cours...
+                Analyse de tes pr&eacute;f&eacute;rences en cours...
               </p>
               <p className="text-sm text-[var(--muted)]">
-                L&apos;IA extrait tes critères de recherche
+                L&apos;IA extrait tes crit&egrave;res de recherche
               </p>
             </div>
           )}
@@ -464,10 +617,10 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
               </div>
               <div>
                 <p className="text-[var(--foreground)] font-semibold text-lg">
-                  Ton profil est prêt !
+                  Ton profil est pr&ecirc;t !
                 </p>
                 <p className="text-sm text-[var(--primary)] mt-1">
-                  {coverage} réponse{coverage !== 1 ? "s" : ""} extraite{coverage !== 1 ? "s" : ""} sur {totalQuestions} questions
+                  {coverage} r&eacute;ponse{coverage !== 1 ? "s" : ""} extraite{coverage !== 1 ? "s" : ""} sur {totalQuestions} questions
                 </p>
                 {summary && (
                   <p className="text-sm text-[var(--muted)] mt-2 italic">

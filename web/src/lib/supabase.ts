@@ -25,6 +25,13 @@ export function createClient(): SupabaseClient {
         signOut: () => Promise.resolve({ error: null }),
         onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
       },
+      storage: {
+        from: () => ({
+          upload: () => Promise.resolve({ data: null, error: { message: "Storage not configured" } }),
+          getPublicUrl: () => ({ data: { publicUrl: "" } }),
+          remove: () => Promise.resolve({ data: null, error: null }),
+        }),
+      },
     } as unknown as SupabaseClient;
   }
 

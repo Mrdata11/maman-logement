@@ -697,6 +697,7 @@ export function ApartmentDashboard({
               items={filtered}
               hoveredListingId={hoveredListingId}
               onMarkerHover={setHoveredListingId}
+              onArchive={(id) => handleStatusChange(id, "archived")}
             />
           </div>
         )}

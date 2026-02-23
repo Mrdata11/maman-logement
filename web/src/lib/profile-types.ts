@@ -23,12 +23,23 @@ export interface Profile {
   sexuality: string | null;
   questionnaire_answers: QuestionnaireAnswers;
   introduction: ProfileIntroduction;
+  photos: string[];
   ai_summary: string | null;
   ai_tags: string[];
   is_published: boolean;
   created_at: string;
   updated_at: string;
 }
+
+/** Display titles for intro sections (consistent first-person noun phrases) */
+export const INTRO_DISPLAY_TITLES: Record<keyof ProfileIntroduction, { title: string; icon: string }> = {
+  whoAreYou: { title: "Qui je suis", icon: "\u{1F331}" },
+  whyGroupHousing: { title: "Mon attrait pour l'habitat group\u00e9", icon: "\u{1F3E0}" },
+  communityValues: { title: "Ce qui compte pour moi", icon: "\u{1F91D}" },
+  whatYouBring: { title: "Ce que j'apporte", icon: "\u{2728}" },
+  idealDay: { title: "Ma journ\u00e9e id\u00e9ale", icon: "\u{1F305}" },
+  additionalInfo: { title: "En savoir plus", icon: "\u{1F343}" },
+};
 
 export interface ProfileCard {
   id: string;
@@ -46,6 +57,7 @@ export interface ProfileCard {
   core_values: string[];
   intro_snippet?: string;
   created_at: string;
+  questionnaire_answers?: Record<string, string | string[] | number>;
 }
 
 export const EMPTY_INTRODUCTION: ProfileIntroduction = {

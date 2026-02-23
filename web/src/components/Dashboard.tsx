@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef, type ReactNode } from "react";
 import {
   ListingWithEval,
   ListingStatus,
@@ -37,10 +37,29 @@ import { mapQuestionnaireToFilters } from "@/lib/questionnaire-mapping";
 type FilterType = "all" | "new" | "favorite" | "active" | "archived";
 type SortType = "score" | "price" | "distance";
 
-const SORT_OPTIONS: { value: SortType; label: string; icon: string }[] = [
-  { value: "score", label: "Score", icon: "⭐" },
-  { value: "price", label: "Prix", icon: "💰" },
-  { value: "distance", label: "Distance (Bruxelles)", icon: "📍" },
+const SortIconScore = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 20h16" />
+  </svg>
+);
+const SortIconPrice = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h10M7 12h10m-5-9v18m-3-3l3 3 3-3" />
+  </svg>
+);
+const SortIconDistance = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <circle cx="6" cy="6" r="2" strokeWidth={2} />
+    <circle cx="18" cy="18" r="2" strokeWidth={2} />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 8v2a4 4 0 004 4h4a4 4 0 004-4V8" />
+  </svg>
+);
+
+const SORT_OPTIONS: { value: SortType; label: string; icon: ReactNode }[] = [
+  { value: "score", label: "Score", icon: <SortIconScore /> },
+  { value: "price", label: "Prix", icon: <SortIconPrice /> },
+  { value: "distance", label: "Distance (Bruxelles)", icon: <SortIconDistance /> },
 ];
 
 const SORT_LABELS: Record<SortType, string> = {
@@ -734,7 +753,7 @@ export function Dashboard({
       )}
 
       {/* Spacer before toolbar */}
-      <div className="mb-4" />
+      <div className="mb-2" />
 
       {/* Sticky toolbar */}
       <div className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 print:hidden">
@@ -752,7 +771,7 @@ export function Dashboard({
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap flex items-center gap-1 ${
                   filter === key
                     ? key === "favorite"
                       ? "bg-rose-600 text-white shadow-sm"
@@ -760,9 +779,14 @@ export function Dashboard({
                     : "bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--foreground)] border border-[var(--border-color)]"
                 }`}
               >
+                {key === "favorite" && (
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill={filter === "favorite" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                )}
                 {label}
                 {count > 0 && (
-                  <span className={`ml-1.5 ${filter === key ? "opacity-80" : "text-[var(--muted-light)]"}`}>
+                  <span className={`ml-1 ${filter === key ? "opacity-80" : "text-[var(--muted-light)]"}`}>
                     {count}
                   </span>
                 )}
@@ -805,7 +829,7 @@ export function Dashboard({
                           : "text-[var(--foreground)] hover:bg-[var(--surface)]"
                       }`}
                     >
-                      <span className="text-base">{icon}</span>
+                      <span className="text-[var(--muted)] shrink-0">{icon}</span>
                       <span className="flex-1">{label}</span>
                       {sort === value && (
                         <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -981,13 +1005,13 @@ export function Dashboard({
       )}
 
       {/* Content: list, map, or split */}
-      <div className={`mt-3 ${viewMode === "split" ? "flex gap-4" : ""}`}>
+      <div className={`mt-5 ${viewMode === "split" ? "flex gap-4" : ""}`}>
         {(viewMode === "list" || viewMode === "split") && (
           <div
             className={
               viewMode === "split"
-                ? "w-1/2 overflow-y-auto max-h-[calc(100vh-180px)] space-y-3 pr-2"
-                : "space-y-3"
+                ? "w-1/2 overflow-y-auto max-h-[calc(100vh-180px)] space-y-4 pr-2"
+                : "space-y-4"
             }
           >
             {filtered.map((item) => (
@@ -1033,6 +1057,7 @@ export function Dashboard({
               items={filtered}
               hoveredListingId={hoveredListingId}
               onMarkerHover={setHoveredListingId}
+              onArchive={(id) => handleStatusChange(id, "archived")}
             />
           </div>
         )}

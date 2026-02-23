@@ -121,17 +121,20 @@ export default function MonProfilPage() {
         <h1 className="text-2xl font-bold text-[var(--foreground)]">
           Mon profil
         </h1>
-        <div className="flex items-center gap-2">
+        <span
+          className={`text-sm px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5 ${
+            profile.is_published
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-amber-100 text-amber-700"
+          }`}
+        >
           <span
-            className={`text-xs px-2 py-1 rounded-full font-medium ${
-              profile.is_published
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-amber-100 text-amber-700"
+            className={`w-2 h-2 rounded-full ${
+              profile.is_published ? "bg-emerald-500" : "bg-amber-500"
             }`}
-          >
-            {profile.is_published ? "Publi\u00e9" : "Brouillon"}
-          </span>
-        </div>
+          />
+          {profile.is_published ? "Publi\u00e9" : "Brouillon"}
+        </span>
       </div>
 
       {/* Profile summary card */}
@@ -224,7 +227,7 @@ export default function MonProfilPage() {
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Primary actions */}
       <div className="flex flex-col sm:flex-row gap-3">
         <a
           href="/profils/creer"
@@ -234,16 +237,9 @@ export default function MonProfilPage() {
         </a>
         <button
           onClick={togglePublished}
-          className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--surface)] transition-colors"
+          className="flex-1 px-5 py-2.5 border border-[var(--border-color)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--surface)] transition-colors"
         >
           {profile.is_published ? "D\u00e9publier" : "Publier"}
-        </button>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="px-5 py-2.5 border border-red-200 text-red-600 rounded-xl text-sm font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
-        >
-          {deleting ? "Suppression..." : "Supprimer"}
         </button>
       </div>
 
@@ -256,6 +252,27 @@ export default function MonProfilPage() {
           Voir mon profil public &rarr;
         </a>
       )}
+
+      {/* Danger zone - visually separated */}
+      <div className="pt-4 mt-2 border-t border-[var(--border-color)]">
+        <details>
+          <summary className="text-xs text-[var(--muted)] cursor-pointer hover:text-red-500 transition-colors list-none">
+            Zone de suppression
+          </summary>
+          <div className="mt-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm text-red-700 mb-3">
+              Cette action est irr&eacute;versible. Ton profil sera d&eacute;finitivement supprim&eacute;.
+            </p>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="px-5 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              {deleting ? "Suppression..." : "Supprimer d\u00e9finitivement"}
+            </button>
+          </div>
+        </details>
+      </div>
     </div>
   );
 }

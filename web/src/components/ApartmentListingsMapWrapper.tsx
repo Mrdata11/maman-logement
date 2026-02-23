@@ -16,16 +16,19 @@ export function ApartmentListingsMapWrapper({
   items,
   hoveredListingId,
   onMarkerHover,
+  onArchive,
 }: {
   items: ApartmentWithEval[];
   hoveredListingId: string | null;
   onMarkerHover: (id: string | null) => void;
+  onArchive?: (id: string) => void;
 }) {
   return (
     <ApartmentListingsMap
       items={items}
       hoveredListingId={hoveredListingId}
       onMarkerHover={onMarkerHover}
+      onArchive={onArchive}
     />
   );
 }

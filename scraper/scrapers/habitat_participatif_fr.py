@@ -165,7 +165,9 @@ class HabitatParticipatifFRScraper(BaseScraper):
         date_updated = entry.get("date_maj_fiche", "")
         date_published = date_updated or date_created
 
-        # Number of homes info
+        # Structured metadata
+        meta_parts = []
+
         nb_logements = entry.get("bf_nblogement", "")
         nb_foyers = entry.get("bf_nbfoyeractuel", "")
         if nb_logements or nb_foyers:
@@ -174,7 +176,47 @@ class HabitatParticipatifFRScraper(BaseScraper):
                 size_info.append(f"{nb_logements} logements")
             if nb_foyers:
                 size_info.append(f"{nb_foyers} foyers actuels")
-            description += f"\n\nTaille : {', '.join(size_info)}"
+            meta_parts.append(f"Taille : {', '.join(size_info)}")
+
+        LOC_TYPE_LABELS = {
+            "urbain": "Urbain", "periurbain": "Périurbain",
+            "rural": "Rural", "rural-isole": "Rural isolé",
+        }
+        loc_type = entry.get("listeListeTypeDeLocalisation", "")
+        if loc_type and loc_type in LOC_TYPE_LABELS:
+            meta_parts.append(f"Cadre : {LOC_TYPE_LABELS[loc_type]}")
+
+        ARCH_LABELS = {
+            "immeuble": "Immeuble", "intermédiaire": "Intermédiaire",
+            "individuel": "Individuel", "ancien": "Ancien rénové",
+            "leger": "Habitat léger", "mixte": "Mixte",
+        }
+        arch = entry.get("listeListeTypeDArchitecture", "")
+        if arch and arch in ARCH_LABELS:
+            meta_parts.append(f"Architecture : {ARCH_LABELS[arch]}")
+
+        STRUCT_LABELS = {
+            "coop": "Coopérative", "sci": "SCI", "asso": "Association",
+            "copro": "Copropriété", "scia": "SCIA",
+        }
+        struct = entry.get("listeListeStructuresJuridiques", "")
+        if struct and struct in STRUCT_LABELS:
+            meta_parts.append(f"Structure : {STRUCT_LABELS[struct]}")
+
+        AVANCEMENT_LABELS = {
+            "recherche": "En recherche de terrain",
+            "etudes": "En études", "travaux": "En travaux",
+            "abouti": "Abouti / Habité",
+        }
+        avancement = entry.get("listeListeAvancementProjet", "")
+        if avancement and avancement in AVANCEMENT_LABELS:
+            meta_parts.append(f"Avancement : {AVANCEMENT_LABELS[avancement]}")
+
+        if group_status == "recherchehabitant":
+            meta_parts.append("Recherche de nouveaux habitants")
+
+        if meta_parts:
+            description += "\n\n" + " · ".join(meta_parts)
 
         # Website
         website = entry.get("bf_site_internet", "")

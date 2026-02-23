@@ -7,7 +7,7 @@ import {
   EMPTY_INTRODUCTION,
 } from "@/lib/profile-types";
 
-// Web Speech API type declarations (same as VoiceQuestionnaire)
+// Web Speech API type declarations
 interface SpeechRecognitionResult {
   readonly isFinal: boolean;
   readonly length: number;
@@ -43,13 +43,18 @@ function getSpeechRecognition(): (new () => SpeechRecognitionInstance) | null {
   ) as (new () => SpeechRecognitionInstance) | null;
 }
 
+function hasMediaRecorderSupport(): boolean {
+  if (typeof window === "undefined") return false;
+  return typeof MediaRecorder !== "undefined" && !!navigator?.mediaDevices?.getUserMedia;
+}
+
 interface ProfileVoiceIntroProps {
   initialIntroduction?: ProfileIntroduction;
   onComplete: (introduction: ProfileIntroduction) => void;
   onBack: () => void;
 }
 
-type QuestionPhase = "ready" | "recording" | "reviewing" | "cleaning" | "done";
+type QuestionPhase = "ready" | "recording" | "transcribing" | "reviewing" | "cleaning" | "done";
 
 export function ProfileVoiceIntro({
   initialIntroduction,
@@ -65,14 +70,23 @@ export function ProfileVoiceIntro({
   const [interimText, setInterimText] = useState("");
   const [seconds, setSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [speechFailed, setSpeechFailed] = useState(false);
+  const [voiceFailed, setVoiceFailed] = useState(false);
 
+  // Refs for Web Speech API
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const maxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRecordingRef = useRef(false);
 
-  const isSpeechSupported = getSpeechRecognition() !== null && !speechFailed;
+  // Refs for MediaRecorder fallback
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const useMediaRecorderRef = useRef(false);
+
+  // Shared timer refs
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const maxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const canUseVoice = !voiceFailed && (getSpeechRecognition() !== null || hasMediaRecorderSupport());
   const currentQuestion = PROFILE_VOICE_QUESTIONS[currentIndex];
   const currentAnswer = introduction[currentQuestion.id];
   const totalQuestions = PROFILE_VOICE_QUESTIONS.length;
@@ -95,23 +109,133 @@ export function ProfileVoiceIntro({
   useEffect(() => {
     return () => {
       if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch {}
+        try { recognitionRef.current.stop(); } catch {}
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        try { mediaRecorderRef.current.stop(); } catch {}
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
       }
       if (timerRef.current) clearInterval(timerRef.current);
       if (maxTimerRef.current) clearTimeout(maxTimerRef.current);
     };
   }, []);
 
-  const startRecording = useCallback(() => {
+  const clearTimers = useCallback(() => {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    if (maxTimerRef.current) { clearTimeout(maxTimerRef.current); maxTimerRef.current = null; }
+  }, []);
+
+  const startTimers = useCallback(() => {
+    timerRef.current = setInterval(() => {
+      setSeconds((s) => s + 1);
+    }, 1000);
+    maxTimerRef.current = setTimeout(() => {
+      stopRecording();
+    }, 120_000);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // --- MediaRecorder fallback ---
+
+  const transcribeAudio = useCallback(async (audioBlob: Blob) => {
+    setPhase("transcribing");
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, `recording.${audioBlob.type.includes("mp4") ? "m4a" : "webm"}`);
+
+      const res = await fetch("/api/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: "Erreur serveur" }));
+        throw new Error(data.error || `Erreur ${res.status}`);
+      }
+
+      const data = await res.json();
+      if (data.text?.trim()) {
+        setTranscript(data.text.trim());
+        setPhase("reviewing");
+      } else {
+        setError("Aucun texte d\u00e9tect\u00e9. Essaie de parler plus fort ou tape ta r\u00e9ponse ci-dessous.");
+        setPhase("ready");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erreur de transcription.";
+      setError(msg + " Tu peux taper ta r\u00e9ponse ci-dessous.");
+      setVoiceFailed(true);
+      setPhase("ready");
+    }
+  }, []);
+
+  const startMediaRecording = useCallback(async () => {
+    try {
+      if (!hasMediaRecorderSupport()) {
+        throw new Error("Enregistrement audio non support\u00e9 par ce navigateur.");
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const mediaRecorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+        }
+        const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType });
+        mediaRecorderRef.current = null;
+        if (audioBlob.size > 0) {
+          transcribeAudio(audioBlob);
+        } else {
+          setPhase("ready");
+        }
+      };
+
+      mediaRecorder.start(1000);
+      isRecordingRef.current = true;
+      setPhase("recording");
+      startTimers();
+    } catch {
+      setError("Impossible d'acc\u00e9der au microphone. Tu peux taper ta r\u00e9ponse ci-dessous.");
+      setVoiceFailed(true);
+      setPhase("ready");
+    }
+  }, [transcribeAudio, startTimers]);
+
+  // --- Web Speech API (primary) ---
+
+  const startRecording = useCallback(async () => {
     setError(null);
     setTranscript("");
     setInterimText("");
     setSeconds(0);
 
+    // If we already know Web Speech API doesn't work, go straight to MediaRecorder
+    if (useMediaRecorderRef.current) {
+      await startMediaRecording();
+      return;
+    }
+
     const SpeechRecognitionClass = getSpeechRecognition();
-    if (!SpeechRecognitionClass) return;
+    if (!SpeechRecognitionClass) {
+      // No Web Speech API at all → try MediaRecorder
+      useMediaRecorderRef.current = true;
+      await startMediaRecording();
+      return;
+    }
 
     const recognition = new SpeechRecognitionClass();
     recognition.lang = "fr-BE";
@@ -136,21 +260,25 @@ export function ProfileVoiceIntro({
       setInterimText(interim);
     };
 
-    recognition.onerror = (event) => {
+    recognition.onerror = async (event) => {
       if (event.error === "not-allowed") {
         setError(
           "L'acc\u00e8s au micro a \u00e9t\u00e9 refus\u00e9. Tu peux taper ta r\u00e9ponse ci-dessous."
         );
-        setSpeechFailed(true);
-        stopRecording();
+        setVoiceFailed(true);
+        isRecordingRef.current = false;
+        try { recognition.onend = null; recognition.stop(); } catch {}
+        recognitionRef.current = null;
+        clearTimers();
         setPhase("ready");
       } else if (event.error === "network") {
-        setError(
-          "La reconnaissance vocale n'est pas disponible. Tu peux taper ta r\u00e9ponse ci-dessous."
-        );
-        setSpeechFailed(true);
-        stopRecording();
-        setPhase("ready");
+        // Web Speech API service unavailable → silently switch to MediaRecorder
+        try { recognition.onend = null; recognition.stop(); } catch {}
+        recognitionRef.current = null;
+        clearTimers();
+
+        useMediaRecorderRef.current = true;
+        await startMediaRecording();
       } else if (event.error !== "no-speech" && event.error !== "aborted") {
         setError(`Erreur de reconnaissance : ${event.error}`);
       }
@@ -167,40 +295,36 @@ export function ProfileVoiceIntro({
     try {
       recognition.start();
       setPhase("recording");
-
-      timerRef.current = setInterval(() => {
-        setSeconds((s) => s + 1);
-      }, 1000);
-
-      // Max 2 minutes per question
-      maxTimerRef.current = setTimeout(() => {
-        stopRecording();
-      }, 120_000);
+      startTimers();
     } catch {
-      setError("Impossible de d\u00e9marrer la reconnaissance vocale.");
+      // Web Speech API failed to start → try MediaRecorder
+      useMediaRecorderRef.current = true;
+      await startMediaRecording();
     }
-  }, []);
+  }, [startMediaRecording, clearTimers, startTimers]);
 
   const stopRecording = useCallback(() => {
     isRecordingRef.current = false;
+    clearTimers();
+    setInterimText("");
+
+    // Stop Web Speech API
     if (recognitionRef.current) {
       try {
         recognitionRef.current.onend = null;
         recognitionRef.current.stop();
       } catch {}
       recognitionRef.current = null;
+      // Web Speech API provides transcript in real-time, go to reviewing
+      setPhase("reviewing");
     }
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+
+    // Stop MediaRecorder (onstop handler will call transcribeAudio)
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      // Don't setPhase here — onstop handler → transcribeAudio will handle phase
     }
-    if (maxTimerRef.current) {
-      clearTimeout(maxTimerRef.current);
-      maxTimerRef.current = null;
-    }
-    setInterimText("");
-    setPhase("reviewing");
-  }, []);
+  }, [clearTimers]);
 
   const cleanWithAI = useCallback(async () => {
     if (!transcript.trim()) return;
@@ -301,7 +425,7 @@ export function ProfileVoiceIntro({
       {/* READY phase */}
       {phase === "ready" && (
         <div className="space-y-4">
-          {isSpeechSupported ? (
+          {canUseVoice ? (
             <div className="text-center space-y-4">
               <button
                 onClick={startRecording}
@@ -336,7 +460,7 @@ export function ProfileVoiceIntro({
           )}
 
           {/* If using text fallback and has content, show continue */}
-          {!isSpeechSupported && transcript.trim() && (
+          {!canUseVoice && transcript.trim() && (
             <button
               onClick={saveAndNext}
               className="w-full px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
@@ -369,6 +493,15 @@ export function ProfileVoiceIntro({
             </div>
           )}
 
+          {/* Hint when using MediaRecorder (no real-time transcript) */}
+          {useMediaRecorderRef.current && !transcript && !interimText && (
+            <div className="text-center py-4">
+              <p className="text-sm text-[var(--muted)]">
+                Parle, ton audio est enregistr&eacute;...
+              </p>
+            </div>
+          )}
+
           <button
             onClick={stopRecording}
             className="w-full px-5 py-2.5 border border-[var(--input-border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--surface)] transition-colors flex items-center justify-center gap-2"
@@ -385,6 +518,26 @@ export function ProfileVoiceIntro({
         </div>
       )}
 
+      {/* TRANSCRIBING phase (MediaRecorder mode) */}
+      {phase === "transcribing" && (
+        <div className="text-center py-4 space-y-3">
+          <div className="flex justify-center gap-1.5">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-2.5 h-2.5 bg-[var(--primary)] rounded-full"
+                style={{
+                  animation: `recording-pulse 1s ease-in-out ${i * 0.2}s infinite`,
+                }}
+              />
+            ))}
+          </div>
+          <p className="text-sm text-[var(--muted)]">
+            Transcription en cours...
+          </p>
+        </div>
+      )}
+
       {/* REVIEWING phase */}
       {phase === "reviewing" && (
         <div className="space-y-4">
@@ -397,7 +550,7 @@ export function ProfileVoiceIntro({
           />
 
           <div className="flex gap-2">
-            {isSpeechSupported && (
+            {canUseVoice && (
               <button
                 onClick={() => {
                   setTranscript("");
@@ -469,7 +622,7 @@ export function ProfileVoiceIntro({
           {currentIndex > 0 ? "Question pr\u00e9c\u00e9dente" : "Retour"}
         </button>
 
-        {phase !== "recording" && phase !== "cleaning" && (
+        {phase !== "recording" && phase !== "cleaning" && phase !== "transcribing" && (
           <button
             onClick={skipQuestion}
             className="text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"

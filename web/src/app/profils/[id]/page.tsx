@@ -38,6 +38,7 @@ const DEMO_PROFILES: Record<string, Profile> = {
     },
     ai_summary: "Marie, 62 ans, ancienne enseignante, cherche un habitat group\u00e9 chaleureux pr\u00e8s de Bruxelles. Passionn\u00e9e de jardinage et de biodanza, elle r\u00eave d'un lieu o\u00f9 le partage et la bienveillance sont au coeur du quotidien.",
     ai_tags: ["Pr\u00e8s de Bruxelles", "Jardin partag\u00e9", "Biodanza", "Spiritualit\u00e9", "Budget modeste"],
+    photos: [],
     is_published: true,
     created_at: "2026-02-20T10:00:00Z",
     updated_at: "2026-02-20T10:00:00Z",
@@ -73,6 +74,7 @@ const DEMO_PROFILES: Record<string, Profile> = {
     },
     ai_summary: "Jean-Pierre, retrait\u00e9 dynamique de 68 ans, cherche un \u00e9colieu o\u00f9 il pourrait mettre \u00e0 profit ses comp\u00e9tences en menuiserie. Il souhaite un cadre semi-rural avec un potager collectif et des repas partag\u00e9s.",
     ai_tags: ["Semi-rural", "Potager", "Menuiserie", "Repas partag\u00e9s", "Interg\u00e9n\u00e9rationnel"],
+    photos: [],
     is_published: true,
     created_at: "2026-02-18T14:30:00Z",
     updated_at: "2026-02-18T14:30:00Z",
@@ -108,6 +110,7 @@ const DEMO_PROFILES: Record<string, Profile> = {
     },
     ai_summary: "Sofia, 45 ans, artiste et m\u00e8re de deux enfants, recherche une communaut\u00e9 ouverte et cr\u00e9ative. Elle aimerait un espace o\u00f9 ses enfants grandissent entour\u00e9s d'adultes bienveillants, avec des ateliers et de la musique.",
     ai_tags: ["Famille", "Ateliers cr\u00e9atifs", "Enfants bienvenus", "Musique", "Ouverture"],
+    photos: [],
     is_published: true,
     created_at: "2026-02-15T09:00:00Z",
     updated_at: "2026-02-15T09:00:00Z",
@@ -143,6 +146,7 @@ const DEMO_PROFILES: Record<string, Profile> = {
     },
     ai_summary: "Couple trentenaire sans enfants, Thomas et Claire cherchent un habitat group\u00e9 \u00e9cologique o\u00f9 ils pourront s'impliquer activement. Lui est d\u00e9veloppeur, elle est infirmi\u00e8re. Ils r\u00eavent de permaculture et de gouvernance partag\u00e9e.",
     ai_tags: ["Permaculture", "\u00c9cologique", "Couple", "Gouvernance partag\u00e9e", "Engag\u00e9s"],
+    photos: [],
     is_published: true,
     created_at: "2026-02-12T16:00:00Z",
     updated_at: "2026-02-12T16:00:00Z",
@@ -215,7 +219,7 @@ export default function ProfilePage() {
           href="/profils"
           className="inline-block px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
         >
-          Retour &agrave; la librairie
+          Retour aux profils
         </a>
       </div>
     );

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   Profile,
   PROFILE_VOICE_QUESTIONS,
-  ProfileIntroduction,
+  INTRO_DISPLAY_TITLES,
   deriveProfileCardData,
 } from "@/lib/profile-types";
 import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
@@ -13,25 +13,15 @@ interface ProfileDetailProps {
   profile: Profile;
 }
 
-const INTRO_SECTION_META: Record<
-  keyof ProfileIntroduction,
-  { icon: string; tinted: boolean }
-> = {
-  whoAreYou: { icon: "\u{1F64B}", tinted: false },
-  whyGroupHousing: { icon: "\u{1F3E1}", tinted: true },
-  communityValues: { icon: "\u{1F49A}", tinted: false },
-  whatYouBring: { icon: "\u{1F381}", tinted: true },
-  idealDay: { icon: "\u{2600}\uFE0F", tinted: false },
-  additionalInfo: { icon: "\u{1F4AC}", tinted: true },
-};
-
 export function ProfileDetail({ profile }: ProfileDetailProps) {
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [showFloatingContact, setShowFloatingContact] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const intro = profile.introduction;
   const display = deriveProfileCardData(profile.questionnaire_answers);
+  const photos = profile.photos || [];
 
   const initials = profile.display_name
     .split(" ")
@@ -119,12 +109,12 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
     (q) => intro[q.id]?.trim()
   ).map((q) => ({
     id: q.id,
-    title: q.question,
+    ...INTRO_DISPLAY_TITLES[q.id],
     content: intro[q.id],
   }));
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-8">
       {/* Navigation row */}
       <div className="flex items-center justify-between">
         <a
@@ -167,26 +157,23 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
         </button>
       </div>
 
-      {/* Header card */}
-      <div
-        ref={headerRef}
-        className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8"
-      >
-        <div className="flex items-start gap-4 mb-4">
+      {/* Header section */}
+      <div ref={headerRef} className="space-y-4">
+        <div className="flex items-start gap-4">
           {profile.avatar_url ? (
             <img
               src={profile.avatar_url}
               alt=""
-              className="w-16 h-16 rounded-full object-cover shrink-0"
+              className="w-20 h-20 rounded-full object-cover shrink-0"
             />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
-              <span className="text-lg font-bold text-[var(--primary)]">
+            <div className="w-20 h-20 rounded-full bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
+              <span className="text-xl font-bold text-[var(--primary)]">
                 {initials}
               </span>
             </div>
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 pt-1">
             <h1 className="text-2xl font-bold text-[var(--foreground)]">
               {profile.display_name}
             </h1>
@@ -224,14 +211,14 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
 
         {/* AI Summary */}
         {profile.ai_summary && (
-          <p className="text-[var(--foreground)] leading-relaxed italic mb-4">
+          <p className="text-[var(--foreground)] leading-relaxed italic">
             &laquo; {profile.ai_summary} &raquo;
           </p>
         )}
 
         {/* AI Tags */}
         {profile.ai_tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-4">
+          <div className="flex flex-wrap gap-1.5">
             {profile.ai_tags.map((tag, i) => (
               <span
                 key={i}
@@ -242,86 +229,119 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
             ))}
           </div>
         )}
-
-        {/* Contact email */}
-        <div className="flex items-center gap-2 p-3 bg-[var(--surface)] rounded-lg">
-          <svg
-            className="w-4 h-4 text-[var(--muted)] shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-            />
-          </svg>
-          <a
-            href={`mailto:${profile.contact_email}`}
-            className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors font-medium"
-          >
-            {profile.contact_email}
-          </a>
-          <button
-            onClick={copyEmail}
-            className="ml-auto text-xs px-2.5 py-1 border border-[var(--border-color)] text-[var(--muted)] rounded-md hover:bg-[var(--card-bg)] transition-colors"
-          >
-            {copied ? "Copi\u00e9 !" : "Copier"}
-          </button>
-        </div>
       </div>
 
-      {/* Introduction sections - varied visual treatment */}
-      {introSections.length > 0 && (
-        <div className="space-y-4">
-          {introSections.map((section, i) => {
-            const meta = INTRO_SECTION_META[section.id] || {
-              icon: "\u{1F4DD}",
-              tinted: false,
-            };
-            const isFirst = i === 0;
-
-            return (
-              <div
-                key={section.id}
-                className={`rounded-xl border border-[var(--border-color)] ${
-                  isFirst ? "p-6" : "p-5"
-                } ${meta.tinted ? "bg-[var(--primary)]/5" : "bg-[var(--card-bg)]"}`}
+      {/* Photo gallery */}
+      {photos.length > 0 && (
+        <div>
+          <div
+            className={`grid gap-2 ${
+              photos.length === 1
+                ? "grid-cols-1"
+                : photos.length === 2
+                  ? "grid-cols-2"
+                  : "grid-cols-2 sm:grid-cols-3"
+            }`}
+          >
+            {photos.map((url, i) => (
+              <button
+                key={i}
+                onClick={() => setLightboxIndex(i)}
+                className={`relative overflow-hidden rounded-xl ${
+                  photos.length === 1 ? "aspect-[16/9]" : "aspect-square"
+                } group`}
               >
-                <div
-                  className={`flex items-start gap-2.5 ${isFirst ? "mb-3" : "mb-2"}`}
-                >
-                  <span className={isFirst ? "text-2xl" : "text-xl"}>
-                    {meta.icon}
-                  </span>
-                  <h3
-                    className={
-                      isFirst
-                        ? "text-base font-semibold text-[var(--foreground)]"
-                        : "text-sm font-semibold text-[var(--primary)] uppercase tracking-wide"
-                    }
-                  >
-                    {section.title}
-                  </h3>
-                </div>
-                <p
-                  className={`text-[var(--foreground)] leading-relaxed ${isFirst ? "text-base" : ""}`}
-                >
-                  {section.content}
-                </p>
-              </div>
-            );
-          })}
+                <img
+                  src={url}
+                  alt={`Photo ${i + 1} de ${profile.display_name}`}
+                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  loading="lazy"
+                />
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Questionnaire details - improved with visual summary */}
+      {/* Lightbox */}
+      {lightboxIndex !== null && photos.length > 0 && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button
+            onClick={() => setLightboxIndex(null)}
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors p-2"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          {photos.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((lightboxIndex - 1 + photos.length) % photos.length);
+                }}
+                className="absolute left-4 text-white/70 hover:text-white transition-colors p-2"
+              >
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((lightboxIndex + 1) % photos.length);
+                }}
+                className="absolute right-4 text-white/70 hover:text-white transition-colors p-2"
+              >
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
+          <img
+            src={photos[lightboxIndex]}
+            alt=""
+            className="max-w-full max-h-[85vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+          {photos.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
+              {lightboxIndex + 1} / {photos.length}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Introduction - single flowing section */}
+      {introSections.length > 0 && (
+        <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8">
+          {introSections.map((section, i) => (
+            <div
+              key={section.id}
+              className={i > 0 ? "mt-6 pt-6 border-t border-[var(--border-color)]" : ""}
+            >
+              <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide mb-2 flex items-center gap-2">
+                <span className="text-base">{section.icon}</span>
+                {section.title}
+              </h3>
+              <p className="text-[var(--foreground)] leading-relaxed">
+                {section.content}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Questionnaire details */}
       {questionnaireDetails.length > 0 && (
-        <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-5 space-y-5">
-          <h3 className="text-base font-semibold text-[var(--foreground)] flex items-center gap-2">
-            <span className="text-xl">{"\u{1F50D}"}</span>
+        <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 space-y-5">
+          <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide flex items-center gap-2">
+            <span className="text-base">{"\u{1F50D}"}</span>
             Ce que {profile.display_name} recherche
           </h3>
 
@@ -410,20 +430,46 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
         </div>
       )}
 
-      {/* Bottom contact CTA */}
-      <div className="bg-[var(--primary)]/5 rounded-xl border border-[var(--primary)]/20 p-6 text-center space-y-3">
-        <p className="text-lg font-semibold text-[var(--foreground)]">
-          {profile.display_name} t&apos;int&eacute;resse ?
-        </p>
+      {/* Contact section */}
+      <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 space-y-4">
+        <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide">
+          Contacter {profile.display_name}
+        </h3>
+        <div className="flex items-center gap-2 p-3 bg-[var(--surface)] rounded-lg">
+          <svg
+            className="w-4 h-4 text-[var(--muted)] shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
+          </svg>
+          <a
+            href={`mailto:${profile.contact_email}`}
+            className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors font-medium"
+          >
+            {profile.contact_email}
+          </a>
+          <button
+            onClick={copyEmail}
+            className="ml-auto text-xs px-2.5 py-1 border border-[var(--border-color)] text-[var(--muted)] rounded-md hover:bg-[var(--card-bg)] transition-colors"
+          >
+            {copied ? "Copi\u00e9 !" : "Copier"}
+          </button>
+        </div>
         <p className="text-sm text-[var(--muted)]">
-          N&apos;h&eacute;site pas &agrave; envoyer un petit mot pour faire
-          connaissance.
+          N&apos;h&eacute;site pas &agrave; envoyer un petit mot pour faire connaissance.
         </p>
         <a
           href={`mailto:${profile.contact_email}`}
           className="inline-block px-6 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
         >
-          Contacter {profile.display_name}
+          Envoyer un email
         </a>
       </div>
 

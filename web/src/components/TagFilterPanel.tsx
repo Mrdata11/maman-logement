@@ -2,6 +2,15 @@
 
 import { useCallback, useState } from "react";
 import { UITagFilters, TAG_LABELS } from "@/lib/types";
+import {
+  Building2,
+  Home,
+  Users,
+  Handshake,
+  PawPrint,
+  TreePine,
+  ChevronDown,
+} from "lucide-react";
 
 interface TagFilterPanelProps {
   filters: UITagFilters;
@@ -36,43 +45,48 @@ const AVAILABILITY_LABELS: Record<string, string> = {
   unknown: "Inconnu",
 };
 
-function CollapsibleSection({
+export function CollapsibleSection({
   title,
-  emoji,
+  icon,
   defaultOpen = true,
   children,
 }: {
   title: string;
-  emoji: string;
+  icon: React.ReactNode;
   defaultOpen?: boolean;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-b border-[var(--border-color)] pb-5 mb-5 last:border-0 last:mb-0 last:pb-0">
+    <section className="border-b border-[var(--border-light)] pb-8 mb-8 last:border-0 last:mb-0 last:pb-0">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full py-1 text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+        className="flex items-center justify-between w-full group"
       >
-        <span className="flex items-center gap-2.5">
-          <span className="text-xl">{emoji}</span>
-          <span className="text-base font-bold">{title}</span>
+        <span className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] transition-colors group-hover:bg-[var(--primary)]/15">
+            {icon}
+          </div>
+          <span className="text-base font-bold text-[var(--foreground)] tracking-tight">{title}</span>
         </span>
-        <svg
-          className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <div className="w-8 h-8 rounded-full bg-[var(--surface)] flex items-center justify-center group-hover:bg-[var(--border-color)] transition-all duration-200">
+          <ChevronDown
+            className={`w-4 h-4 text-[var(--muted)] transition-transform duration-300 ease-out ${open ? "rotate-180" : ""}`}
+          />
+        </div>
       </button>
-      {open && <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">{children}</div>}
-    </div>
+      <div
+        className={`grid grid-cols-1 md:grid-cols-2 gap-5 overflow-hidden transition-all duration-300 ease-out ${
+          open ? "mt-5 max-h-[2000px] opacity-100" : "max-h-0 opacity-0 mt-0"
+        }`}
+      >
+        {children}
+      </div>
+    </section>
   );
 }
 
-function CheckboxGroup({
+export function CheckboxGroup({
   title,
   items,
   selected,
@@ -91,35 +105,35 @@ function CheckboxGroup({
 
   return (
     <fieldset>
-      <div className="flex items-center justify-between mb-1.5">
-        <legend className="text-sm font-medium text-[var(--foreground)]">
+      <div className="flex items-center justify-between mb-3">
+        <legend className="text-sm font-semibold text-[var(--foreground)] tracking-tight">
           {title}
         </legend>
         {selected.length > 0 && (
           <button
             onClick={onClear}
-            className="text-xs text-[var(--primary)] hover:underline"
+            className="text-xs font-medium text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors"
           >
             Tous
           </button>
         )}
       </div>
-      <div className="space-y-0.5 max-h-36 overflow-y-auto">
+      <div className="space-y-1 max-h-44 overflow-y-auto filter-scroll rounded-2xl border border-[var(--border-light)] p-2 bg-[var(--surface)]/30">
         {items.map(({ value, count }) => (
           <label
             key={value}
-            className="flex items-center gap-2 text-sm text-[var(--foreground)] cursor-pointer hover:bg-[var(--surface)] px-2 py-0.5 rounded transition-colors"
+            className="flex items-center gap-3 text-sm text-[var(--foreground)] cursor-pointer hover:bg-[var(--surface)] px-3 py-2 rounded-xl transition-all duration-150"
           >
             <input
               type="checkbox"
               checked={selected.includes(value)}
               onChange={() => onToggle(value)}
-              className="rounded border-[var(--input-border)] accent-[var(--primary)]"
+              className="filter-checkbox"
             />
-            <span className="flex-1 truncate">
+            <span className="flex-1 truncate font-medium">
               {labelMap[value] || value}
             </span>
-            <span className="text-xs text-[var(--muted-light)]">
+            <span className="text-xs text-[var(--muted-light)] bg-[var(--surface)] px-2 py-0.5 rounded-full font-medium">
               {count}
             </span>
           </label>
@@ -144,36 +158,36 @@ function TriStateFilter({
 
   return (
     <fieldset>
-      <legend className="text-sm font-medium text-[var(--foreground)] mb-1.5">
+      <legend className="text-sm font-semibold text-[var(--foreground)] mb-3 tracking-tight">
         {title}
       </legend>
-      <div className="flex gap-1.5">
+      <div className="flex gap-2">
         <button
           onClick={() => onChange(null)}
-          className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
+          className={`text-sm px-4 py-2 rounded-xl border-2 transition-all duration-200 font-medium ${
             value === null
-              ? "bg-[var(--primary)] text-white border-[var(--primary)] shadow-sm"
-              : "border-[var(--input-border)] text-[var(--muted)] hover:bg-[var(--surface)]"
+              ? "bg-[var(--foreground)] text-[var(--card-bg)] border-[var(--foreground)] shadow-md"
+              : "border-[var(--border-light)] text-[var(--muted)] hover:bg-[var(--surface)] hover:border-[var(--border-color)]"
           }`}
         >
           Tous
         </button>
         <button
           onClick={() => onChange(true)}
-          className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
+          className={`text-sm px-4 py-2 rounded-xl border-2 transition-all duration-200 font-medium ${
             value === true
-              ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
-              : "border-[var(--input-border)] text-[var(--muted)] hover:bg-[var(--surface)]"
+              ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20"
+              : "border-[var(--border-light)] text-[var(--muted)] hover:bg-[var(--surface)] hover:border-[var(--border-color)]"
           }`}
         >
           Oui ({counts.yes})
         </button>
         <button
           onClick={() => onChange(false)}
-          className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
+          className={`text-sm px-4 py-2 rounded-xl border-2 transition-all duration-200 font-medium ${
             value === false
-              ? "bg-red-500 text-white border-red-500 shadow-sm"
-              : "border-[var(--input-border)] text-[var(--muted)] hover:bg-[var(--surface)]"
+              ? "bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20"
+              : "border-[var(--border-light)] text-[var(--muted)] hover:bg-[var(--surface)] hover:border-[var(--border-color)]"
           }`}
         >
           Non ({counts.no})
@@ -183,7 +197,7 @@ function TriStateFilter({
   );
 }
 
-const inputClass = "w-full px-3 py-2 border border-[var(--input-border)] rounded-xl text-sm bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]";
+export const inputClass = "w-full px-4 py-3 border border-[var(--border-light)] rounded-2xl text-sm bg-[var(--surface)]/50 text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)]/40 transition-all duration-200";
 
 type MultiSelectKey =
   | "projectTypes" | "environments" | "sharedSpaces" | "valuesTags"
@@ -231,7 +245,7 @@ export function TagFilterPanel({
 
   return (
     <div>
-      <CollapsibleSection title="Type de projet & Cadre" emoji="🏘️" defaultOpen={true}>
+      <CollapsibleSection title="Type de projet & Cadre" icon={<Building2 className="w-5 h-5" />} defaultOpen={true}>
         <CheckboxGroup
           title="Type de projet"
           items={availableTags.projectTypes}
@@ -250,7 +264,7 @@ export function TagFilterPanel({
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Logement" emoji="🏠" defaultOpen={true}>
+      <CollapsibleSection title="Logement" icon={<Home className="w-5 h-5" />} defaultOpen={true}>
         <CheckboxGroup
           title="Type de logement"
           items={availableTags.unitTypes}
@@ -263,7 +277,7 @@ export function TagFilterPanel({
         <fieldset>
           <label
             htmlFor="tag-min-bedrooms"
-            className="block text-sm font-medium text-[var(--foreground)] mb-1.5"
+            className="block text-sm font-semibold text-[var(--foreground)] mb-3 tracking-tight"
           >
             Chambres (min)
           </label>
@@ -285,10 +299,10 @@ export function TagFilterPanel({
         </fieldset>
 
         <fieldset>
-          <legend className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
-            Surface (m²)
+          <legend className="block text-sm font-semibold text-[var(--foreground)] mb-3 tracking-tight">
+            Surface (m\u00B2)
           </legend>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <input
               type="number"
               aria-label="Surface minimum"
@@ -304,7 +318,7 @@ export function TagFilterPanel({
               step={10}
               className={inputClass}
             />
-            <span className="text-[var(--muted-light)]" aria-hidden="true">—</span>
+            <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"\u2013"}</span>
             <input
               type="number"
               aria-label="Surface maximum"
@@ -338,7 +352,7 @@ export function TagFilterPanel({
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Communauté" emoji="👥" defaultOpen={false}>
+      <CollapsibleSection title="Communauté" icon={<Users className="w-5 h-5" />} defaultOpen={false}>
         <CheckboxGroup
           title="Tranche d'âge"
           items={availableTags.ageRange}
@@ -358,10 +372,10 @@ export function TagFilterPanel({
         />
 
         <fieldset>
-          <legend className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
+          <legend className="block text-sm font-semibold text-[var(--foreground)] mb-3 tracking-tight">
             Taille du groupe
           </legend>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <input
               type="number"
               aria-label="Taille minimum"
@@ -376,7 +390,7 @@ export function TagFilterPanel({
               min={1}
               className={inputClass}
             />
-            <span className="text-[var(--muted-light)]" aria-hidden="true">—</span>
+            <span className="text-[var(--muted-light)] text-lg font-light" aria-hidden="true">{"\u2013"}</span>
             <input
               type="number"
               aria-label="Taille maximum"
@@ -402,7 +416,7 @@ export function TagFilterPanel({
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Vie communautaire" emoji="🤝" defaultOpen={false}>
+      <CollapsibleSection title="Vie communautaire" icon={<Handshake className="w-5 h-5" />} defaultOpen={false}>
         <CheckboxGroup
           title="Repas partagés"
           items={availableTags.sharedMeals}
@@ -447,7 +461,7 @@ export function TagFilterPanel({
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Animaux" emoji="🐾" defaultOpen={false}>
+      <CollapsibleSection title="Animaux" icon={<PawPrint className="w-5 h-5" />} defaultOpen={false}>
         <TriStateFilter
           title="Animaux acceptés"
           value={filters.petsAllowed}
@@ -465,7 +479,7 @@ export function TagFilterPanel({
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Environnement & Accès" emoji="🌿" defaultOpen={false}>
+      <CollapsibleSection title="Environnement & Accès" icon={<TreePine className="w-5 h-5" />} defaultOpen={false}>
         <TriStateFilter
           title="Proche nature"
           value={filters.nearNature}
