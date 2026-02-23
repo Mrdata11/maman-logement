@@ -24,25 +24,25 @@ export default async function ListingPage({
     <div>
       <Link
         href="/"
-        className="text-blue-600 hover:text-blue-800 text-sm mb-4 inline-block"
+        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm mb-4 inline-block"
       >
         &larr; Retour au dashboard
       </Link>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {listing.title}
             </h1>
-            <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
+            <div className="flex items-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
               {listing.location && <span>{listing.location}</span>}
               {listing.province && listing.province !== listing.location && (
                 <span>{listing.province}</span>
               )}
               {listing.price && (
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-gray-700 dark:text-gray-300">
                   {listing.price}
                 </span>
               )}
@@ -64,11 +64,11 @@ export default async function ListingPage({
 
         {/* AI Evaluation */}
         {evaluation && (
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
               &Eacute;valuation IA
             </h2>
-            <p className="text-gray-700 mb-4">{evaluation.match_summary}</p>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">{evaluation.match_summary}</p>
 
             <div className="grid gap-2 mb-4">
               {(
@@ -88,14 +88,14 @@ export default async function ListingPage({
 
             {evaluation.highlights.length > 0 && (
               <div className="mb-2">
-                <span className="text-sm font-medium text-green-700">
+                <span className="text-sm font-medium text-green-700 dark:text-green-400">
                   Points forts :
                 </span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {evaluation.highlights.map((h, i) => (
                     <span
                       key={i}
-                      className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded"
+                      className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded"
                     >
                       {h}
                     </span>
@@ -106,14 +106,14 @@ export default async function ListingPage({
 
             {evaluation.concerns.length > 0 && (
               <div>
-                <span className="text-sm font-medium text-red-700">
+                <span className="text-sm font-medium text-red-700 dark:text-red-400">
                   Points d&apos;attention :
                 </span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {evaluation.concerns.map((c, i) => (
                     <span
                       key={i}
-                      className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded"
+                      className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-0.5 rounded"
                     >
                       {c}
                     </span>
@@ -126,20 +126,20 @@ export default async function ListingPage({
 
         {/* Contact */}
         {listing.contact && (
-          <div className="mb-6 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-            <span className="text-sm font-medium text-yellow-800">
+          <div className="mb-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <span className="text-sm font-medium text-yellow-800 dark:text-yellow-400">
               Contact :{" "}
             </span>
-            <span className="text-sm text-yellow-900">{listing.contact}</span>
+            <span className="text-sm text-yellow-900 dark:text-yellow-300">{listing.contact}</span>
           </div>
         )}
 
         {/* Description */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
             Description compl&egrave;te
           </h2>
-          <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+          <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
             {listing.description}
           </div>
         </div>
@@ -147,7 +147,7 @@ export default async function ListingPage({
         {/* Images */}
         {listing.images.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
               Images
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -157,7 +157,7 @@ export default async function ListingPage({
                   <img
                     src={src}
                     alt={`Image ${i + 1}`}
-                    className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                    className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-slate-700"
                   />
                 </a>
               ))}
@@ -166,7 +166,7 @@ export default async function ListingPage({
         )}
 
         {/* Metadata */}
-        <div className="text-xs text-gray-400 mt-6 pt-4 border-t border-gray-100">
+        <div className="text-xs text-gray-400 dark:text-gray-500 mt-6 pt-4 border-t border-gray-100 dark:border-slate-700">
           <p>ID: {listing.id}</p>
           {listing.date_published && <p>Publi&eacute; : {listing.date_published}</p>}
           <p>Scrap&eacute; : {listing.date_scraped}</p>
