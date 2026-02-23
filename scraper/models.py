@@ -49,6 +49,8 @@ class Evaluation(BaseModel):
     criteria_scores: CriteriaScore
     highlights: List[str] = Field(default_factory=list)
     concerns: List[str] = Field(default_factory=list)
+    availability_status: str = "unknown"  # "likely_available", "possibly_expired", "unknown"
+    data_quality_score: int = Field(default=5, ge=0, le=10)
     date_evaluated: str = ""
 
     def model_post_init(self, __context) -> None:

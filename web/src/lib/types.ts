@@ -37,16 +37,84 @@ export interface Evaluation {
   criteria_scores: CriteriaScores;
   highlights: string[];
   concerns: string[];
+  availability_status?: "likely_available" | "possibly_expired" | "unknown";
+  data_quality_score?: number;
   date_evaluated: string;
 }
 
-export type ListingStatus = "new" | "archived" | "in_discussion" | "favorite";
+export type ListingStatus =
+  | "new"
+  | "favorite"
+  | "contacted"
+  | "visit_planned"
+  | "visited"
+  | "in_discussion"
+  | "rejected"
+  | "archived";
+
+export const STATUS_CONFIG: Record<
+  ListingStatus,
+  { label: string; color: string; icon: string }
+> = {
+  new: {
+    label: "Nouveau",
+    color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+    icon: "sparkles",
+  },
+  favorite: {
+    label: "Coup de coeur",
+    color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300",
+    icon: "heart",
+  },
+  contacted: {
+    label: "Contacté",
+    color:
+      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300",
+    icon: "phone",
+  },
+  visit_planned: {
+    label: "Visite prévue",
+    color:
+      "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
+    icon: "calendar",
+  },
+  visited: {
+    label: "Visité",
+    color: "bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300",
+    icon: "check",
+  },
+  in_discussion: {
+    label: "En discussion",
+    color:
+      "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+    icon: "chat",
+  },
+  rejected: {
+    label: "Écarté",
+    color: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+    icon: "x",
+  },
+  archived: {
+    label: "Archivé",
+    color: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+    icon: "archive",
+  },
+};
 
 export interface ListingWithEval {
   listing: Listing;
   evaluation: Evaluation | null;
   status: ListingStatus;
   notes: string;
+}
+
+// Search profile presets
+export interface SearchProfile {
+  id: string;
+  name: string;
+  description: string;
+  weights: RefinementWeights;
+  filters: RefinementFilters;
 }
 
 // Refinement types for "Paufini la recherche"
@@ -222,6 +290,10 @@ export const LISTING_TYPE_LABELS: Record<string, string> = {
   "habitat-leger": "Habitat léger",
   divers: "Divers",
   autre: "Autre",
+  "existing-project": "Projet existant",
+  "community-profile": "Profil communaute",
+  ecovillage: "Ecovillage",
+  directory: "Repertoire",
 };
 
 export const CRITERIA_LABELS: Record<keyof CriteriaScores, string> = {

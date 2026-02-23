@@ -14,7 +14,9 @@ from scraper.models import Listing, Evaluation
 from scraper.scrapers.habitat_groupe import HabitatGroupeScraper
 from scraper.scrapers.ic_org import ICOrgScraper
 from scraper.scrapers.ecovillage import EcovillageScraper
+from scraper.scrapers.samenhuizen import SamenhuizenScraper
 from scraper.evaluator import evaluate_all
+from scraper.quality_filter import pre_filter, post_filter_evaluations
 
 
 def load_existing_listings() -> Dict[str, Listing]:
@@ -66,6 +68,7 @@ def main():
     # Run scrapers
     scrapers = [
         HabitatGroupeScraper(),
+        SamenhuizenScraper(),
         ICOrgScraper(),
         EcovillageScraper(),
     ]
@@ -85,14 +88,23 @@ def main():
     for listing in all_new_listings:
         existing_listings[listing.id] = listing
 
+    # Pre-filter: remove obviously irrelevant listings before evaluation
+    print(f"\n--- Pre-filter Quality ---")
+    all_listings_list = list(existing_listings.values())
+    filtered_listings, rejection_log = pre_filter(all_listings_list)
+    print(f"  Pre-filter: {len(all_listings_list)} -> {len(filtered_listings)} listings")
+    print(f"  Rejected: {len(rejection_log)} listings")
+    for r in rejection_log[:10]:
+        print(f"    - {r['title'][:60]} | {r['reason']}")
+    if len(rejection_log) > 10:
+        print(f"    ... and {len(rejection_log) - 10} more")
+
+    # Save ALL listings (unfiltered) for reference
     save_listings(existing_listings)
 
-    # Evaluate new listings
+    # Evaluate only filtered listings (saves API costs)
     print(f"\n--- AI Evaluation ---")
-    new_evaluations = evaluate_all(
-        list(existing_listings.values()),
-        existing_evaluations,
-    )
+    new_evaluations = evaluate_all(filtered_listings, existing_evaluations)
 
     # Merge evaluations
     for evaluation in new_evaluations:
@@ -100,13 +112,24 @@ def main():
 
     save_evaluations(existing_evaluations)
 
+    # Post-filter: remove low-scoring listings from display
+    print(f"\n--- Post-filter Quality ---")
+    quality_listings, removed_count = post_filter_evaluations(
+        list(existing_listings.values()),
+        list(existing_evaluations.values()),
+    )
+    print(f"  Post-filter: removed {removed_count} low-scoring listings")
+    print(f"  Quality listings for display: {len(quality_listings)}")
+
     # Summary
     print(f"\n{'=' * 60}")
     print(f"SUMMARY:")
-    print(f"  Total listings: {len(existing_listings)}")
+    print(f"  Total scraped: {len(existing_listings)}")
+    print(f"  Pre-filtered out: {len(rejection_log)}")
     print(f"  Total evaluations: {len(existing_evaluations)}")
-    print(f"  New listings this run: {len(all_new_listings)}")
-    print(f"  New evaluations this run: {len(new_evaluations)}")
+    print(f"  Post-filtered out: {removed_count}")
+    print(f"  Quality listings: {len(quality_listings)}")
+    print(f"  New this run: {len(all_new_listings)} listings, {len(new_evaluations)} evaluations")
 
     # Show top matches
     if existing_evaluations:
@@ -119,7 +142,8 @@ def main():
         for e in top:
             listing = existing_listings.get(e.listing_id)
             title = listing.title[:50] if listing else "?"
-            print(f"    {e.overall_score}/100 - {title}")
+            avail = f" [{e.availability_status}]" if hasattr(e, 'availability_status') else ""
+            print(f"    {e.overall_score}/100 - {title}{avail}")
 
     print(f"{'=' * 60}")
 

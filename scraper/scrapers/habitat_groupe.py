@@ -122,12 +122,31 @@ class HabitatGroupeScraper(BaseScraper):
                 if src.startswith("http") and "logo" not in src.lower() and "icon" not in src.lower():
                     images.append(src)
 
-        # Extract date
-        date_el = soup.select_one("time[datetime], .entry-date, .wp-block-post-date")
+        # Extract date - try multiple sources
         date_published = None
-        if date_el:
-            dt = date_el.get("datetime") or date_el.get_text(strip=True)
-            date_published = dt
+
+        # 1. Try meta tag (most reliable)
+        meta_date = soup.find("meta", property="datePublished")
+        if meta_date and meta_date.get("content"):
+            # Format: "2026-02-22T14:43:21+00:00"
+            date_published = meta_date["content"][:10]  # Keep YYYY-MM-DD
+
+        # 2. Try Stackable post-date block
+        if not date_published:
+            date_block = soup.select_one(".stk-block-post-date")
+            if date_block:
+                date_published = self._parse_french_date(date_block.get_text(strip=True))
+
+        # 3. Try WordPress time element
+        if not date_published:
+            time_el = soup.select_one("time[datetime]")
+            if time_el and time_el.get("datetime"):
+                date_published = time_el["datetime"][:10]
+
+        # 4. Try French date in content (before noise cleanup)
+        if not date_published and content_el:
+            raw_text = content_el.get_text()
+            date_published = self._parse_french_date(raw_text)
 
         # Extract listing type and location from URL
         listing_type = self._extract_type(url)
@@ -226,6 +245,27 @@ class HabitatGroupeScraper(BaseScraper):
         phone_match = re.search(r"0\d[\s./]?\d{2,3}[\s./]?\d{2}[\s./]?\d{2}[\s./]?\d{2}", text)
         if phone_match:
             return phone_match.group(0)
+        return None
+
+    def _parse_french_date(self, text: str) -> Optional[str]:
+        """Parse French date like 'Le 22 février 2026' and return YYYY-MM-DD."""
+        month_map = {
+            "janvier": 1, "février": 2, "fevrier": 2, "mars": 3, "avril": 4,
+            "mai": 5, "juin": 6, "juillet": 7, "août": 8, "aout": 8,
+            "septembre": 9, "octobre": 10, "novembre": 11, "décembre": 12, "decembre": 12,
+        }
+        match = re.search(
+            r"(?:Le\s+)?(\d{1,2})\s+"
+            r"(janvier|f[eé]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[eé]cembre)"
+            r"\s+(\d{4})",
+            text,
+            re.IGNORECASE,
+        )
+        if match:
+            day, month_fr, year = match.groups()
+            month = month_map.get(month_fr.lower())
+            if month:
+                return f"{year}-{month:02d}-{int(day):02d}"
         return None
 
     def _extract_location_from_text(self, text: str) -> Optional[str]:

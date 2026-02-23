@@ -19,6 +19,7 @@ Lieu: {location}
 Province: {province}
 Prix: {price}
 Type: {listing_type}
+Date de publication: {date_published}
 Description:
 {description}
 
@@ -43,7 +44,9 @@ Réponds UNIQUEMENT en JSON valide (pas de texte avant ou après) avec cette str
         "near_hospital": <0-10>
     }},
     "highlights": ["<point fort 1 en français>", "<point fort 2>"],
-    "concerns": ["<point négatif ou info manquante 1>", "<point négatif 2>"]
+    "concerns": ["<point négatif ou info manquante 1>", "<point négatif 2>"],
+    "availability_status": "<likely_available | possibly_expired | unknown>",
+    "data_quality_score": <0-10>
 }}
 
 RÈGLES D'ÉVALUATION:
@@ -51,7 +54,17 @@ RÈGLES D'ÉVALUATION:
 - Si c'est une VENTE (pas location), score "rental_price" = 0 sauf si location aussi mentionnée
 - Si des informations manquent pour un critère, score neutre (5/10) et mentionner dans concerns
 - Le score global doit refléter la moyenne pondérée: critères primaires (poids 3x), secondaires (2x), tertiaires (1x)
-- Sois exigeant: un score > 70 = très bon match, > 50 = potentiel intéressant, < 30 = peu pertinent"""
+- Sois exigeant: un score > 70 = très bon match, > 50 = potentiel intéressant, < 30 = peu pertinent
+
+ÉVALUATION DE DISPONIBILITÉ (availability_status):
+- "likely_available": annonce récente (< 6 mois), langage actif ("nous cherchons", "disponible"), contact fourni
+- "possibly_expired": annonce ancienne (> 12 mois), langage passé ("nous avons cherché"), projet semble terminé ou complet
+- "unknown": impossible à déterminer
+
+SCORE QUALITÉ DES DONNÉES (data_quality_score, 0-10):
+- 0-3: description vague, pas de prix, pas de contact, pas de détails concrets
+- 4-6: description correcte mais manque des infos importantes (prix OU contact OU localisation précise)
+- 7-10: description détaillée, prix indiqué, contact disponible, localisation précise, photos"""
 
 
 def evaluate_listing(listing: Listing) -> Optional[Evaluation]:
@@ -68,6 +81,7 @@ def evaluate_listing(listing: Listing) -> Optional[Evaluation]:
         province=listing.province or "Non spécifié",
         price=listing.price or "Non spécifié",
         listing_type=listing.listing_type or "Non spécifié",
+        date_published=listing.date_published or "Non spécifié",
         description=listing.description[:3000],
         source_url=listing.source_url,
     )
@@ -98,6 +112,8 @@ def evaluate_listing(listing: Listing) -> Optional[Evaluation]:
             criteria_scores=CriteriaScore(**result["criteria_scores"]),
             highlights=result.get("highlights", []),
             concerns=result.get("concerns", []),
+            availability_status=result.get("availability_status", "unknown"),
+            data_quality_score=max(0, min(10, result.get("data_quality_score", 5))),
         )
 
     except json.JSONDecodeError as e:

@@ -269,3 +269,115 @@ body {
   color: white;
   transform: scale(1.1);
 }
+
+/* ---- Slide-in animation ---- */
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in-right 0.25s ease-out;
+}
+
+/* ---- Hide scrollbar ---- */
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Large text mode ---- */
+
+.large-text {
+  font-size: 18px;
+}
+
+.large-text .text-sm {
+  font-size: 16px;
+}
+
+.large-text .text-xs {
+  font-size: 14px;
+}
+
+.large-text .text-lg {
+  font-size: 22px;
+}
+
+.large-text button,
+.large-text a {
+  min-height: 44px;
+}
+
+/* ---- Print styles ---- */
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  header,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:mb-8 {
+    margin-bottom: 2rem;
+  }
+
+  .print\:flex-wrap {
+    flex-wrap: wrap;
+  }
+
+  .print\:overflow-visible {
+    overflow: visible;
+  }
+
+  .print\:w-full {
+    width: 100%;
+  }
+
+  .print\:break-inside-avoid {
+    break-inside: avoid;
+  }
+
+  /* Print favorites section nicely */
+  .print\:mb-8 > div {
+    page-break-inside: avoid;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    padding: 1rem;
+  }
+
+  /* Hide interactive elements */
+  select,
+  input[type="text"],
+  input[type="number"] {
+    display: none;
+  }
+
+  /* Ensure images print */
+  img {
+    max-width: 100%;
+    page-break-inside: avoid;
+  }
+
+  /* Dark mode overrides for print */
+  .dark * {
+    background: white !important;
+    color: black !important;
+    border-color: #ddd !important;
+  }
+}

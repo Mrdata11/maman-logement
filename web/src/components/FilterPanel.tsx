@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { UIFilterState, LISTING_TYPE_LABELS } from "@/lib/types";
 
 interface FilterPanelProps {
@@ -20,13 +20,17 @@ export function FilterPanel({
   availableListingTypes,
   priceRange,
 }: FilterPanelProps) {
-  // Debounced text search
+  // Debounced text search - use refs to avoid stale closures
   const [localSearch, setLocalSearch] = useState(filters.searchText);
+  const filtersRef = useRef(filters);
+  const onChangeRef = useRef(onChange);
+  filtersRef.current = filters;
+  onChangeRef.current = onChange;
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (localSearch !== filters.searchText) {
-        onChange({ ...filters, searchText: localSearch });
+      if (localSearch !== filtersRef.current.searchText) {
+        onChangeRef.current({ ...filtersRef.current, searchText: localSearch });
       }
     }, 300);
     return () => clearTimeout(timer);
@@ -37,19 +41,25 @@ export function FilterPanel({
     setLocalSearch(filters.searchText);
   }, [filters.searchText]);
 
-  const toggleProvince = (province: string) => {
-    const next = filters.provinces.includes(province)
-      ? filters.provinces.filter((p) => p !== province)
-      : [...filters.provinces, province];
-    onChange({ ...filters, provinces: next });
-  };
+  const toggleProvince = useCallback(
+    (province: string) => {
+      const next = filters.provinces.includes(province)
+        ? filters.provinces.filter((p) => p !== province)
+        : [...filters.provinces, province];
+      onChange({ ...filters, provinces: next });
+    },
+    [filters, onChange]
+  );
 
-  const toggleListingType = (type: string) => {
-    const next = filters.listingTypes.includes(type)
-      ? filters.listingTypes.filter((t) => t !== type)
-      : [...filters.listingTypes, type];
-    onChange({ ...filters, listingTypes: next });
-  };
+  const toggleListingType = useCallback(
+    (type: string) => {
+      const next = filters.listingTypes.includes(type)
+        ? filters.listingTypes.filter((t) => t !== type)
+        : [...filters.listingTypes, type];
+      onChange({ ...filters, listingTypes: next });
+    },
+    [filters, onChange]
+  );
 
   const hasActiveFilters =
     filters.searchText.trim() !== "" ||
@@ -63,10 +73,14 @@ export function FilterPanel({
     <div className="mb-6 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4">
       {/* Text search */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label
+          htmlFor="filter-search"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+        >
           Recherche
         </label>
         <input
+          id="filter-search"
           type="text"
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
@@ -77,11 +91,11 @@ export function FilterPanel({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Province / Region */}
-        <div>
+        <fieldset>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <legend className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Province / Région
-            </label>
+            </legend>
             {filters.provinces.length > 0 && (
               <button
                 onClick={() => onChange({ ...filters, provinces: [] })}
@@ -110,14 +124,14 @@ export function FilterPanel({
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         {/* Listing type */}
-        <div>
+        <fieldset>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <legend className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {"Type d'annonce"}
-            </label>
+            </legend>
             {filters.listingTypes.length > 0 && (
               <button
                 onClick={() => onChange({ ...filters, listingTypes: [] })}
@@ -148,16 +162,17 @@ export function FilterPanel({
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         {/* Price range */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <fieldset>
+          <legend className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Fourchette de prix
-          </label>
+          </legend>
           <div className="flex items-center gap-2">
             <input
               type="number"
+              aria-label="Prix minimum"
               value={filters.priceMin ?? ""}
               onChange={(e) =>
                 onChange({
@@ -170,9 +185,12 @@ export function FilterPanel({
               min={0}
               className="w-full px-2 py-1.5 border border-gray-300 dark:border-slate-600 rounded-md text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
             />
-            <span className="text-gray-400">—</span>
+            <span className="text-gray-400" aria-hidden="true">
+              —
+            </span>
             <input
               type="number"
+              aria-label="Prix maximum"
               value={filters.priceMax ?? ""}
               onChange={(e) =>
                 onChange({
@@ -197,14 +215,18 @@ export function FilterPanel({
             />
             Inclure les annonces sans prix
           </label>
-        </div>
+        </fieldset>
 
         {/* Score minimum */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <fieldset>
+          <label
+            htmlFor="filter-score-min"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             Score minimum
           </label>
           <input
+            id="filter-score-min"
             type="number"
             value={filters.scoreMin ?? ""}
             onChange={(e) =>
@@ -230,7 +252,7 @@ export function FilterPanel({
             />
             {"Inclure les annonces non évaluées"}
           </label>
-        </div>
+        </fieldset>
       </div>
 
       {/* Reset button */}
