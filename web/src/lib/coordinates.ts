@@ -159,23 +159,13 @@ export const LOCATION_COORDINATES: Record<string, Coordinates> = {
   "Spain": { lat: 40.4168, lng: -3.7038 },
 };
 
-export const BELGIUM_CENTER: Coordinates = { lat: 50.5039, lng: 4.4699 };
-export const DEFAULT_ZOOM = 8;
-
-// Camino de Santiago map view (covers Belgium + France + Northern Spain)
-export const CAMINO_MAP_CENTER: Coordinates = { lat: 45.5, lng: 0.5 };
-export const CAMINO_DEFAULT_ZOOM = 6;
+export const EUROPE_CENTER: Coordinates = { lat: 47.5, lng: 3.0 };
+export const DEFAULT_ZOOM = 5;
 
 // Brussels apartment search references
 export const IXELLES_CENTER: Coordinates = { lat: 50.8306, lng: 4.3722 };
 export const BRUSSELS_MAP_CENTER: Coordinates = { lat: 50.8400, lng: 4.3700 };
 export const BRUSSELS_DEFAULT_ZOOM = 13;
-
-// Point de reference par defaut (centre de Bruxelles)
-export const DEFAULT_REFERENCE_POINT: Coordinates = {
-  lat: 50.8503,
-  lng: 4.3517,
-};
 
 // Calcul de distance Haversine en km
 export function haversineDistance(

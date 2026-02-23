@@ -11,7 +11,7 @@ import {
 import {
   haversineDistance,
   getListingCoordinates,
-  DEFAULT_REFERENCE_POINT,
+  EUROPE_CENTER,
 } from "@/lib/coordinates";
 import { ScoreBadge } from "./ScoreBar";
 
@@ -66,7 +66,7 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
     for (const item of items) {
       const coords = getListingCoordinates(item.listing.location, item.listing.province);
       if (coords) {
-        map.set(item.listing.id, haversineDistance(DEFAULT_REFERENCE_POINT, coords));
+        map.set(item.listing.id, haversineDistance(EUROPE_CENTER, coords));
       } else {
         map.set(item.listing.id, null);
       }

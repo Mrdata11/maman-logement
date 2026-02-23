@@ -8,6 +8,9 @@ import {
   CREATION_STORAGE_KEY,
 } from "@/lib/creation-questionnaire-types";
 import { CREATION_STEPS } from "@/lib/creation-questionnaire-data";
+import { createClient } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
+import { AuthButton } from "./AuthButton";
 
 function formatAnswer(
   questionId: string,
@@ -44,6 +47,19 @@ export function CreationPreview() {
   const router = useRouter();
   const [answers, setAnswers] = useState<QuestionnaireAnswers | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   useEffect(() => {
     try {
@@ -60,9 +76,40 @@ export function CreationPreview() {
     router.push("/creer");
   }, [router]);
 
-  const handleSave = () => {
-    // Already saved in localStorage — mark as confirmed
-    setSaved(true);
+  const handleSave = async () => {
+    if (!user) {
+      setShowAuth(true);
+      return;
+    }
+
+    setSaving(true);
+    setSaveError(null);
+
+    try {
+      const projectName = answers?.project_name as string | undefined;
+      const projectVision = answers?.project_vision as string | undefined;
+
+      const { error } = await supabase.from("projects").upsert({
+        user_id: user.id,
+        name: projectName || "Projet sans nom",
+        vision: projectVision || null,
+        answers: answers,
+        is_published: true,
+      }, { onConflict: "user_id" });
+
+      if (error) {
+        console.error("Error saving project:", error);
+        setSaveError("Erreur lors de la sauvegarde. Veuillez r\u00e9essayer.");
+        setSaving(false);
+        return;
+      }
+
+      localStorage.removeItem(CREATION_STORAGE_KEY);
+      setSaved(true);
+    } catch {
+      setSaveError("Erreur lors de la sauvegarde. Veuillez r\u00e9essayer.");
+    }
+    setSaving(false);
   };
 
   const handleReset = () => {
@@ -207,16 +254,42 @@ export function CreationPreview() {
         })()}
       </div>
 
+      {/* Auth prompt */}
+      {showAuth && !user && (
+        <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 mb-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+            Connectez-vous pour publier
+          </h3>
+          <p className="text-sm text-[var(--muted)] mb-4">
+            Vous devez &ecirc;tre connect&eacute; pour enregistrer et publier votre projet.
+          </p>
+          <AuthButton
+            onAuthChange={(u) => {
+              if (u) {
+                setShowAuth(false);
+              }
+            }}
+          />
+        </div>
+      )}
+
+      {saveError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-6">
+          <p className="text-sm text-red-800">{saveError}</p>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-3 mb-8">
         <button
           onClick={handleSave}
-          className="flex-1 px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center justify-center gap-2"
+          disabled={saving}
+          className="flex-1 px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          Enregistrer le projet
+          {saving ? "Enregistrement..." : "Enregistrer le projet"}
         </button>
         <button
           onClick={() => {

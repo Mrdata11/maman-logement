@@ -12,9 +12,9 @@ except ImportError:
     anthropic = None
 
 
-TAG_EXTRACTION_SYSTEM = """Tu es un extracteur de métadonnées pour des annonces d'habitat groupé en Belgique.
-Tu analyses les descriptions (en français) et extrais des informations structurées.
-Réponds TOUJOURS en JSON valide, sans aucun texte avant ou après."""
+TAG_EXTRACTION_SYSTEM = """Tu es un extracteur de metadonnees pour des annonces d'habitat collaboratif en Europe.
+Tu analyses les descriptions et extrais des informations structurees.
+Reponds TOUJOURS en JSON valide, sans aucun texte avant ou apres."""
 
 
 TAG_EXTRACTION_PROMPT = """Analyse cette annonce d'habitat groupé/communautaire et extrais les informations structurées.

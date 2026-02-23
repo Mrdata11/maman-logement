@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Main orchestrator for the Maman Logement scraper."""
+"""Main orchestrator for the Cohabitat Europe scraper."""
 
 import json
 import os
@@ -11,12 +11,19 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from scraper.config import DATA_DIR, LISTINGS_FILE, EVALUATIONS_FILE, TAGS_FILE
 from scraper.models import Listing, Evaluation, ListingTags
+# Belgium
 from scraper.scrapers.habitat_groupe import HabitatGroupeScraper
-from scraper.scrapers.ic_org import ICOrgScraper
-from scraper.scrapers.ecovillage import EcovillageScraper
 from scraper.scrapers.samenhuizen import SamenhuizenScraper
 from scraper.scrapers.findacohouse import FindACoHouseScraper
+# France
 from scraper.scrapers.habitat_participatif_fr import HabitatParticipatifFRScraper
+from scraper.scrapers.ecovillage_fr import EcovillageFRScraper
+# Spain
+from scraper.scrapers.cohousing_spain import CohousingSpainScraper
+# Multi-country
+from scraper.scrapers.ecovillage import EcovillageOrgScraper
+from scraper.scrapers.ic_org import ICOrgScraper
+# Pipeline
 from scraper.evaluator import evaluate_all
 from scraper.tag_extractor import extract_all_tags
 from scraper.content_generator import generate_all_content
@@ -72,8 +79,8 @@ def save_tags(tags: Dict[str, ListingTags]):
 def save_evaluations(evaluations: Dict[str, Evaluation]):
     os.makedirs(DATA_DIR, exist_ok=True)
     data = [e.model_dump() for e in evaluations.values()]
-    # Sort by overall_score descending
-    data.sort(key=lambda x: x.get("overall_score", 0), reverse=True)
+    # Sort by quality_score descending
+    data.sort(key=lambda x: x.get("quality_score", 0), reverse=True)
     with open(EVALUATIONS_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     print(f"Saved {len(data)} evaluations to {EVALUATIONS_FILE}")
@@ -81,7 +88,7 @@ def save_evaluations(evaluations: Dict[str, Evaluation]):
 
 def main():
     print("=" * 60)
-    print("Maman Logement - Scraper & Evaluator")
+    print("Cohabitat Europe - Scraper & Evaluator")
     print("=" * 60)
 
     # Load existing data
@@ -91,13 +98,18 @@ def main():
 
     # Run scrapers
     scrapers = [
+        # Belgium
         HabitatGroupeScraper(),
         SamenhuizenScraper(),
         FindACoHouseScraper(),
-        ICOrgScraper(),
-        EcovillageScraper(),
-        # France (Camino de Santiago)
+        # France
         HabitatParticipatifFRScraper(),
+        EcovillageFRScraper(),
+        # Spain
+        CohousingSpainScraper(),
+        # Multi-country (BE, FR, ES, PT, NL, CH, LU)
+        EcovillageOrgScraper(),
+        ICOrgScraper(),
     ]
 
     all_new_listings = []
@@ -205,15 +217,15 @@ def main():
     if existing_evaluations:
         top = sorted(
             existing_evaluations.values(),
-            key=lambda e: e.overall_score,
+            key=lambda e: e.quality_score,
             reverse=True,
         )[:5]
-        print(f"\n  Top 5 matches:")
+        print(f"\n  Top 5 quality listings:")
         for e in top:
             listing = existing_listings.get(e.listing_id)
             title = listing.title[:50] if listing else "?"
             avail = f" [{e.availability_status}]" if hasattr(e, 'availability_status') else ""
-            print(f"    {e.overall_score}/100 - {title}{avail}")
+            print(f"    {e.quality_score}/100 - {title}{avail}")
 
     print(f"{'=' * 60}")
 

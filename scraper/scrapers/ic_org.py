@@ -8,6 +8,28 @@ from scraper.scrapers.base import BaseScraper
 from scraper.models import Listing
 
 
+# Country names in various languages for text matching
+TARGET_COUNTRIES = {
+    "Belgium": "BE", "Belgique": "BE", "Belgie": "BE",
+    "France": "FR",
+    "Spain": "ES", "Espana": "ES", "Espagne": "ES",
+    "Portugal": "PT",
+    "Netherlands": "NL", "Nederland": "NL", "Pays-Bas": "NL",
+    "Switzerland": "CH", "Suisse": "CH", "Schweiz": "CH",
+    "Luxembourg": "LU",
+}
+
+COUNTRY_PATTERN = re.compile(
+    r"\b(" + "|".join(re.escape(k) for k in TARGET_COUNTRIES.keys()) + r")\b",
+    re.IGNORECASE,
+)
+
+COUNTRY_LANGUAGES = {
+    "BE": "fr", "FR": "fr", "ES": "es", "PT": "pt",
+    "NL": "nl", "CH": "fr", "LU": "fr",
+}
+
+
 class ICOrgScraper(BaseScraper):
     name = "ic.org"
     base_url = "https://www.ic.org"
@@ -39,15 +61,15 @@ class ICOrgScraper(BaseScraper):
                     if full_url not in community_links:
                         community_links.append(full_url)
 
-        print(f"  [{self.name}] Found {len(community_links)} community pages, checking for Belgian ones...")
+        print(f"  [{self.name}] Found {len(community_links)} community pages, checking for European ones...")
 
-        # Visit each page and check if it's in Belgium
+        # Visit each page and check if it's in a target country
         for url in community_links:
             listing = self._scrape_community(url)
             if listing:
                 listings.append(listing)
 
-        print(f"  [{self.name}] Total: {len(listings)} Belgian communities found")
+        print(f"  [{self.name}] Total: {len(listings)} European communities found")
         return listings
 
     def _scrape_community(self, url: str) -> Optional[Listing]:
@@ -60,8 +82,19 @@ class ICOrgScraper(BaseScraper):
         soup = BeautifulSoup(resp.text, "lxml")
         page_text = soup.get_text()
 
-        # Only keep if Belgium is mentioned in the page
-        if not re.search(r"\bBelgi(um|que|ë)\b", page_text, re.IGNORECASE):
+        # Check if any target country is mentioned
+        match = COUNTRY_PATTERN.search(page_text)
+        if not match:
+            return None
+
+        country_name = match.group(1)
+        # Find the matching country code (case-insensitive)
+        country_code = None
+        for name, code in TARGET_COUNTRIES.items():
+            if name.lower() == country_name.lower():
+                country_code = code
+                break
+        if not country_code:
             return None
 
         title_el = soup.select_one("h1, .entry-title")
@@ -75,9 +108,9 @@ class ICOrgScraper(BaseScraper):
         else:
             description = ""
 
-        # Extract location from address mentioning Belgium
+        # Extract location from address mentioning the country
         location = None
-        for el in soup.find_all(string=re.compile(r"Belgi", re.IGNORECASE)):
+        for el in soup.find_all(string=COUNTRY_PATTERN):
             parent = el.parent
             if parent:
                 addr_text = parent.get_text(strip=True)
@@ -92,7 +125,7 @@ class ICOrgScraper(BaseScraper):
                 if src.startswith("http") and "logo" not in src.lower():
                     images.append(src)
 
-        print(f"  [{self.name}] Found Belgian community: {title[:50]}")
+        print(f"  [{self.name}] Found {country_code} community: {title[:50]}")
 
         return Listing(
             id=hashlib.md5(url.encode()).hexdigest()[:12],
@@ -103,6 +136,8 @@ class ICOrgScraper(BaseScraper):
             location=location,
             province=None,
             listing_type="community-profile",
+            country=country_code,
+            original_language=COUNTRY_LANGUAGES.get(country_code, "en"),
             images=images[:5],
             date_scraped=datetime.utcnow().isoformat(),
         )

@@ -8,6 +8,9 @@ import {
   deriveProfileCardData,
 } from "@/lib/profile-types";
 import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
+import { createClient } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
+import { AuthButton } from "./AuthButton";
 
 interface ProfileDetailProps {
   profile: Profile;
@@ -18,10 +21,30 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
   const [linkCopied, setLinkCopied] = useState(false);
   const [showFloatingContact, setShowFloatingContact] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [emailRevealed, setEmailRevealed] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
+  const supabase = createClient();
   const intro = profile.introduction;
   const display = deriveProfileCardData(profile.questionnaire_answers);
   const photos = profile.photos || [];
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  const handleContactClick = () => {
+    if (user) {
+      setEmailRevealed(true);
+    } else {
+      setShowAuthPrompt(true);
+    }
+  };
 
   const initials = profile.display_name
     .split(" ")
@@ -435,43 +458,99 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
         <h3 className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wide">
           Contacter {profile.display_name}
         </h3>
-        <div className="flex items-center gap-2 p-3 bg-[var(--surface)] rounded-lg">
-          <svg
-            className="w-4 h-4 text-[var(--muted)] shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-            />
-          </svg>
-          <a
-            href={`mailto:${profile.contact_email}`}
-            className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors font-medium"
-          >
-            {profile.contact_email}
-          </a>
-          <button
-            onClick={copyEmail}
-            className="ml-auto text-xs px-2.5 py-1 border border-[var(--border-color)] text-[var(--muted)] rounded-md hover:bg-[var(--card-bg)] transition-colors"
-          >
-            {copied ? "Copi\u00e9 !" : "Copier"}
-          </button>
-        </div>
-        <p className="text-sm text-[var(--muted)]">
-          N&apos;h&eacute;site pas &agrave; envoyer un petit mot pour faire connaissance.
-        </p>
-        <a
-          href={`mailto:${profile.contact_email}`}
-          className="inline-block px-6 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
-        >
-          Envoyer un email
-        </a>
+
+        {emailRevealed ? (
+          <>
+            <div className="flex items-center gap-2 p-3 bg-[var(--surface)] rounded-lg">
+              <svg
+                className="w-4 h-4 text-[var(--muted)] shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              <a
+                href={`mailto:${profile.contact_email}`}
+                className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors font-medium"
+              >
+                {profile.contact_email}
+              </a>
+              <button
+                onClick={copyEmail}
+                className="ml-auto text-xs px-2.5 py-1 border border-[var(--border-color)] text-[var(--muted)] rounded-md hover:bg-[var(--card-bg)] transition-colors"
+              >
+                {copied ? "Copi\u00e9 !" : "Copier"}
+              </button>
+            </div>
+            <p className="text-sm text-[var(--muted)]">
+              N&apos;h&eacute;sitez pas &agrave; envoyer un petit mot pour faire connaissance.
+            </p>
+            <a
+              href={`mailto:${profile.contact_email}`}
+              className="inline-block px-6 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+            >
+              Envoyer un email
+            </a>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-[var(--muted)]">
+              {user
+                ? "Cliquez pour voir les coordonn\u00e9es de contact."
+                : "Connectez-vous pour voir les coordonn\u00e9es de contact."}
+            </p>
+            <button
+              onClick={handleContactClick}
+              className="px-6 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Voir les coordonn&eacute;es
+            </button>
+          </>
+        )}
       </div>
+
+      {/* Auth prompt modal */}
+      {showAuthPrompt && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowAuthPrompt(false)}
+        >
+          <div
+            className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 max-w-sm w-full shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+              Connectez-vous pour contacter
+            </h3>
+            <p className="text-sm text-[var(--muted)] mb-5">
+              Pour prot&eacute;ger la vie priv&eacute;e des membres, les coordonn&eacute;es sont visibles uniquement apr&egrave;s connexion.
+            </p>
+            <AuthButton
+              onAuthChange={(user) => {
+                if (user) {
+                  setShowAuthPrompt(false);
+                  setEmailRevealed(true);
+                }
+              }}
+            />
+            <button
+              onClick={() => setShowAuthPrompt(false)}
+              className="mt-4 w-full text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-center"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Profile date */}
       <p className="text-xs text-[var(--muted)] text-center pb-16">
@@ -490,12 +569,21 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
             <span className="text-sm text-[var(--muted)] truncate">
               Envie de contacter {profile.display_name} ?
             </span>
-            <a
-              href={`mailto:${profile.contact_email}`}
-              className="shrink-0 px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
-            >
-              Envoyer un email
-            </a>
+            {emailRevealed ? (
+              <a
+                href={`mailto:${profile.contact_email}`}
+                className="shrink-0 px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+              >
+                Envoyer un email
+              </a>
+            ) : (
+              <button
+                onClick={handleContactClick}
+                className="shrink-0 px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+              >
+                Voir les coordonn&eacute;es
+              </button>
+            )}
           </div>
         </div>
       )}

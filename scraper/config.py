@@ -4,7 +4,7 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
 # Scraping settings
 REQUEST_DELAY = 2  # seconds between requests to same domain
-USER_AGENT = "MamanLogement/1.0 (personal housing search project)"
+USER_AGENT = "CohabitatEurope/1.0 (collaborative housing search project)"
 REQUEST_TIMEOUT = 15  # seconds
 
 # Output paths
@@ -13,67 +13,46 @@ LISTINGS_FILE = os.path.join(DATA_DIR, "listings.json")
 EVALUATIONS_FILE = os.path.join(DATA_DIR, "evaluations.json")
 TAGS_FILE = os.path.join(DATA_DIR, "tags.json")
 
-CRITERIA_PROMPT = """Tu es un assistant spécialisé dans l'habitat groupé en Belgique.
-Tu dois évaluer si une annonce de logement correspond aux critères d'une personne
-qui cherche un habitat groupé. Réponds TOUJOURS en français.
+# Target countries for scraping
+TARGET_COUNTRIES = ["BE", "FR", "ES", "PT", "NL", "CH", "LU"]
 
-Les critères de recherche sont les suivants (par ordre de priorité):
+# All French departments (metropolitan + Corsica)
+ALL_DEPARTMENTS_FR = {
+    "01": "Ain", "02": "Aisne", "03": "Allier", "04": "Alpes-de-Haute-Provence",
+    "05": "Hautes-Alpes", "06": "Alpes-Maritimes", "07": "Ardèche", "08": "Ardennes",
+    "09": "Ariège", "10": "Aube", "11": "Aude", "12": "Aveyron",
+    "13": "Bouches-du-Rhône", "14": "Calvados", "15": "Cantal", "16": "Charente",
+    "17": "Charente-Maritime", "18": "Cher", "19": "Corrèze", "21": "Côte-d'Or",
+    "22": "Côtes-d'Armor", "23": "Creuse", "24": "Dordogne", "25": "Doubs",
+    "26": "Drôme", "27": "Eure", "28": "Eure-et-Loir", "29": "Finistère",
+    "2A": "Corse-du-Sud", "2B": "Haute-Corse",
+    "30": "Gard", "31": "Haute-Garonne", "32": "Gers", "33": "Gironde",
+    "34": "Hérault", "35": "Ille-et-Vilaine", "36": "Indre", "37": "Indre-et-Loire",
+    "38": "Isère", "39": "Jura", "40": "Landes", "41": "Loir-et-Cher",
+    "42": "Loire", "43": "Haute-Loire", "44": "Loire-Atlantique", "45": "Loiret",
+    "46": "Lot", "47": "Lot-et-Garonne", "48": "Lozère", "49": "Maine-et-Loire",
+    "50": "Manche", "51": "Marne", "52": "Haute-Marne", "53": "Mayenne",
+    "54": "Meurthe-et-Moselle", "55": "Meuse", "56": "Morbihan", "57": "Moselle",
+    "58": "Nièvre", "59": "Nord", "60": "Oise", "61": "Orne",
+    "62": "Pas-de-Calais", "63": "Puy-de-Dôme", "64": "Pyrénées-Atlantiques",
+    "65": "Hautes-Pyrénées", "66": "Pyrénées-Orientales", "67": "Bas-Rhin",
+    "68": "Haut-Rhin", "69": "Rhône", "70": "Haute-Saône", "71": "Saône-et-Loire",
+    "72": "Sarthe", "73": "Savoie", "74": "Haute-Savoie", "75": "Paris",
+    "76": "Seine-Maritime", "77": "Seine-et-Marne", "78": "Yvelines",
+    "79": "Deux-Sèvres", "80": "Somme", "81": "Tarn", "82": "Tarn-et-Garonne",
+    "83": "Var", "84": "Vaucluse", "85": "Vendée", "86": "Vienne",
+    "87": "Haute-Vienne", "88": "Vosges", "89": "Yonne", "90": "Territoire de Belfort",
+    "91": "Essonne", "92": "Hauts-de-Seine", "93": "Seine-Saint-Denis",
+    "94": "Val-de-Marne", "95": "Val-d'Oise",
+}
 
-CRITÈRES PRIMAIRES (les plus importants):
-1. Habitat groupé d'environ 50 personnes, communauté mature et bien fonctionnelle (pas à ses débuts)
-2. Valeurs communes: respect, bienveillance, solidarité, partage de paroles et d'idées
-3. Projets communs: potager, poulailler, four à pain, création, fromage, poterie, épicerie, centre de bien-être, stages de clowns, lieu d'accueil et d'écoute
-4. Grande salle de 180-250m² avec parquet, baie vitrée face nature, rideaux, pour accueillir 30 biodanseurs
-5. Location entre 500€ et 750€ charges comprises
-6. Studio, grande pièce scindable en deux avec coin cuisine, OU deux pièces (chambre + séjour/cuisine), OU petit appartement une chambre
-7. Parking pour voiture ET moto
-8. Esprit biodanseur (biocentrique = la vie au centre), spirituel mais ancré, respect du vivant et de la nature
-9. Charte existante, accueil capital, ouverture au monde extérieur ET autonomie possible
-10. Activités communautaires: manger ensemble 1-2x/semaine minimum, jardiner ensemble, FAIRE DES CHOSES ENSEMBLE
-
-CRITÈRES SECONDAIRES:
-11. Proche de Bruxelles (30-45 minutes)
-12. Proche d'un centre hospitalier en soins palliatifs pédiatriques (max 30 min en voiture)
-13. Équilibre hommes/femmes, mélange travailleurs/pensionnés/célibataires/couples/enfants
-14. Possibilité d'emploi: épicerie, administratif, gestion des réservations de la salle
-15. Habitats légers possibles: tiny house, caravane, cabane dans les arbres
-16. Proche d'un bois et d'une rivière, sans risque d'inondation
-17. Machine à laver le linge commune
-
-CRITÈRES TERTIAIRES:
-18. Sur le chemin de Compostelle
-19. À Bruxelles ou n'importe où en Belgique
-
-À ÉVITER:
-- Lieux où les animaux (chiens/chats) ne sont pas limités en termes d'hygiène"""
-
-# Departments/provinces along the Chemin de Compostelle (Camino de Santiago)
-# French departments (codes used by basededonnees-habitatparticipatif-oasis.fr)
-CAMINO_DEPARTMENTS_FR = [
-    # Via Podiensis (Le Puy-en-Velay)
-    "43", "48", "12", "46", "32", "64",
-    # Via Turonensis (Tours)
-    "37", "86", "16", "33", "40",
-    # Via Lemovicensis (Vézelay)
-    "23", "87", "24",
-    # Via Tolosana (Arles)
-    "34", "11", "31", "65",
-]
-
-# Spanish provinces/regions along the Camino
-CAMINO_PROVINCES_ES = [
-    # Camino Francés
-    "Navarra", "La Rioja", "Burgos", "Palencia", "León",
-    "Lugo", "A Coruña",
-    # Camino del Norte
-    "País Vasco", "Guipúzcoa", "Vizcaya",
-    "Cantabria", "Asturias",
-    # Key cities (for text matching)
-    "Pamplona", "Logroño", "Santiago de Compostela",
-    "Bilbao", "Santander", "Oviedo",
-    # Other routes
-    "Huesca", "Salamanca", "Zamora", "Galicia",
-]
+# Spanish autonomous communities
+SPAIN_COMMUNITIES = {
+    "Andalucía", "Aragón", "Asturias", "Baleares", "Canarias",
+    "Cantabria", "Castilla-La Mancha", "Castilla y León", "Cataluña",
+    "Extremadura", "Galicia", "La Rioja", "Madrid", "Murcia",
+    "Navarra", "País Vasco", "Valencia",
+}
 
 # === Apartment search configuration ===
 

@@ -2,6 +2,7 @@
 
 The CARTO public visualization exposes a SQL API for querying map data.
 Falls back to scraping ecohousing.es listing pages if the API is unavailable.
+Scrapes ALL Spanish cohousing projects (no geographic filter).
 """
 
 import json
@@ -13,7 +14,6 @@ from bs4 import BeautifulSoup
 
 from scraper.scrapers.base import BaseScraper
 from scraper.models import Listing
-from scraper.config import CAMINO_PROVINCES_ES
 
 
 # CARTO visualization ID for the ecohousing.es cohousing map
@@ -45,8 +45,6 @@ class CohousingSpainScraper(BaseScraper):
         """Query the CARTO SQL API for all cohousing projects."""
         listings = []
 
-        # Try to discover the table name and get data
-        # Common CARTO table names
         table_names = [
             "cohousing_espana",
             "cohousing_spain",
@@ -56,7 +54,7 @@ class CohousingSpainScraper(BaseScraper):
         ]
 
         for table in table_names:
-            query = f"SELECT * FROM {table} LIMIT 200"
+            query = f"SELECT * FROM {table} LIMIT 500"
             url = f"{CARTO_SQL_API}?q={query}&format=json"
 
             try:
@@ -77,13 +75,12 @@ class CohousingSpainScraper(BaseScraper):
             viz_url = f"https://ecohousing.carto.com/api/v1/viz/{CARTO_VIZ_ID}/viz.json"
             resp = self._rate_limited_get(viz_url)
             viz_data = resp.json()
-            # Extract layer data source
             if "layers" in viz_data:
                 for layer in viz_data.get("layers", []):
                     options = layer.get("options", {})
                     table = options.get("table_name", "")
                     if table:
-                        query = f"SELECT * FROM {table} LIMIT 200"
+                        query = f"SELECT * FROM {table} LIMIT 500"
                         sql_url = f"{CARTO_SQL_API}?q={query}&format=json"
                         resp2 = self._rate_limited_get(sql_url)
                         data = resp2.json()
@@ -99,7 +96,7 @@ class CohousingSpainScraper(BaseScraper):
         return listings
 
     def _parse_carto_row(self, row: dict) -> Optional[Listing]:
-        """Parse a CARTO row into a Listing."""
+        """Parse a CARTO row into a Listing. No geographic filter."""
         name = row.get("name", row.get("nombre", row.get("titulo", "")))
         if not name:
             return None
@@ -116,12 +113,6 @@ class CohousingSpainScraper(BaseScraper):
         # Location
         location = row.get("location", row.get("ubicacion", row.get("ciudad", row.get("localidad", ""))))
         province = row.get("province", row.get("provincia", row.get("comunidad", "")))
-
-        # Filter by Camino provinces
-        camino = set(p.lower() for p in CAMINO_PROVINCES_ES)
-        loc_text = f"{location} {province}".lower()
-        if not any(p in loc_text for p in camino):
-            return None
 
         # Coordinates
         lat = row.get("the_geom_lat", row.get("lat", row.get("latitude")))
@@ -146,6 +137,8 @@ class CohousingSpainScraper(BaseScraper):
             country="ES",
             original_language="es",
             contact=str(contact) if contact else None,
+            latitude=float(lat) if lat else None,
+            longitude=float(lng) if lng else None,
             date_scraped=datetime.utcnow().isoformat(),
         )
 
@@ -162,7 +155,6 @@ class CohousingSpainScraper(BaseScraper):
 
         soup = BeautifulSoup(resp.text, "lxml")
 
-        # Look for project links or embedded data
         for link in soup.find_all("a", href=True):
             href = link["href"]
             text = link.get_text(strip=True)
@@ -177,7 +169,6 @@ class CohousingSpainScraper(BaseScraper):
             text = script.string or ""
             if "locations" in text or "markers" in text or "points" in text:
                 try:
-                    # Try to find JSON arrays in the script
                     json_match = re.search(r"\[{.*?}\]", text, re.DOTALL)
                     if json_match:
                         data = json.loads(json_match.group())
@@ -207,12 +198,6 @@ class CohousingSpainScraper(BaseScraper):
             description = content_el.get_text(separator="\n", strip=True)
 
         if len(description) < 50:
-            return None
-
-        # Filter by Camino regions
-        camino = set(p.lower() for p in CAMINO_PROVINCES_ES)
-        text_lower = description.lower()
-        if not any(p in text_lower for p in camino):
             return None
 
         images = []

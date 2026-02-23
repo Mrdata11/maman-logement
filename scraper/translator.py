@@ -37,7 +37,7 @@ async def _translate_one_async(client, listing: Listing) -> tuple:
     if not listing.description or len(listing.description.strip()) < 20:
         return (listing.id, None, None)
 
-    lang_names = {"es": "l'espagnol", "en": "l'anglais", "nl": "le néerlandais"}
+    lang_names = {"es": "l'espagnol", "en": "l'anglais", "nl": "le neerlandais", "pt": "le portugais"}
     source_lang = lang_names.get(listing.original_language, listing.original_language)
 
     prompt = TRANSLATION_PROMPT.format(
@@ -97,8 +97,8 @@ async def _translate_batch_async(listings: List[Listing], batch_size: int = 10) 
     return results
 
 
-LANG_FLAGS = {"es": "🇪🇸", "en": "🇬🇧", "nl": "🇳🇱"}
-LANG_NAMES = {"es": "l'espagnol", "en": "l'anglais", "nl": "le néerlandais"}
+LANG_FLAGS = {"es": "\ud83c\uddea\ud83c\uddf8", "en": "\ud83c\uddec\ud83c\udde7", "nl": "\ud83c\uddf3\ud83c\uddf1", "pt": "\ud83c\uddf5\ud83c\uddf9"}
+LANG_NAMES = {"es": "l'espagnol", "en": "l'anglais", "nl": "le neerlandais", "pt": "le portugais"}
 
 
 def translate_listings(listings: List[Listing]) -> Dict[str, dict]:

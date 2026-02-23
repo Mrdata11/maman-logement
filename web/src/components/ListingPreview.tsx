@@ -59,7 +59,7 @@ export function ListingPreview({
     };
   }, [handleKeyDown]);
 
-  const score = adjustedScore ?? evaluation?.overall_score;
+  const score = adjustedScore ?? evaluation?.quality_score;
 
   return (
     <>
@@ -208,7 +208,7 @@ export function ListingPreview({
                 Évaluation IA
               </h3>
               <p className="text-sm text-[var(--foreground)] mb-3">
-                {evaluation.ai_description || evaluation.match_summary}
+                {evaluation.ai_description || evaluation.quality_summary}
               </p>
 
               <div className="grid gap-1.5 mb-3">

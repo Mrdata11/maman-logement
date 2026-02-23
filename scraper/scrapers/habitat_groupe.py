@@ -185,14 +185,16 @@ class HabitatGroupeScraper(BaseScraper):
             source=self.name,
             source_url=url,
             title=title,
-            description=description[:5000],  # Limit description length
+            description=description[:5000],
             location=location,
             province=province,
             price=price,
             price_amount=price_amount,
             listing_type=listing_type,
+            country="BE",
+            original_language="fr",
             contact=contact,
-            images=images[:5],  # Limit images
+            images=images[:5],
             date_published=date_published,
             date_scraped=datetime.utcnow().isoformat(),
         )

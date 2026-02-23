@@ -8,7 +8,7 @@ import "leaflet/dist/leaflet.css";
 import { ListingWithEval, LISTING_TYPE_LABELS } from "@/lib/types";
 import {
   LOCATION_COORDINATES,
-  BELGIUM_CENTER,
+  EUROPE_CENTER,
   DEFAULT_ZOOM,
   getJitteredCoordinates,
   getListingCoordinates,
@@ -225,7 +225,7 @@ export default function ListingsMap({
   return (
     <div ref={mapContainerRef} className="relative w-full h-full min-h-[400px] rounded-xl overflow-hidden border border-[var(--border-color)]">
       <MapContainer
-        center={[BELGIUM_CENTER.lat, BELGIUM_CENTER.lng]}
+        center={[EUROPE_CENTER.lat, EUROPE_CENTER.lng]}
         zoom={DEFAULT_ZOOM}
         className="w-full h-full"
         style={{ minHeight: "400px" }}

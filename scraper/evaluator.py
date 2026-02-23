@@ -1,8 +1,8 @@
 import json
 import time
 from typing import Optional, Dict, List
-from scraper.models import Listing, Evaluation, CriteriaScore
-from scraper.config import ANTHROPIC_API_KEY, CRITERIA_PROMPT
+from scraper.models import Listing, Evaluation
+from scraper.config import ANTHROPIC_API_KEY
 
 try:
     import anthropic
@@ -10,13 +10,18 @@ except ImportError:
     anthropic = None
 
 
-EVALUATION_PROMPT_TEMPLATE = """Évalue cette annonce par rapport aux critères de recherche.
+QUALITY_SYSTEM_PROMPT = """Tu es un évaluateur expert en habitat collaboratif en Europe (cohousing, écovillages, habitat participatif, coopératives d'habitation).
+Tu évalues la qualité et la complétude des annonces de manière objective et neutre — sans biais vers un profil d'utilisateur spécifique.
+Réponds TOUJOURS en français."""
+
+QUALITY_EVALUATION_PROMPT = """Évalue la qualité et la complétude de cette annonce d'habitat collaboratif.
 
 ANNONCE:
 Titre: {title}
 Source: {source}
 Lieu: {location}
-Province: {province}
+Pays: {country}
+Province/Région: {province}
 Prix: {price}
 Type: {listing_type}
 Date de publication: {date_published}
@@ -25,46 +30,39 @@ Description:
 
 URL: {source_url}
 
-Réponds UNIQUEMENT en JSON valide (pas de texte avant ou après) avec cette structure exacte:
+Réponds UNIQUEMENT en JSON valide (pas de texte avant ou après):
 {{
-    "overall_score": <nombre entier de 0 à 100>,
-    "match_summary": "<résumé de 2-3 phrases en français expliquant la pertinence>",
-    "criteria_scores": {{
-        "community_size_and_maturity": <0-10>,
-        "values_alignment": <0-10>,
-        "common_projects": <0-10>,
-        "large_hall_biodanza": <0-10>,
-        "rental_price": <0-10>,
-        "unit_type": <0-10>,
-        "parking": <0-10>,
-        "spiritual_alignment": <0-10>,
-        "charter_openness": <0-10>,
-        "community_meals": <0-10>,
-        "location_brussels": <0-10>,
-        "near_hospital": <0-10>
-    }},
-    "highlights": ["<point fort 1 en français>", "<point fort 2>"],
-    "concerns": ["<point négatif ou info manquante 1>", "<point négatif 2>"],
+    "quality_score": <nombre entier de 0 à 100>,
+    "quality_summary": "<résumé objectif de 2-3 phrases décrivant ce que propose ce projet>",
+    "highlights": ["<point fort objectif 1>", "<point fort 2>"],
+    "concerns": ["<faiblesse ou info manquante 1>", "<faiblesse 2>"],
     "availability_status": "<likely_available | possibly_expired | unknown>",
     "data_quality_score": <0-10>
 }}
 
-RÈGLES D'ÉVALUATION:
-- Si l'annonce ne concerne PAS un habitat groupé/communautaire (simple colocation, appartement classique), score global < 20
-- Si c'est une VENTE (pas location), score "rental_price" = 0 sauf si location aussi mentionnée
-- Si des informations manquent pour un critère, score neutre (5/10) et mentionner dans concerns
-- Le score global doit refléter la moyenne pondérée: critères primaires (poids 3x), secondaires (2x), tertiaires (1x)
-- Sois exigeant: un score > 70 = très bon match, > 50 = potentiel intéressant, < 30 = peu pertinent
+BARÈME DE QUALITÉ (quality_score):
+- 80-100: Description détaillée, localisation précise, prix indiqué, contact disponible, projet actif et bien documenté
+- 60-79: Bonne qualité mais manque un élément clé (prix OU contact OU localisation précise)
+- 40-59: Information modérée, on comprend le projet mais il manque des détails importants
+- 20-39: Description vague ou très minimale
+- 0-19: Quasi pas d'information utile
 
-ÉVALUATION DE DISPONIBILITÉ (availability_status):
-- "likely_available": annonce récente (< 6 mois), langage actif ("nous cherchons", "disponible"), contact fourni
-- "possibly_expired": annonce ancienne (> 12 mois), langage passé ("nous avons cherché"), projet semble terminé ou complet
+RÈGLES:
+- Évalue de manière objective la richesse informationnelle de l'annonce
+- Un bon score = annonce complète et utile pour TOUT chercheur d'habitat collaboratif
+- Pénalise les annonces vagues, incomplètes, ou manifestement obsolètes
+- Valorise: description détaillée du projet, vie communautaire décrite, espaces partagés, gouvernance, valeurs, prix clair, contact
+- Le quality_summary doit être factuel et neutre (pas de "match pour vous" ou "correspond à vos critères")
+
+DISPONIBILITÉ (availability_status):
+- "likely_available": annonce récente (< 6 mois), langage actif, contact fourni
+- "possibly_expired": annonce ancienne (> 12 mois), langage passé, projet semble complet
 - "unknown": impossible à déterminer
 
-SCORE QUALITÉ DES DONNÉES (data_quality_score, 0-10):
+QUALITÉ DES DONNÉES (data_quality_score, 0-10):
 - 0-3: description vague, pas de prix, pas de contact, pas de détails concrets
-- 4-6: description correcte mais manque des infos importantes (prix OU contact OU localisation précise)
-- 7-10: description détaillée, prix indiqué, contact disponible, localisation précise, photos"""
+- 4-6: description correcte mais manque des infos importantes
+- 7-10: description détaillée, prix indiqué, contact disponible, localisation précise"""
 
 
 def evaluate_listing(listing: Listing) -> Optional[Evaluation]:
@@ -74,10 +72,11 @@ def evaluate_listing(listing: Listing) -> Optional[Evaluation]:
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
-    prompt = EVALUATION_PROMPT_TEMPLATE.format(
+    prompt = QUALITY_EVALUATION_PROMPT.format(
         title=listing.title,
         source=listing.source,
         location=listing.location or "Non spécifié",
+        country=listing.country or "Non spécifié",
         province=listing.province or "Non spécifié",
         price=listing.price or "Non spécifié",
         listing_type=listing.listing_type or "Non spécifié",
@@ -88,9 +87,9 @@ def evaluate_listing(listing: Listing) -> Optional[Evaluation]:
 
     try:
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-haiku-4-5-20251001",
             max_tokens=1024,
-            system=CRITERIA_PROMPT,
+            system=QUALITY_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
 
@@ -98,7 +97,7 @@ def evaluate_listing(listing: Listing) -> Optional[Evaluation]:
 
         # Handle potential markdown code blocks
         if text.startswith("```"):
-            text = text.split("\n", 1)[1]  # Remove first line
+            text = text.split("\n", 1)[1]
             if text.endswith("```"):
                 text = text[:-3]
             text = text.strip()
@@ -107,9 +106,8 @@ def evaluate_listing(listing: Listing) -> Optional[Evaluation]:
 
         return Evaluation(
             listing_id=listing.id,
-            overall_score=max(0, min(100, result["overall_score"])),
-            match_summary=result["match_summary"],
-            criteria_scores=CriteriaScore(**result["criteria_scores"]),
+            quality_score=max(0, min(100, result["quality_score"])),
+            quality_summary=result["quality_summary"],
             highlights=result.get("highlights", []),
             concerns=result.get("concerns", []),
             availability_status=result.get("availability_status", "unknown"),
@@ -143,7 +141,7 @@ def evaluate_all(
         evaluation = evaluate_listing(listing)
         if evaluation:
             new_evaluations.append(evaluation)
-            print(f"    Score: {evaluation.overall_score}/100 - {evaluation.match_summary[:80]}...")
+            print(f"    Score: {evaluation.quality_score}/100 - {evaluation.quality_summary[:80]}...")
         else:
             print(f"    Skipped (evaluation failed)")
 

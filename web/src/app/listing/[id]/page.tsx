@@ -1,16 +1,66 @@
 import { getListingById, getListingsWithEvals } from "@/lib/data";
-import { CRITERIA_LABELS, CriteriaScores } from "@/lib/types";
-import { ScoreBar } from "@/components/ScoreBar";
 import { ListingDetailActions } from "@/components/ListingDetailActions";
 import { ImageGallery } from "@/components/ImageGallery";
 import { TagsDisplay } from "@/components/TagsDisplay";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   getListingCoordinates,
   haversineDistance,
-  DEFAULT_REFERENCE_POINT,
+  EUROPE_CENTER,
 } from "@/lib/coordinates";
+
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://maman-logement.vercel.app";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const item = getListingById(id);
+  if (!item) {
+    return { title: "Annonce introuvable - Maman Logement" };
+  }
+
+  const { listing, evaluation } = item;
+  const title = evaluation?.ai_title || listing.title;
+  const description =
+    evaluation?.ai_description ||
+    evaluation?.quality_summary ||
+    listing.description.slice(0, 160);
+  const firstImage =
+    listing.images.length > 0 ? listing.images[0] : undefined;
+
+  return {
+    title: `${title} - Maman Logement`,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${BASE_URL}/listing/${listing.id}`,
+      siteName: "Maman Logement",
+      locale: "fr_BE",
+      type: "article",
+      ...(firstImage && {
+        images: [
+          {
+            url: firstImage,
+            alt: title,
+          },
+        ],
+      }),
+    },
+    twitter: {
+      card: firstImage ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(firstImage && { images: [firstImage] }),
+    },
+  };
+}
 
 export function generateStaticParams() {
   const items = getListingsWithEvals();
@@ -31,7 +81,7 @@ export default async function ListingPage({
   // Calculate distance from Brussels
   const coords = getListingCoordinates(listing.location, listing.province);
   const distance = coords
-    ? Math.round(haversineDistance(DEFAULT_REFERENCE_POINT, coords))
+    ? Math.round(haversineDistance(EUROPE_CENTER, coords))
     : null;
 
   return (
@@ -108,14 +158,14 @@ export default async function ListingPage({
               <a
                 href="#evaluation"
                 className={`px-2 py-0.5 rounded text-xs font-semibold cursor-pointer hover:opacity-80 transition-opacity ${
-                  evaluation.overall_score >= 70
+                  evaluation.quality_score >= 70
                     ? "bg-green-100 text-green-700"
-                    : evaluation.overall_score >= 40
+                    : evaluation.quality_score >= 40
                       ? "bg-yellow-100 text-yellow-700"
                       : "bg-red-100 text-red-600"
                 }`}
               >
-                {evaluation.overall_score}/100
+                {evaluation.quality_score}/100
               </a>
             )}
           </div>
@@ -149,29 +199,7 @@ export default async function ListingPage({
                 </svg>
                 <div>
                   <span className="text-xs font-semibold text-amber-700 uppercase tracking-wide">Analyse de correspondance</span>
-                  <p className="text-sm text-amber-900 leading-relaxed mt-1">{evaluation.match_summary}</p>
-                </div>
-              </div>
-
-              {/* Criteria scores in a distinct sub-section */}
-              <div className="bg-[var(--surface)] rounded-lg p-4">
-                <h3 className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide mb-3">
-                  Scores par critere
-                </h3>
-                <div className="grid gap-2.5">
-                  {(
-                    Object.entries(evaluation.criteria_scores) as [
-                      keyof CriteriaScores,
-                      number,
-                    ][]
-                  ).map(([key, score]) => (
-                    <ScoreBar
-                      key={key}
-                      score={score}
-                      max={10}
-                      label={CRITERIA_LABELS[key]}
-                    />
-                  ))}
+                  <p className="text-sm text-amber-900 leading-relaxed mt-1">{evaluation.quality_summary}</p>
                 </div>
               </div>
 

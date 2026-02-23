@@ -5,12 +5,14 @@ import { createClient } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import { Profile, PROFILE_VOICE_QUESTIONS, deriveProfileCardData } from "@/lib/profile-types";
 import { AuthButton } from "@/components/AuthButton";
+import { ProfileCreationFlow } from "@/components/ProfileCreationFlow";
 
 export default function MonProfilPage() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [editing, setEditing] = useState(false);
   const supabase = createClient();
 
   const loadProfile = useCallback(
@@ -114,6 +116,22 @@ export default function MonProfilPage() {
 
   const display = deriveProfileCardData(profile.questionnaire_answers);
   const intro = profile.introduction;
+
+  if (editing) {
+    return (
+      <div className="py-4">
+        <div className="max-w-2xl mx-auto mb-4">
+          <button
+            onClick={() => setEditing(false)}
+            className="text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors flex items-center gap-1"
+          >
+            &larr; Retour &agrave; mon profil
+          </button>
+        </div>
+        <ProfileCreationFlow existingProfile={profile} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -229,12 +247,12 @@ export default function MonProfilPage() {
 
       {/* Primary actions */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <a
-          href="/profils/creer"
+        <button
+          onClick={() => setEditing(true)}
           className="flex-1 px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors text-center"
         >
           Modifier mon profil
-        </a>
+        </button>
         <button
           onClick={togglePublished}
           className="flex-1 px-5 py-2.5 border border-[var(--border-color)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--surface)] transition-colors"

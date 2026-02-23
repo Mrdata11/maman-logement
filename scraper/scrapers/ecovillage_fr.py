@@ -1,7 +1,6 @@
 """Scraper for ecovillageglobal.fr - French eco-habitat classifieds.
 
-SPIP-based site with department-level filtering.
-Scrapes the "Habitat Participatif" rubrique (id=55) with department filters.
+SPIP-based site. Scrapes all of France (no geographic filter).
 """
 
 import re
@@ -12,28 +11,18 @@ from bs4 import BeautifulSoup
 
 from scraper.scrapers.base import BaseScraper
 from scraper.models import Listing
-from scraper.config import CAMINO_DEPARTMENTS_FR
+from scraper.config import ALL_DEPARTMENTS_FR
 
-
-# Map department codes to names
-DEPARTMENT_NAMES = {
-    "11": "Aude", "12": "Aveyron", "16": "Charente",
-    "23": "Creuse", "24": "Dordogne", "31": "Haute-Garonne",
-    "32": "Gers", "33": "Gironde", "34": "Hérault",
-    "37": "Indre-et-Loire", "40": "Landes", "43": "Haute-Loire",
-    "46": "Lot", "48": "Lozère", "64": "Pyrénées-Atlantiques",
-    "65": "Hautes-Pyrénées", "86": "Vienne", "87": "Haute-Vienne",
-}
 
 # Rubrique IDs for habitat-related listings on ecovillageglobal.fr
 HABITAT_RUBRIQUES = [
     55,   # Habitat Participatif
-    115,  # Habitat groupé / écolieux cherchent habitants
+    115,  # Habitat groupe / ecolieux cherchent habitants
 ]
 
 
 class EcovillageFRScraper(BaseScraper):
-    """Scrapes ecovillageglobal.fr for French eco-habitat listings in Camino departments."""
+    """Scrapes ecovillageglobal.fr for French eco-habitat listings."""
 
     name = "ecovillageglobal.fr"
     base_url = "https://ecovillageglobal.fr"
@@ -131,12 +120,9 @@ class EcovillageFRScraper(BaseScraper):
         if len(description) < 50:
             return None
 
-        # Try to extract department from content - MUST match a Camino department
+        # Try to extract department from content
         province = self._extract_department(description + " " + title)
-        if not province:
-            return None  # No identifiable Camino department, skip
-
-        location = province
+        location = province  # Use department name as location if found
 
         # Images
         images = []
@@ -186,16 +172,16 @@ class EcovillageFRScraper(BaseScraper):
         """Try to extract a French department name from text."""
         text_lower = text.lower()
 
-        # Check for department names
-        for code, name in DEPARTMENT_NAMES.items():
+        # Check for department names (all 96 departments)
+        for code, name in ALL_DEPARTMENTS_FR.items():
             if name.lower() in text_lower:
                 return name
 
-        # Check for department numbers (e.g., "dept 64", "(64)", "département 33")
-        dept_pattern = re.search(r"(?:d[ée]p(?:artement)?\.?\s*|[(\[])(\d{2})(?:[)\]]|\b)", text)
+        # Check for department numbers (e.g., "dept 64", "(64)", "departement 33")
+        dept_pattern = re.search(r"(?:d[ee]p(?:artement)?\.?\s*|[(\[])(\d{2})(?:[)\]]|\b)", text)
         if dept_pattern:
             code = dept_pattern.group(1)
-            if code in DEPARTMENT_NAMES:
-                return DEPARTMENT_NAMES[code]
+            if code in ALL_DEPARTMENTS_FR:
+                return ALL_DEPARTMENTS_FR[code]
 
         return None

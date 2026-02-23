@@ -12,20 +12,18 @@ except ImportError:
     anthropic = None
 
 
-CONTENT_GENERATION_SYSTEM = """Tu es un rédacteur expert qui aide une personne à trouver son habitat groupé idéal en Belgique.
-Tu rédiges des titres et descriptions personnalisés pour des annonces de logement communautaire.
-
-Le contexte: une femme cherche un habitat groupé en Belgique avec une communauté mature, des valeurs de partage et de bienveillance, des projets communs (potager, cuisine, activités), et idéalement proche de Bruxelles. Elle pratique la biodanza et cherche un lieu de vie communautaire chaleureux.
+CONTENT_GENERATION_SYSTEM = """Tu es un redacteur expert en habitat collaboratif en Europe.
+Tu rediges des titres et descriptions clairs et informatifs pour des annonces de logement communautaire (cohousing, ecovillages, habitat participatif).
 
 Ton style:
 - Direct et informatif, pas de marketing excessif
-- Tu parles à la personne qui cherche: qu'est-ce qui est pertinent pour ELLE dans cette offre?
-- Tu mets en avant les aspects concrets: taille du groupe, type de vie communautaire, localisation, prix, type de logement
-- Tu mentionnes honnêtement les limites ou informations manquantes
-- Le titre doit être court (max 80 caractères), clair et distinctif
-- La description doit faire 2-3 phrases maximum, aller à l'essentiel
+- Factuel et neutre - pas de "tu" ni d'adresse directe
+- Mettre en avant les aspects concrets: taille du groupe, type de vie communautaire, localisation, prix, type de logement
+- Mentionner honnetement les limites ou informations manquantes
+- Le titre doit etre court (max 80 caracteres), clair et distinctif
+- La description doit faire 2-3 phrases maximum, aller a l'essentiel
 
-Réponds TOUJOURS en JSON valide, sans aucun texte avant ou après."""
+Reponds TOUJOURS en JSON valide, sans aucun texte avant ou apres."""
 
 
 CONTENT_GENERATION_PROMPT = """Génère un titre personnalisé et une description courte et percutante pour cette annonce.
@@ -57,12 +55,12 @@ RÈGLES POUR LE TITRE:
 - Si le titre original est déjà bon et informatif, garde-le ou adapte-le légèrement
 - Pas de majuscules excessives, pas d'emojis
 
-RÈGLES POUR LA DESCRIPTION:
+REGLES POUR LA DESCRIPTION:
 - 2-3 phrases maximum
-- Parler directement à la personne ("Tu trouveras ici...", "Ce lieu propose...")
-- Mentionner les aspects concrets: nombre de personnes, activités, espaces partagés, prix
-- Être honnête sur les limites (info manquante, communauté en création, etc.)
-- Ne pas répéter le titre"""
+- Style factuel: "Ce projet propose...", "Cette communaute offre..."
+- Mentionner les aspects concrets: nombre de personnes, activites, espaces partages, prix
+- Etre honnete sur les limites (info manquante, communaute en creation, etc.)
+- Ne pas repeter le titre"""
 
 
 def generate_content(listing: Listing, evaluation: Optional[Evaluation] = None) -> Optional[dict]:
@@ -75,11 +73,11 @@ def generate_content(listing: Listing, evaluation: Optional[Evaluation] = None) 
 
     evaluation_context = ""
     if evaluation:
-        evaluation_context = f"""ÉVALUATION IA EXISTANTE:
-Score: {evaluation.overall_score}/100
-Résumé: {evaluation.match_summary}
+        evaluation_context = f"""EVALUATION IA EXISTANTE:
+Score qualite: {evaluation.quality_score}/100
+Resume: {evaluation.quality_summary}
 Points forts: {', '.join(evaluation.highlights)}
-Points négatifs: {', '.join(evaluation.concerns)}"""
+Points negatifs: {', '.join(evaluation.concerns)}"""
 
     prompt = CONTENT_GENERATION_PROMPT.format(
         title=listing.title,

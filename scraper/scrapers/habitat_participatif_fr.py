@@ -1,7 +1,7 @@
 """Scraper for basededonnees-habitatparticipatif-oasis.fr (French national database).
 
 Uses the YesWiki API endpoint /?api/entries/1 which returns all project entries as JSON.
-Filters for type-1 entries (housing projects) in Camino de Santiago departments.
+Scrapes ALL active French housing projects (no geographic filter).
 """
 
 import json
@@ -13,18 +13,7 @@ from bs4 import BeautifulSoup
 
 from scraper.scrapers.base import BaseScraper
 from scraper.models import Listing
-from scraper.config import CAMINO_DEPARTMENTS_FR
-
-
-# Map department codes to department names
-DEPARTMENT_NAMES = {
-    "11": "Aude", "12": "Aveyron", "16": "Charente",
-    "23": "Creuse", "24": "Dordogne", "31": "Haute-Garonne",
-    "32": "Gers", "33": "Gironde", "34": "Hérault",
-    "37": "Indre-et-Loire", "40": "Landes", "43": "Haute-Loire",
-    "46": "Lot", "48": "Lozère", "64": "Pyrénées-Atlantiques",
-    "65": "Hautes-Pyrénées", "86": "Vienne", "87": "Haute-Vienne",
-}
+from scraper.config import ALL_DEPARTMENTS_FR
 
 
 class HabitatParticipatifFRScraper(BaseScraper):
@@ -52,15 +41,9 @@ class HabitatParticipatifFRScraper(BaseScraper):
 
         print(f"  [{self.name}] API returned {len(data)} total entries")
 
-        # Filter: type-1 (projects) in Camino departments, active
-        camino_depts = set(CAMINO_DEPARTMENTS_FR)
-        filtered = 0
+        # Filter: type-1 (projects), active only — no geographic filter
         for entry_key, entry in data.items():
             if entry.get("id_typeannonce") != "1":
-                continue
-
-            dept = str(entry.get("listeListeDepartement", ""))
-            if dept not in camino_depts:
                 continue
 
             # Only active projects
@@ -70,9 +53,7 @@ class HabitatParticipatifFRScraper(BaseScraper):
             listing = self._parse_entry(entry)
             if listing:
                 listings.append(listing)
-                filtered += 1
 
-        print(f"  [{self.name}] Filtered {filtered} projects in Camino departments")
         print(f"  [{self.name}] Total: {len(listings)} listings scraped")
         return listings
 
@@ -118,7 +99,7 @@ class HabitatParticipatifFRScraper(BaseScraper):
         # Location
         city = entry.get("bf_ville", "")
         dept_code = str(entry.get("listeListeDepartement", ""))
-        dept_name = DEPARTMENT_NAMES.get(dept_code, dept_code)
+        dept_name = ALL_DEPARTMENTS_FR.get(dept_code, dept_code)
         location = f"{city}, {dept_name}" if city else dept_name
 
         # Price
@@ -179,25 +160,25 @@ class HabitatParticipatifFRScraper(BaseScraper):
             meta_parts.append(f"Taille : {', '.join(size_info)}")
 
         LOC_TYPE_LABELS = {
-            "urbain": "Urbain", "periurbain": "Périurbain",
-            "rural": "Rural", "rural-isole": "Rural isolé",
+            "urbain": "Urbain", "periurbain": "Periurbain",
+            "rural": "Rural", "rural-isole": "Rural isole",
         }
         loc_type = entry.get("listeListeTypeDeLocalisation", "")
         if loc_type and loc_type in LOC_TYPE_LABELS:
             meta_parts.append(f"Cadre : {LOC_TYPE_LABELS[loc_type]}")
 
         ARCH_LABELS = {
-            "immeuble": "Immeuble", "intermédiaire": "Intermédiaire",
-            "individuel": "Individuel", "ancien": "Ancien rénové",
-            "leger": "Habitat léger", "mixte": "Mixte",
+            "immeuble": "Immeuble", "intermediaire": "Intermediaire",
+            "individuel": "Individuel", "ancien": "Ancien renove",
+            "leger": "Habitat leger", "mixte": "Mixte",
         }
         arch = entry.get("listeListeTypeDArchitecture", "")
         if arch and arch in ARCH_LABELS:
             meta_parts.append(f"Architecture : {ARCH_LABELS[arch]}")
 
         STRUCT_LABELS = {
-            "coop": "Coopérative", "sci": "SCI", "asso": "Association",
-            "copro": "Copropriété", "scia": "SCIA",
+            "coop": "Cooperative", "sci": "SCI", "asso": "Association",
+            "copro": "Copropriete", "scia": "SCIA",
         }
         struct = entry.get("listeListeStructuresJuridiques", "")
         if struct and struct in STRUCT_LABELS:
@@ -205,8 +186,8 @@ class HabitatParticipatifFRScraper(BaseScraper):
 
         AVANCEMENT_LABELS = {
             "recherche": "En recherche de terrain",
-            "etudes": "En études", "travaux": "En travaux",
-            "abouti": "Abouti / Habité",
+            "etudes": "En etudes", "travaux": "En travaux",
+            "abouti": "Abouti / Habite",
         }
         avancement = entry.get("listeListeAvancementProjet", "")
         if avancement and avancement in AVANCEMENT_LABELS:
@@ -230,7 +211,7 @@ class HabitatParticipatifFRScraper(BaseScraper):
             description=description[:5000],
             location=location,
             province=dept_name,
-            price=str(price_amount) + "€" if price_amount else price_str or None,
+            price=str(price_amount) + "\u20ac" if price_amount else price_str or None,
             price_amount=price_amount,
             listing_type=listing_type,
             country="FR",

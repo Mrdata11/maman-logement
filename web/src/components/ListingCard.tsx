@@ -35,7 +35,7 @@ export function ListingCard({
   const { listing, evaluation, tags, status, notes } = item;
   const isFaded = status === "archived" || status === "rejected";
   const isFavorite = status === "favorite";
-  const originalScore = evaluation?.overall_score;
+  const originalScore = evaluation?.quality_score;
   const scoreDiff =
     adjustedScore !== undefined && originalScore !== undefined
       ? adjustedScore - originalScore
@@ -104,7 +104,7 @@ export function ListingCard({
                 {evaluation && (
                   <div className="flex items-center gap-1">
                     <ScoreBadge
-                      score={adjustedScore ?? evaluation.overall_score}
+                      score={adjustedScore ?? evaluation.quality_score}
                     />
                     {scoreDiff !== undefined && scoreDiff !== 0 && (
                       <span
@@ -276,7 +276,7 @@ export function ListingCard({
           {evaluation && (
             <div className="mt-2">
               <p className="text-sm text-[var(--foreground)] line-clamp-3">
-                {evaluation.ai_description || evaluation.match_summary}
+                {evaluation.ai_description || evaluation.quality_summary}
               </p>
             </div>
           )}

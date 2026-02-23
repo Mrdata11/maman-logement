@@ -149,6 +149,8 @@ class FindACoHouseScraper(BaseScraper):
             price=price,
             price_amount=price_amount,
             listing_type=listing_type,
+            country="BE",
+            original_language="en",
             images=images[:5],
             date_published=date_published,
             date_scraped=datetime.utcnow().isoformat(),

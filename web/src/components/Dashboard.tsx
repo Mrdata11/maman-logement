@@ -4,21 +4,18 @@ import { useState, useMemo, useEffect, useCallback, useRef, type ReactNode } fro
 import {
   ListingWithEval,
   ListingStatus,
-  RefinementWeights,
   RefinementFilters,
-  DEFAULT_WEIGHTS,
   DEFAULT_FILTERS,
   UIFilterState,
   DEFAULT_UI_FILTERS,
   UITagFilters,
   DEFAULT_TAG_FILTERS,
-  calculateRefinedScore,
   applyRefinementFilters,
 } from "@/lib/types";
 import {
   haversineDistance,
   getListingCoordinates,
-  DEFAULT_REFERENCE_POINT,
+  EUROPE_CENTER,
 } from "@/lib/coordinates";
 import { ListingCard } from "./ListingCard";
 import { TagFilterCounts } from "./TagFilterPanel";
@@ -96,7 +93,6 @@ export function Dashboard({
   const sourceRef = useRef<HTMLDivElement>(null);
 
   // Refinement state (driven by questionnaire)
-  const [weights, setWeights] = useState<RefinementWeights>({ ...DEFAULT_WEIGHTS });
   const [filters, setFilters] = useState<RefinementFilters>({ ...DEFAULT_FILTERS });
 
   // Questionnaire-derived filter state
@@ -128,7 +124,6 @@ export function Dashboard({
       const saved = localStorage.getItem(REFINEMENT_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.weights) setWeights(parsed.weights);
         if (parsed.filters) setFilters(parsed.filters);
       }
     } catch {
@@ -183,31 +178,16 @@ export function Dashboard({
 
   // Save refinement state to localStorage
   const saveRefinementState = useCallback(
-    (w: RefinementWeights, f: RefinementFilters) => {
+    (f: RefinementFilters) => {
       localStorage.setItem(
         REFINEMENT_STORAGE_KEY,
-        JSON.stringify({ weights: w, filters: f })
+        JSON.stringify({ filters: f })
       );
     },
     []
   );
 
   const isRefined = questionnaireFilterActive;
-
-  // Calculate adjusted scores
-  const adjustedScores = useMemo(() => {
-    if (!isRefined) return new Map<string, number>();
-    const map = new Map<string, number>();
-    for (const item of items) {
-      if (item.evaluation) {
-        map.set(
-          item.listing.id,
-          calculateRefinedScore(item.evaluation.criteria_scores, weights)
-        );
-      }
-    }
-    return map;
-  }, [items, weights, isRefined]);
 
   // Calculate distances from Bruxelles
   const distances = useMemo(() => {
@@ -218,7 +198,7 @@ export function Dashboard({
         item.listing.province
       );
       if (coords) {
-        map.set(item.listing.id, haversineDistance(DEFAULT_REFERENCE_POINT, coords));
+        map.set(item.listing.id, haversineDistance(EUROPE_CENTER, coords));
       } else {
         map.set(item.listing.id, null);
       }
@@ -239,7 +219,7 @@ export function Dashboard({
       const lt = i.listing.listing_type;
       if (!lt || !RELEVANT_TYPES.has(lt)) return false;
       if (!i.evaluation) return false;
-      if (i.evaluation.overall_score < 15) return false;
+      if (i.evaluation.quality_score < 15) return false;
       return true;
     });
   }, [items, RELEVANT_TYPES]);
@@ -433,14 +413,14 @@ export function Dashboard({
       const lt = i.listing.listing_type;
       if (!lt || !RELEVANT_TYPES.has(lt)) return false;
       if (!i.evaluation) return false;
-      if (i.evaluation.overall_score < 15) return false;
+      if (i.evaluation.quality_score < 15) return false;
       return true;
     });
 
     // Refinement filters
     if (isRefined) {
       result = result.filter((item) =>
-        applyRefinementFilters(item, filters, adjustedScores.get(item.listing.id))
+        applyRefinementFilters(item, filters)
       );
     }
 
@@ -481,9 +461,7 @@ export function Dashboard({
     // UI filters - score minimum
     if (uiFilters.scoreMin !== null) {
       result = result.filter((i) => {
-        const score = isRefined
-          ? (adjustedScores.get(i.listing.id) ?? i.evaluation?.overall_score ?? null)
-          : (i.evaluation?.overall_score ?? null);
+        const score = i.evaluation?.quality_score ?? null;
         if (score === null) return uiFilters.includeUnscored;
         return score >= uiFilters.scoreMin!;
       });
@@ -597,12 +575,8 @@ export function Dashboard({
     // Sort
     result.sort((a, b) => {
       if (sort === "score") {
-        const sa = isRefined
-          ? (adjustedScores.get(a.listing.id) ?? a.evaluation?.overall_score ?? -1)
-          : (a.evaluation?.overall_score ?? -1);
-        const sb = isRefined
-          ? (adjustedScores.get(b.listing.id) ?? b.evaluation?.overall_score ?? -1)
-          : (b.evaluation?.overall_score ?? -1);
+        const sa = a.evaluation?.quality_score ?? -1;
+        const sb = b.evaluation?.quality_score ?? -1;
         return sb - sa;
       }
       if (sort === "price") {
@@ -615,7 +589,7 @@ export function Dashboard({
     });
 
     return result;
-  }, [items, filter, sort, sourceFilter, RELEVANT_TYPES, isRefined, adjustedScores, filters, uiFilters, tagFilters, distances]);
+  }, [items, filter, sort, sourceFilter, RELEVANT_TYPES, isRefined, filters, uiFilters, tagFilters, distances]);
 
   const handleStatusChange = (id: string, newStatus: ListingStatus) => {
     const prevStatus = items.find((i) => i.listing.id === id)?.status;
@@ -680,12 +654,11 @@ export function Dashboard({
     if (questionnaireState?.completedAt) {
       const result = mapQuestionnaireToFilters(questionnaireState.answers);
       if (result.isActive) {
-        setWeights(result.weights);
         setFilters(result.filters);
         setTagFilters(result.tagFilters);
         setQuestionnaireFilterActive(true);
         setQuestionnaireSummary(result.summary);
-        saveRefinementState(result.weights, result.filters);
+        saveRefinementState(result.filters);
       }
     }
   }, [questionnaireState, saveRefinementState]);
@@ -718,7 +691,6 @@ export function Dashboard({
         onClearFilters={questionnaireFilterActive ? () => {
           setQuestionnaireFilterActive(false);
           setQuestionnaireSummary([]);
-          setWeights({ ...DEFAULT_WEIGHTS });
           setFilters({ ...DEFAULT_FILTERS });
           setTagFilters({ ...DEFAULT_TAG_FILTERS });
           localStorage.removeItem(REFINEMENT_STORAGE_KEY);
@@ -730,7 +702,6 @@ export function Dashboard({
           // Reset all filters derived from questionnaire
           setQuestionnaireFilterActive(false);
           setQuestionnaireSummary([]);
-          setWeights({ ...DEFAULT_WEIGHTS });
           setFilters({ ...DEFAULT_FILTERS });
           setTagFilters({ ...DEFAULT_TAG_FILTERS });
           localStorage.removeItem(REFINEMENT_STORAGE_KEY);
@@ -995,7 +966,6 @@ export function Dashboard({
       {showCompare && (
         <ComparePanel
           items={compareItems}
-          adjustedScores={adjustedScores}
           onClose={() => setShowCompare(false)}
           onRemove={(id) => {
             setCompareIds((prev) => prev.filter((x) => x !== id));
@@ -1025,7 +995,7 @@ export function Dashboard({
                   onStatusChange={handleStatusChange}
                   onNotesChange={handleNotesChange}
                   onToggleCompare={handleToggleCompare}
-                  adjustedScore={adjustedScores.get(item.listing.id)}
+                  adjustedScore={undefined}
                   isHighlighted={hoveredListingId === item.listing.id}
                   isSelected={compareIds.includes(item.listing.id)}
                   distance={distances.get(item.listing.id) ?? null}
@@ -1072,7 +1042,7 @@ export function Dashboard({
           onNavigate={navigatePreview}
           currentIndex={previewIndex}
           totalCount={filtered.length}
-          adjustedScore={adjustedScores.get(previewItem.listing.id)}
+          adjustedScore={undefined}
         />
       )}
 

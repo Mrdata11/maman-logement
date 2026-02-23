@@ -10,14 +10,12 @@ import Link from "next/link";
 
 interface ComparePanelProps {
   items: ListingWithEval[];
-  adjustedScores: Map<string, number>;
   onClose: () => void;
   onRemove: (id: string) => void;
 }
 
 export function ComparePanel({
   items,
-  adjustedScores,
   onClose,
   onRemove,
 }: ComparePanelProps) {
@@ -100,20 +98,19 @@ export function ComparePanel({
                               </span>
                             )}
                           </div>
-                          {/* Overall score */}
+                          {/* Quality score */}
                           {item.evaluation && (
                             <div className="mt-2">
                               <span
                                 className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
-                                  (adjustedScores.get(item.listing.id) ?? item.evaluation.overall_score) >= 70
+                                  item.evaluation.quality_score >= 70
                                     ? "bg-green-100 text-green-800"
-                                    : (adjustedScores.get(item.listing.id) ?? item.evaluation.overall_score) >= 40
+                                    : item.evaluation.quality_score >= 40
                                       ? "bg-yellow-100 text-yellow-800"
                                       : "bg-red-100 text-red-800"
                                 }`}
                               >
-                                {adjustedScores.get(item.listing.id) ??
-                                  item.evaluation.overall_score}
+                                {item.evaluation.quality_score}
                                 /100
                               </span>
                             </div>

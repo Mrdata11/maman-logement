@@ -12,7 +12,7 @@ from typing import List, Optional, Tuple
 from scraper.models import Listing
 
 # Only these listing types are relevant: collaborative housing offering a spot
-RELEVANT_TYPES = {"offre-location", "creation-groupe", "habitat-leger", "ecovillage", "community-profile", "cohousing"}
+RELEVANT_TYPES = {"offre-location", "creation-groupe", "habitat-leger", "ecovillage", "community-profile", "cohousing", "existing-project"}
 
 # Pure sale listings (unless they also mention rental)
 SALE_TYPES = {"offre-vente"}
@@ -63,7 +63,7 @@ def post_filter_evaluations(listings, evaluations):
 
     for listing in listings:
         evaluation = eval_map.get(listing.id)
-        if evaluation is None or evaluation.overall_score >= MIN_SCORE_THRESHOLD:
+        if evaluation is None or evaluation.quality_score >= MIN_SCORE_THRESHOLD:
             kept_listings.append(listing)
         else:
             removed_count += 1

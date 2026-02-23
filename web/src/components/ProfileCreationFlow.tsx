@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
+import type { Profile } from "@/lib/profile-types";
 import {
   ProfileIntroduction,
   EMPTY_INTRODUCTION,
@@ -20,22 +21,49 @@ import { AuthButton } from "./AuthButton";
 
 type Step = "questionnaire" | "introduction" | "preview" | "publish";
 
-export function ProfileCreationFlow() {
-  const [step, setStep] = useState<Step>("questionnaire");
+interface ProfileCreationFlowProps {
+  existingProfile?: Profile;
+}
+
+export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProps) {
+  const isEditing = !!existingProfile;
+
+  const [step, setStep] = useState<Step>(
+    isEditing ? "preview" : "questionnaire"
+  );
   const [questionnaireAnswers, setQuestionnaireAnswers] =
-    useState<QuestionnaireAnswers>({});
-  const [questionnaireCompleted, setQuestionnaireCompleted] = useState(false);
-  const [introduction, setIntroduction] =
-    useState<ProfileIntroduction>(EMPTY_INTRODUCTION);
-  const [displayName, setDisplayName] = useState("");
-  const [location, setLocation] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [aiSummary, setAiSummary] = useState<string | null>(null);
-  const [aiTags, setAiTags] = useState<string[]>([]);
+    useState<QuestionnaireAnswers>(
+      isEditing ? existingProfile.questionnaire_answers : {}
+    );
+  const [questionnaireCompleted, setQuestionnaireCompleted] = useState(
+    isEditing
+      ? Object.keys(existingProfile.questionnaire_answers).length > 0
+      : false
+  );
+  const [introduction, setIntroduction] = useState<ProfileIntroduction>(
+    isEditing ? existingProfile.introduction : EMPTY_INTRODUCTION
+  );
+  const [displayName, setDisplayName] = useState(
+    isEditing ? existingProfile.display_name : ""
+  );
+  const [location, setLocation] = useState(
+    isEditing ? existingProfile.location || "" : ""
+  );
+  const [contactEmail, setContactEmail] = useState(
+    isEditing ? existingProfile.contact_email : ""
+  );
+  const [aiSummary, setAiSummary] = useState<string | null>(
+    isEditing ? existingProfile.ai_summary : null
+  );
+  const [aiTags, setAiTags] = useState<string[]>(
+    isEditing ? existingProfile.ai_tags : []
+  );
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<string[]>(
+    isEditing ? existingProfile.photos : []
+  );
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -51,8 +79,9 @@ export function ProfileCreationFlow() {
 
   const currentStepIndex = steps.findIndex((s) => s.id === step);
 
-  // Load questionnaire from localStorage
+  // Load questionnaire from localStorage (only when creating, not editing)
   useEffect(() => {
+    if (isEditing) return;
     try {
       const saved = localStorage.getItem(QUESTIONNAIRE_STORAGE_KEY);
       if (saved) {
@@ -63,19 +92,21 @@ export function ProfileCreationFlow() {
         }
       }
     } catch {}
-  }, []);
+  }, [isEditing]);
 
   // Check auth state
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setUser(user);
-        if (!displayName)
-          setDisplayName(user.user_metadata?.full_name || "");
-        if (!contactEmail) setContactEmail(user.email || "");
+        if (!isEditing) {
+          if (!displayName)
+            setDisplayName(user.user_metadata?.full_name || "");
+          if (!contactEmail) setContactEmail(user.email || "");
+        }
       }
     });
-  }, [supabase]);
+  }, [supabase, isEditing]);
 
   const handleIntroComplete = useCallback(
     (intro: ProfileIntroduction) => {
@@ -216,13 +247,13 @@ export function ProfileCreationFlow() {
   const handleAuthChange = useCallback(
     (newUser: User | null) => {
       setUser(newUser);
-      if (newUser) {
+      if (newUser && !isEditing) {
         if (!displayName)
           setDisplayName(newUser.user_metadata?.full_name || "");
         if (!contactEmail) setContactEmail(newUser.email || "");
       }
     },
-    [displayName, contactEmail]
+    [displayName, contactEmail, isEditing]
   );
 
   // Derive questionnaire display data
@@ -272,7 +303,7 @@ export function ProfileCreationFlow() {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-[var(--foreground)]">
-            Ton profil est publi&eacute; !
+            {isEditing ? "Ton profil a \u00e9t\u00e9 mis \u00e0 jour !" : "Ton profil est publi\u00e9 !"}
           </h2>
           <p className="text-[var(--muted)] mt-2">
             Les porteurs de projets peuvent maintenant te d&eacute;couvrir et te contacter.
@@ -706,10 +737,12 @@ export function ProfileCreationFlow() {
           <div className="space-y-6">
             <div className="text-center">
               <h2 className="text-xl font-bold text-[var(--foreground)]">
-                Publier ton profil
+                {isEditing ? "Mettre \u00e0 jour ton profil" : "Publier ton profil"}
               </h2>
               <p className="text-sm text-[var(--muted)] mt-1">
-                Connecte-toi pour publier et g&eacute;rer ton profil.
+                {isEditing
+                  ? "V\u00e9rifie et confirme les modifications."
+                  : "Connecte-toi pour publier et g\u00e9rer ton profil."}
               </p>
             </div>
 
@@ -804,10 +837,10 @@ export function ProfileCreationFlow() {
                           />
                         ))}
                       </div>
-                      Publication en cours...
+                      {isEditing ? "Mise \u00e0 jour en cours..." : "Publication en cours..."}
                     </>
                   ) : (
-                    "Publier mon profil"
+                    isEditing ? "Mettre \u00e0 jour" : "Publier mon profil"
                   )}
                 </button>
               </div>

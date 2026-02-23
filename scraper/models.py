@@ -15,12 +15,14 @@ class Listing(BaseModel):
     price: Optional[str] = None
     price_amount: Optional[float] = None
     listing_type: Optional[str] = None  # "offre-location", "offre-vente", "creation-groupe", etc.
-    country: Optional[str] = None  # "BE", "FR", "ES"
-    original_language: Optional[str] = None  # "fr", "nl", "es", "en"
+    country: Optional[str] = None  # "BE", "FR", "ES", "PT", "NL", "CH"
+    original_language: Optional[str] = None  # "fr", "nl", "es", "en", "pt"
     contact: Optional[str] = None
     images: List[str] = Field(default_factory=list)
     date_published: Optional[str] = None
     date_scraped: str = ""
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     def model_post_init(self, __context) -> None:
         if not self.id:
@@ -29,26 +31,10 @@ class Listing(BaseModel):
             self.date_scraped = datetime.utcnow().isoformat()
 
 
-class CriteriaScore(BaseModel):
-    community_size_and_maturity: int = Field(ge=0, le=10)
-    values_alignment: int = Field(ge=0, le=10)
-    common_projects: int = Field(ge=0, le=10)
-    large_hall_biodanza: int = Field(ge=0, le=10)
-    rental_price: int = Field(ge=0, le=10)
-    unit_type: int = Field(ge=0, le=10)
-    parking: int = Field(ge=0, le=10)
-    spiritual_alignment: int = Field(ge=0, le=10)
-    charter_openness: int = Field(ge=0, le=10)
-    community_meals: int = Field(ge=0, le=10)
-    location_brussels: int = Field(ge=0, le=10)
-    near_hospital: int = Field(ge=0, le=10)
-
-
 class Evaluation(BaseModel):
     listing_id: str
-    overall_score: int = Field(ge=0, le=100)
-    match_summary: str
-    criteria_scores: CriteriaScore
+    quality_score: int = Field(ge=0, le=100)  # Objective quality/completeness score
+    quality_summary: str  # Generic summary of the project
     highlights: List[str] = Field(default_factory=list)
     concerns: List[str] = Field(default_factory=list)
     availability_status: str = "unknown"  # "likely_available", "possibly_expired", "unknown"

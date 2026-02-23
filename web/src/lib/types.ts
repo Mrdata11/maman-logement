@@ -13,30 +13,16 @@ export interface Listing {
   original_language: string | null;
   contact: string | null;
   images: string[];
+  latitude: number | null;
+  longitude: number | null;
   date_published: string | null;
   date_scraped: string;
 }
 
-export interface CriteriaScores {
-  community_size_and_maturity: number;
-  values_alignment: number;
-  common_projects: number;
-  large_hall_biodanza: number;
-  rental_price: number;
-  unit_type: number;
-  parking: number;
-  spiritual_alignment: number;
-  charter_openness: number;
-  community_meals: number;
-  location_brussels: number;
-  near_hospital: number;
-}
-
 export interface Evaluation {
   listing_id: string;
-  overall_score: number;
-  match_summary: string;
-  criteria_scores: CriteriaScores;
+  quality_score: number;
+  quality_summary: string;
   highlights: string[];
   concerns: string[];
   availability_status?: "likely_available" | "possibly_expired" | "unknown";
@@ -147,6 +133,34 @@ export const TAG_LABELS: Record<string, Record<string, string>> = {
   },
 };
 
+export const COUNTRY_LABELS: Record<string, string> = {
+  BE: "Belgique",
+  FR: "France",
+  ES: "Espagne",
+  PT: "Portugal",
+  NL: "Pays-Bas",
+  CH: "Suisse",
+  LU: "Luxembourg",
+};
+
+export const COUNTRY_FLAGS: Record<string, string> = {
+  BE: "\ud83c\udde7\ud83c\uddea",
+  FR: "\ud83c\uddeb\ud83c\uddf7",
+  ES: "\ud83c\uddea\ud83c\uddf8",
+  PT: "\ud83c\uddf5\ud83c\uddf9",
+  NL: "\ud83c\uddf3\ud83c\uddf1",
+  CH: "\ud83c\udde8\ud83c\udded",
+  LU: "\ud83c\uddf1\ud83c\uddfa",
+};
+
+export interface PersonalizedResult {
+  listing_id: string;
+  score: number;
+  explanation: string;
+  highlights: string[];
+  concerns: string[];
+}
+
 export type ListingStatus =
   | "new"
   | "favorite"
@@ -200,6 +214,28 @@ export const STATUS_CONFIG: Record<
   },
 };
 
+export interface CriteriaScores {
+  community_vision: number;
+  living_conditions: number;
+  location_environment: number;
+  governance_organization: number;
+  financial_transparency: number;
+  social_diversity: number;
+  ecological_approach: number;
+  data_completeness: number;
+}
+
+export const CRITERIA_LABELS: Record<keyof CriteriaScores, string> = {
+  community_vision: "Vision communautaire",
+  living_conditions: "Conditions de vie",
+  location_environment: "Localisation & cadre",
+  governance_organization: "Gouvernance",
+  financial_transparency: "Transparence financière",
+  social_diversity: "Diversité sociale",
+  ecological_approach: "Approche écologique",
+  data_completeness: "Complétude des infos",
+};
+
 export interface ListingWithEval {
   listing: Listing;
   evaluation: Evaluation | null;
@@ -207,9 +243,6 @@ export interface ListingWithEval {
   status: ListingStatus;
   notes: string;
 }
-
-// Refinement types for "Paufini la recherche"
-export type RefinementWeights = Record<keyof CriteriaScores, number>;
 
 export interface RefinementFilters {
   listing_types_include: string[];
@@ -232,17 +265,6 @@ export const DEFAULT_FILTERS: RefinementFilters = {
   keywords_include: [],
   keywords_exclude: [],
 };
-
-export interface RefinementEntry {
-  id: string;
-  timestamp: string;
-  userMessage: string;
-  explanation: string;
-  weightsBefore: RefinementWeights;
-  weightsAfter: RefinementWeights;
-  filtersBefore: RefinementFilters;
-  filtersAfter: RefinementFilters;
-}
 
 export function applyRefinementFilters(
   item: ListingWithEval,
@@ -294,7 +316,7 @@ export function applyRefinementFilters(
 
   // Min score
   if (filters.min_score !== null) {
-    const score = adjustedScore ?? item.evaluation?.overall_score;
+    const score = adjustedScore ?? item.evaluation?.quality_score;
     if (score === undefined || score < filters.min_score) return false;
   }
 
@@ -319,40 +341,11 @@ export function applyRefinementFilters(
   return true;
 }
 
-export const DEFAULT_WEIGHTS: RefinementWeights = {
-  community_size_and_maturity: 1.0,
-  values_alignment: 1.0,
-  common_projects: 1.0,
-  large_hall_biodanza: 1.0,
-  rental_price: 1.0,
-  unit_type: 1.0,
-  parking: 1.0,
-  spiritual_alignment: 1.0,
-  charter_openness: 1.0,
-  community_meals: 1.0,
-  location_brussels: 1.0,
-  near_hospital: 1.0,
-};
-
-export function calculateRefinedScore(
-  criteria: CriteriaScores,
-  weights: RefinementWeights
-): number {
-  const keys = Object.keys(weights) as (keyof CriteriaScores)[];
-  let totalWeighted = 0;
-  let totalWeight = 0;
-  for (const key of keys) {
-    totalWeighted += criteria[key] * weights[key];
-    totalWeight += weights[key];
-  }
-  if (totalWeight === 0) return 0;
-  return Math.round((totalWeighted / totalWeight) * 10);
-}
-
 // UI filter state for the filter panel
 export interface UIFilterState {
   searchText: string;
   provinces: string[];
+  countries: string[];
   listingTypes: string[];
   priceMin: number | null;
   priceMax: number | null;
@@ -364,6 +357,7 @@ export interface UIFilterState {
 export const DEFAULT_UI_FILTERS: UIFilterState = {
   searchText: "",
   provinces: [],
+  countries: [],
   listingTypes: [],
   priceMin: null,
   priceMax: null,
@@ -385,21 +379,6 @@ export const LISTING_TYPE_LABELS: Record<string, string> = {
   "community-profile": "Profil communaute",
   ecovillage: "Ecovillage",
   directory: "Repertoire",
-};
-
-export const CRITERIA_LABELS: Record<keyof CriteriaScores, string> = {
-  community_size_and_maturity: "Taille & maturit\u00e9 de la communaut\u00e9",
-  values_alignment: "Valeurs (respect, bienveillance, solidarit\u00e9)",
-  common_projects: "Projets communs (potager, \u00e9picerie...)",
-  large_hall_biodanza: "Grande salle biodanza (180-250m\u00b2)",
-  rental_price: "Loyer (500-750\u20ac charges comprises)",
-  unit_type: "Type de logement (studio/1 chambre)",
-  parking: "Parking voiture + moto",
-  spiritual_alignment: "Esprit biodanseur / spirituel",
-  charter_openness: "Charte & ouverture au monde",
-  community_meals: "Repas & activit\u00e9s communautaires",
-  location_brussels: "Proximit\u00e9 Bruxelles (30-45 min)",
-  near_hospital: "Proximit\u00e9 h\u00f4pital soins palliatifs",
 };
 
 // Tag-based filter state
