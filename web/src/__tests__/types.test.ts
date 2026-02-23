@@ -179,8 +179,8 @@ describe("applyRefinementFilters", () => {
   it("filters by min_score", () => {
     const item = makeItem({}, {
       listing_id: "test-1",
-      overall_score: 40,
-      match_summary: "",
+      quality_score: 40,
+      quality_summary: "",
       criteria_scores: ALL_CRITERIA,
       highlights: [],
       concerns: [],
@@ -196,11 +196,11 @@ describe("applyRefinementFilters", () => {
     expect(applyRefinementFilters(item, filters)).toBe(true);
   });
 
-  it("uses adjustedScore over overall_score for min_score", () => {
+  it("uses adjustedScore over quality_score for min_score", () => {
     const item = makeItem({}, {
       listing_id: "test-1",
-      overall_score: 30,
-      match_summary: "",
+      quality_score: 30,
+      quality_summary: "",
       criteria_scores: ALL_CRITERIA,
       highlights: [],
       concerns: [],
@@ -210,7 +210,7 @@ describe("applyRefinementFilters", () => {
       ...DEFAULT_FILTERS,
       min_score: 50,
     };
-    // adjustedScore = 60 overrides overall_score = 30
+    // adjustedScore = 60 overrides quality_score = 30
     expect(applyRefinementFilters(item, filters, 60)).toBe(true);
     expect(applyRefinementFilters(item, filters, 40)).toBe(false);
   });

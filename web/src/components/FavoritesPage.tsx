@@ -92,7 +92,7 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
 
     result.sort((a, b) => {
       if (sort === "score") {
-        return (b.evaluation?.overall_score ?? -1) - (a.evaluation?.overall_score ?? -1);
+        return (b.evaluation?.quality_score ?? -1) - (a.evaluation?.quality_score ?? -1);
       }
       if (sort === "price") {
         return (a.listing.price_amount ?? Infinity) - (b.listing.price_amount ?? Infinity);
@@ -369,7 +369,7 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
                   {/* Top row: badges */}
                   <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                     {item.evaluation && (
-                      <ScoreBadge score={item.evaluation.overall_score} />
+                      <ScoreBadge score={item.evaluation.quality_score} />
                     )}
                     {item.listing.listing_type && (
                       <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
@@ -413,7 +413,7 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
                   {/* AI Summary */}
                   {item.evaluation && (
                     <p className="mt-2 text-sm text-[var(--muted)] line-clamp-2">
-                      {item.evaluation.ai_description || item.evaluation.match_summary}
+                      {item.evaluation.ai_description || item.evaluation.quality_summary}
                     </p>
                   )}
 

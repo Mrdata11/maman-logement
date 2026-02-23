@@ -25,8 +25,8 @@ ${listing.description.slice(0, 3000)}
 
   const evalContext = evaluation
     ? `
-EVALUATION (score: ${evaluation.overall_score}/100):
-- Resume: ${evaluation.match_summary}
+EVALUATION (score: ${evaluation.quality_score}/100):
+- Resume: ${evaluation.quality_summary}
 - Points forts: ${evaluation.highlights.join(", ")}
 - Points d'attention: ${evaluation.concerns.join(", ")}
 `

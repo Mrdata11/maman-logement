@@ -75,7 +75,7 @@ function escapeHtml(str: string): string {
 function createPopupContent(item: ListingWithEval): string {
   const { listing, evaluation } = item;
   const imageUrl = listing.images.length > 0 ? listing.images[0] : null;
-  const score = evaluation?.overall_score;
+  const score = evaluation?.quality_score;
   const typeLabel = listing.listing_type
     ? LISTING_TYPE_LABELS[listing.listing_type] || listing.listing_type
     : null;
@@ -102,8 +102,8 @@ function createPopupContent(item: ListingWithEval): string {
           .join("")}</div>`
       : "";
 
-  const summaryHtml = evaluation?.match_summary
-    ? `<div class="map-popup-summary">${escapeHtml(evaluation.match_summary)}</div>`
+  const summaryHtml = evaluation?.quality_summary
+    ? `<div class="map-popup-summary">${escapeHtml(evaluation.quality_summary)}</div>`
     : "";
 
   return `<div class="map-popup-content">

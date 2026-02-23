@@ -56,7 +56,7 @@ const SortIconDistance = () => (
 const SORT_OPTIONS: { value: SortType; label: string; icon: ReactNode }[] = [
   { value: "score", label: "Score", icon: <SortIconScore /> },
   { value: "price", label: "Prix", icon: <SortIconPrice /> },
-  { value: "distance", label: "Distance (Bruxelles)", icon: <SortIconDistance /> },
+  { value: "distance", label: "Distance", icon: <SortIconDistance /> },
 ];
 
 const SORT_LABELS: Record<SortType, string> = {

@@ -1,27 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PROFILE_VOICE_QUESTIONS } from "@/lib/profile-types";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/api-auth";
+import { voiceProfileSchema } from "@/lib/api-schemas";
 
 export async function POST(request: NextRequest) {
+  const user = await getAuthenticatedUser();
+  if (!user) return unauthorizedResponse();
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY not configured" },
-      { status: 500 }
+      { error: "Service IA non configur\u00e9." },
+      { status: 503 }
     );
   }
 
-  const { transcript, questionId } = await request.json();
-
-  if (
-    !transcript ||
-    typeof transcript !== "string" ||
-    transcript.trim().length < 5
-  ) {
+  let body;
+  try {
+    body = voiceProfileSchema.parse(await request.json());
+  } catch {
     return NextResponse.json(
-      { error: "Le texte est trop court." },
+      { error: "Donn\u00e9es invalides." },
       { status: 400 }
     );
   }
+
+  const { transcript, questionId } = body;
 
   const question = PROFILE_VOICE_QUESTIONS.find((q) => q.id === questionId);
   if (!question) {
@@ -37,7 +41,9 @@ La personne a repondu a cette question : "${question.question}"
 Contexte de la question : ${question.helpText}
 
 ## TRANSCRIPT VOCAL
-"${transcript}"
+<user_input>
+${transcript.slice(0, 5000)}
+</user_input>
 
 ## REGLES
 - Nettoie le texte : supprime les hesitations ("euh", "hm"), les repetitions, les faux departs
@@ -67,10 +73,10 @@ Reponds UNIQUEMENT avec un JSON valide:
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      console.error("Anthropic API error [voice-profile]:", response.status, await response.text());
       return NextResponse.json(
-        { error: `Anthropic API error: ${errorText}` },
-        { status: response.status }
+        { error: "Erreur du service IA. Veuillez r\u00e9essayer." },
+        { status: 502 }
       );
     }
 
@@ -85,8 +91,9 @@ Reponds UNIQUEMENT avec un JSON valide:
           : transcript.trim(),
     });
   } catch (error) {
+    console.error("Route error [voice-profile]:", error);
     return NextResponse.json(
-      { error: `Failed to process voice: ${error}` },
+      { error: "Une erreur interne est survenue." },
       { status: 500 }
     );
   }

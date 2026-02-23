@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { UIFilterState, UITagFilters, LISTING_TYPE_LABELS, DEFAULT_UI_FILTERS, DEFAULT_TAG_FILTERS } from "@/lib/types";
+import { UIFilterState, UITagFilters, LISTING_TYPE_LABELS, DEFAULT_UI_FILTERS, DEFAULT_TAG_FILTERS, COUNTRY_LABELS, COUNTRY_FLAGS } from "@/lib/types";
 import { TagFilterPanel, TagFilterCounts } from "./TagFilterPanel";
 import {
   X,

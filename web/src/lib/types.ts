@@ -214,27 +214,24 @@ export const STATUS_CONFIG: Record<
   },
 };
 
-export interface CriteriaScores {
-  community_vision: number;
-  living_conditions: number;
-  location_environment: number;
-  governance_organization: number;
-  financial_transparency: number;
-  social_diversity: number;
-  ecological_approach: number;
-  data_completeness: number;
+// Refinement weights — simplified after migration to quality_score model
+export type RefinementWeights = Record<string, number>;
+export const DEFAULT_WEIGHTS: RefinementWeights = {};
+
+export interface RefinementEntry {
+  id: string;
+  timestamp: string;
+  userMessage: string;
+  explanation: string;
+  weightsBefore: RefinementWeights;
+  weightsAfter: RefinementWeights;
+  filtersBefore: RefinementFilters;
+  filtersAfter: RefinementFilters;
 }
 
-export const CRITERIA_LABELS: Record<keyof CriteriaScores, string> = {
-  community_vision: "Vision communautaire",
-  living_conditions: "Conditions de vie",
-  location_environment: "Localisation & cadre",
-  governance_organization: "Gouvernance",
-  financial_transparency: "Transparence financière",
-  social_diversity: "Diversité sociale",
-  ecological_approach: "Approche écologique",
-  data_completeness: "Complétude des infos",
-};
+export function calculateRefinedScore(qualityScore: number, _weights: RefinementWeights): number {
+  return qualityScore;
+}
 
 export interface ListingWithEval {
   listing: Listing;
@@ -482,22 +479,10 @@ export interface ApartmentListing {
   tags: string[];
 }
 
-export interface ApartmentCriteriaScores {
-  price_budget: number;
-  bedroom_count: number;
-  proximity_ixelles: number;
-  surface_area: number;
-  condition_energy: number;
-  amenities: number;
-  transport_access: number;
-  value_for_money: number;
-}
-
 export interface ApartmentEvaluation {
   listing_id: string;
-  overall_score: number;
-  match_summary: string;
-  criteria_scores: ApartmentCriteriaScores;
+  quality_score: number;
+  quality_summary: string;
   highlights: string[];
   concerns: string[];
   date_evaluated: string;
@@ -548,16 +533,6 @@ export const DEFAULT_APARTMENT_FILTERS: ApartmentFilterState = {
   scoreMin: null,
 };
 
-export const APARTMENT_CRITERIA_LABELS: Record<keyof ApartmentCriteriaScores, string> = {
-  price_budget: "Prix (budget 800-1300\u20ac)",
-  bedroom_count: "Nombre de chambres (min 2)",
-  proximity_ixelles: "Proximit\u00e9 d'Ixelles",
-  surface_area: "Surface habitable",
-  condition_energy: "\u00c9tat & PEB",
-  amenities: "\u00c9quipements (balcon, parking...)",
-  transport_access: "Transports en commun",
-  value_for_money: "Rapport qualit\u00e9-prix",
-};
 
 export const PEB_RATING_COLORS: Record<string, string> = {
   A: "bg-green-600 text-white",

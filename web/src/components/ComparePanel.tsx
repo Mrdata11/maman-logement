@@ -142,7 +142,7 @@ export function ComparePanel({
                       key={item.listing.id}
                       className="p-2 text-xs text-[var(--muted)]"
                     >
-                      {item.evaluation?.match_summary ?? "Pas d'evaluation"}
+                      {item.evaluation?.quality_summary ?? "Pas d'evaluation"}
                     </td>
                   ))}
                 </tr>

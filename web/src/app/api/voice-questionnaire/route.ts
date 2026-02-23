@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/api-auth";
+import { voiceQuestionnaireSchema } from "@/lib/api-schemas";
 
-// Build the full question schema for the prompt (done once at module level)
 function buildQuestionsSchema(): string {
   return QUESTIONNAIRE_STEPS.map((step) => {
     const questionsDesc = step.questions
@@ -24,7 +25,6 @@ function buildQuestionsSchema(): string {
   }).join("\n\n");
 }
 
-// Build a lookup map for validation
 function buildQuestionMap() {
   const map = new Map<string, (typeof QUESTIONNAIRE_STEPS)[0]["questions"][0]>();
   for (const step of QUESTIONNAIRE_STEPS) {
@@ -39,22 +39,28 @@ const questionsSchema = buildQuestionsSchema();
 const questionMap = buildQuestionMap();
 
 export async function POST(request: NextRequest) {
+  const user = await getAuthenticatedUser();
+  if (!user) return unauthorizedResponse();
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY not configured" },
-      { status: 500 }
+      { error: "Service IA non configur\u00e9." },
+      { status: 503 }
     );
   }
 
-  const { transcript } = await request.json();
-
-  if (!transcript || typeof transcript !== "string" || transcript.trim().length < 10) {
+  let body;
+  try {
+    body = voiceQuestionnaireSchema.parse(await request.json());
+  } catch {
     return NextResponse.json(
-      { error: "Le texte est trop court pour etre analyse." },
+      { error: "Le texte est trop court pour \u00eatre analys\u00e9." },
       { status: 400 }
     );
   }
+
+  const { transcript } = body;
 
   const prompt = `Tu es un assistant qui analyse un message vocal d'une personne cherchant un habitat groupe en Belgique.
 A partir de sa description libre, tu dois extraire des reponses structurees pour un questionnaire de 29 questions.
@@ -63,7 +69,9 @@ A partir de sa description libre, tu dois extraire des reponses structurees pour
 ${questionsSchema}
 
 ## TRANSCRIPT DE LA PERSONNE
-"${transcript}"
+<user_input>
+${transcript.slice(0, 5000)}
+</user_input>
 
 ## REGLES D'EXTRACTION
 - Pour chaque question, determine si le transcript contient une information pertinente.
@@ -95,10 +103,10 @@ Reponds UNIQUEMENT avec un JSON valide au format:
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      console.error("Anthropic API error [voice-questionnaire]:", response.status, await response.text());
       return NextResponse.json(
-        { error: `Anthropic API error: ${errorText}` },
-        { status: response.status }
+        { error: "Erreur du service IA. Veuillez r\u00e9essayer." },
+        { status: 502 }
       );
     }
 
@@ -106,7 +114,6 @@ Reponds UNIQUEMENT avec un JSON valide au format:
     const text = data.content[0].text;
     const result = JSON.parse(text);
 
-    // Validate answers against the actual question definitions
     const validatedAnswers: Record<string, string | string[] | number> = {};
     for (const [questionId, value] of Object.entries(result.answers)) {
       const question = questionMap.get(questionId);
@@ -144,8 +151,9 @@ Reponds UNIQUEMENT avec un JSON valide au format:
       summary: typeof result.summary === "string" ? result.summary : "",
     });
   } catch (error) {
+    console.error("Route error [voice-questionnaire]:", error);
     return NextResponse.json(
-      { error: `Failed to process voice questionnaire: ${error}` },
+      { error: "Une erreur interne est survenue." },
       { status: 500 }
     );
   }

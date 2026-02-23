@@ -22,15 +22,15 @@ export async function POST(request: NextRequest) {
     .map(
       (item: {
         listing: { title: string; location: string | null; province: string | null; price: string | null };
-        evaluation: { overall_score: number; match_summary: string; highlights: string[]; concerns: string[] } | null;
+        evaluation: { quality_score: number; quality_summary: string; highlights: string[]; concerns: string[] } | null;
         notes: string;
         status: string;
       }, i: number) =>
         `${i + 1}. "${item.listing.title}"
    - Lieu: ${item.listing.location || item.listing.province || "?"}
    - Prix: ${item.listing.price || "?"}
-   - Score IA: ${item.evaluation?.overall_score ?? "N/A"}/100
-   - Resume: ${item.evaluation?.match_summary || "Pas d'evaluation"}
+   - Score IA: ${item.evaluation?.quality_score ?? "N/A"}/100
+   - Resume: ${item.evaluation?.quality_summary || "Pas d'evaluation"}
    - Points forts: ${item.evaluation?.highlights?.join(", ") || "-"}
    - Preoccupations: ${item.evaluation?.concerns?.join(", ") || "-"}
    - Notes perso: ${item.notes || "Aucune"}

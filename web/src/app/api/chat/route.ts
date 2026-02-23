@@ -1,15 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/api-auth";
+import { chatSchema } from "@/lib/api-schemas";
 
 export async function POST(request: NextRequest) {
+  const user = await getAuthenticatedUser();
+  if (!user) return unauthorizedResponse();
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY not configured" },
-      { status: 500 }
+      { error: "Service IA non configur\u00e9." },
+      { status: 503 }
     );
   }
 
-  const { message, listing, evaluation, conversationHistory } = await request.json();
+  let body;
+  try {
+    body = chatSchema.parse(await request.json());
+  } catch {
+    return NextResponse.json(
+      { error: "Donn\u00e9es invalides." },
+      { status: 400 }
+    );
+  }
+
+  const { message, listing, evaluation, conversationHistory } = body;
 
   const listingContext = `
 ANNONCE: ${listing.title}
@@ -25,13 +40,10 @@ ${listing.description.slice(0, 3000)}
 
   const evalContext = evaluation
     ? `
-EVALUATION IA (score global: ${evaluation.overall_score}/100):
-- Resume: ${evaluation.match_summary}
-- Points forts: ${evaluation.highlights.join(", ")}
-- Points d'attention: ${evaluation.concerns.join(", ")}
-- Scores detailles: ${Object.entries(evaluation.criteria_scores)
-        .map(([k, v]) => `${k}: ${v}/10`)
-        .join(", ")}
+EVALUATION IA (score qualite: ${evaluation.quality_score}/100):
+- Resume: ${evaluation.quality_summary}
+- Points forts: ${evaluation.highlights?.join(", ") || "Aucun"}
+- Points d'attention: ${evaluation.concerns?.join(", ") || "Aucun"}
 `
     : "Pas d'evaluation IA disponible pour cette annonce.";
 
@@ -49,14 +61,13 @@ Aide l'utilisateur a:
 
 Sois honnete si des informations manquent. Garde tes reponses concises (2-4 phrases max sauf si on te demande plus).`;
 
-  // Build messages array with conversation history
   const messages = [];
   if (conversationHistory && Array.isArray(conversationHistory)) {
     for (const msg of conversationHistory) {
       messages.push({ role: msg.role, content: msg.content });
     }
   }
-  messages.push({ role: "user", content: message });
+  messages.push({ role: "user", content: message.slice(0, 2000) });
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -75,10 +86,10 @@ Sois honnete si des informations manquent. Garde tes reponses concises (2-4 phra
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      console.error("Anthropic API error [chat]:", response.status, await response.text());
       return NextResponse.json(
-        { error: `Anthropic API error: ${errorText}` },
-        { status: response.status }
+        { error: "Erreur du service IA. Veuillez r\u00e9essayer." },
+        { status: 502 }
       );
     }
 
@@ -87,8 +98,9 @@ Sois honnete si des informations manquent. Garde tes reponses concises (2-4 phra
 
     return NextResponse.json({ response: text });
   } catch (error) {
+    console.error("Route error [chat]:", error);
     return NextResponse.json(
-      { error: `Failed to process chat: ${error}` },
+      { error: "Une erreur interne est survenue." },
       { status: 500 }
     );
   }

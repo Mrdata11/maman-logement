@@ -68,7 +68,7 @@ function applyUIFilters(
     result = result.filter((i) => {
       const score =
         adjustedScores?.get(i.listing.id) ??
-        i.evaluation?.overall_score ??
+        i.evaluation?.quality_score ??
         null;
       if (score === null) return uiFilters.includeUnscored;
       return score >= uiFilters.scoreMin!;
@@ -122,8 +122,8 @@ function makeEvaluation(
 ): Evaluation {
   return {
     listing_id: listingId,
-    overall_score: score,
-    match_summary: "Test summary",
+    quality_score: score,
+    quality_summary: "Test summary",
     criteria_scores: MOCK_CRITERIA,
     highlights: [],
     concerns: [],
