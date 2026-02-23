@@ -5,13 +5,14 @@ This saves API costs and reduces noise in the final output.
 """
 
 import hashlib
+import re
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
 from scraper.models import Listing
 
 # Only these listing types are relevant: collaborative housing offering a spot
-RELEVANT_TYPES = {"offre-location", "creation-groupe", "habitat-leger"}
+RELEVANT_TYPES = {"offre-location", "creation-groupe", "habitat-leger", "ecovillage", "community-profile", "cohousing"}
 
 # Pure sale listings (unless they also mention rental)
 SALE_TYPES = {"offre-vente"}
@@ -107,11 +108,31 @@ def _content_hash(listing: Listing) -> str:
     return hashlib.md5(normalized.encode()).hexdigest()
 
 
+_FRENCH_MONTHS = {
+    "janvier": 1, "février": 2, "fevrier": 2, "mars": 3, "avril": 4,
+    "mai": 5, "juin": 6, "juillet": 7, "août": 8, "aout": 8,
+    "septembre": 9, "octobre": 10, "novembre": 11, "décembre": 12, "decembre": 12,
+}
+
+
 def _parse_date(date_str: str) -> Optional[datetime]:
-    """Try common date formats."""
-    for fmt in ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d", "%d/%m/%Y", "%d %B %Y"]:
+    """Try common date formats including French month names."""
+    for fmt in ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d", "%d/%m/%Y"]:
         try:
             return datetime.strptime(date_str.strip(), fmt)
         except ValueError:
             continue
+    # Try French date: "22 février 2026"
+    match = re.search(
+        r"(\d{1,2})\s+"
+        r"(janvier|f[eé]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[eé]cembre)"
+        r"\s+(\d{4})",
+        date_str,
+        re.IGNORECASE,
+    )
+    if match:
+        day, month_fr, year = match.groups()
+        month = _FRENCH_MONTHS.get(month_fr.lower())
+        if month:
+            return datetime(int(year), month, int(day))
     return None

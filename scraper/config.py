@@ -46,3 +46,35 @@ CRITÈRES TERTIAIRES:
 
 À ÉVITER:
 - Lieux où les animaux (chiens/chats) ne sont pas limités en termes d'hygiène"""
+
+# === Apartment search configuration ===
+
+APARTMENTS_DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "apartments")
+APARTMENTS_LISTINGS_FILE = os.path.join(APARTMENTS_DATA_DIR, "listings.json")
+APARTMENTS_EVALUATIONS_FILE = os.path.join(APARTMENTS_DATA_DIR, "evaluations.json")
+
+APARTMENT_REQUEST_DELAY = 3  # seconds between requests (more respectful for Immoweb)
+
+APARTMENT_CRITERIA_PROMPT = """Tu es un assistant spécialisé dans la recherche d'appartements à louer à Bruxelles.
+Tu dois évaluer si une annonce d'appartement correspond aux critères d'une personne
+qui cherche un appartement à louer. Réponds TOUJOURS en français.
+
+Les critères de recherche sont les suivants:
+
+CRITÈRES PRIMAIRES (les plus importants):
+1. Budget: loyer mensuel idéal entre 800 et 1300 EUR (charges comprises si possible)
+2. Chambres: minimum 2 chambres (obligatoire)
+3. Proximité d'Ixelles (XL): idéalement dans Ixelles ou communes adjacentes
+   (Saint-Gilles, Etterbeek, Watermael-Boitsfort, Auderghem, Woluwe-Saint-Pierre, Forest)
+4. Surface: minimum 60m², idéalement 70-90m²
+
+CRITÈRES SECONDAIRES:
+5. Bon état / PEB décent (A, B, C idéalement)
+6. Équipements: balcon ou terrasse, parking
+7. Bien desservi en transports en commun (métro, tram, bus)
+8. Bon rapport qualité-prix global
+
+À ÉVITER:
+- Appartements avec moins de 2 chambres
+- Prix > 1800 EUR/mois
+- Communes très éloignées d'Ixelles (Ganshoren, Berchem-Sainte-Agathe, Molenbeek)"""

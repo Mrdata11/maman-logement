@@ -15,6 +15,15 @@ class SamenhuizenScraper(BaseScraper):
     base_url = "https://www.samenhuizen.be"
     listings_url = "https://www.samenhuizen.be/nl/zoekertjes"
 
+    def __init__(self):
+        super().__init__()
+        # Override User-Agent: Drupal sites often block non-browser UAs
+        self.session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "nl-BE,nl;q=0.9,fr;q=0.8,en;q=0.7",
+        })
+
     # Categories to skip (roommate search, not cohousing)
     SKIP_CATEGORIES = {"medebewoner"}
 
@@ -195,11 +204,11 @@ class SamenhuizenScraper(BaseScraper):
             text = label_el.get_text(strip=True).lower()
             if text in ("regio", "regio:"):
                 value_el = label_el.find_next(["dd", "span", "div", "p"])
-                if value_el:
+                if value_el and value_el != label_el:
                     region = value_el.get_text(strip=True)
-            elif text in ("gemeente", "gemeente:", "stad", "stad:"):
+            elif "gemeente" in text or "stad" in text:
                 value_el = label_el.find_next(["dd", "span", "div", "p"])
-                if value_el:
+                if value_el and value_el != label_el:
                     municipality = value_el.get_text(strip=True)
 
         # Fallback: search for known region names in text

@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import {
   ListingWithEval,
   ListingStatus,
   RefinementWeights,
   RefinementFilters,
-  RefinementEntry,
   DEFAULT_WEIGHTS,
   DEFAULT_FILTERS,
   UIFilterState,
@@ -22,12 +21,12 @@ import {
   DEFAULT_REFERENCE_POINT,
 } from "@/lib/coordinates";
 import { ListingCard } from "./ListingCard";
-import { RefineSearch } from "./RefineSearch";
-import { FilterPanel } from "./FilterPanel";
-import { TagFilterPanel, TagFilterCounts } from "./TagFilterPanel";
+import { TagFilterCounts } from "./TagFilterPanel";
+import { FilterModal } from "./FilterModal";
 import { ListingsMapWrapper } from "./ListingsMapWrapper";
 import { ListingPreview } from "./ListingPreview";
 import { ComparePanel } from "./ComparePanel";
+import { VoiceQuestionnaire } from "./VoiceQuestionnaire";
 import { QuestionnaireBanner } from "./QuestionnaireBanner";
 import {
   QuestionnaireState,
@@ -36,7 +35,19 @@ import {
 import { mapQuestionnaireToFilters } from "@/lib/questionnaire-mapping";
 
 type FilterType = "all" | "new" | "favorite" | "active" | "in_discussion" | "archived";
-type SortType = "score" | "date" | "price" | "distance";
+type SortType = "score" | "price" | "distance";
+
+const SORT_OPTIONS: { value: SortType; label: string; icon: string }[] = [
+  { value: "score", label: "Score", icon: "⭐" },
+  { value: "price", label: "Prix", icon: "💰" },
+  { value: "distance", label: "Distance (Bruxelles)", icon: "📍" },
+];
+
+const SORT_LABELS: Record<SortType, string> = {
+  score: "Score",
+  price: "Prix",
+  distance: "Distance",
+};
 type ViewMode = "list" | "map" | "split";
 
 const REFINEMENT_STORAGE_KEY = "refinement_state";
@@ -57,15 +68,18 @@ export function Dashboard({
   const [uiFilters, setUiFilters] = useState<UIFilterState>({ ...DEFAULT_UI_FILTERS });
   const [tagFilters, setTagFilters] = useState<UITagFilters>({ ...DEFAULT_TAG_FILTERS });
   const [showFilters, setShowFilters] = useState(false);
-  const [showRefine, setShowRefine] = useState(false);
   const [previewItem, setPreviewItem] = useState<ListingWithEval | null>(null);
   const [searchText, setSearchText] = useState("");
-  const [qualityMode, setQualityMode] = useState(true);
 
-  // Refinement state
+  // Custom dropdown states
+  const [sortOpen, setSortOpen] = useState(false);
+  const [sourceOpen, setSourceOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
+  const sourceRef = useRef<HTMLDivElement>(null);
+
+  // Refinement state (driven by questionnaire)
   const [weights, setWeights] = useState<RefinementWeights>({ ...DEFAULT_WEIGHTS });
   const [filters, setFilters] = useState<RefinementFilters>({ ...DEFAULT_FILTERS });
-  const [history, setHistory] = useState<RefinementEntry[]>([]);
 
   // Questionnaire-derived filter state
   const [questionnaireFilterActive, setQuestionnaireFilterActive] = useState(false);
@@ -77,6 +91,7 @@ export function Dashboard({
 
   // Questionnaire state
   const [questionnaireState, setQuestionnaireState] = useState<QuestionnaireState | null>(null);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
 
   // New listings detection
   const [lastVisitDate, setLastVisitDate] = useState<string | null>(null);
@@ -97,10 +112,6 @@ export function Dashboard({
         const parsed = JSON.parse(saved);
         if (parsed.weights) setWeights(parsed.weights);
         if (parsed.filters) setFilters(parsed.filters);
-        if (parsed.history) {
-          setHistory(parsed.history);
-          if (parsed.history.length > 0) setShowRefine(true);
-        }
       }
     } catch {
       // Ignore parse errors
@@ -138,18 +149,32 @@ export function Dashboard({
     }
   }, [lastVisitDate, items]);
 
+  // Click outside to close custom dropdowns
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
+        setSortOpen(false);
+      }
+      if (sourceRef.current && !sourceRef.current.contains(e.target as Node)) {
+        setSourceOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Save refinement state to localStorage
   const saveRefinementState = useCallback(
-    (w: RefinementWeights, f: RefinementFilters, h: RefinementEntry[]) => {
+    (w: RefinementWeights, f: RefinementFilters) => {
       localStorage.setItem(
         REFINEMENT_STORAGE_KEY,
-        JSON.stringify({ weights: w, filters: f, history: h })
+        JSON.stringify({ weights: w, filters: f })
       );
     },
     []
   );
 
-  const isRefined = history.length > 0 || questionnaireFilterActive;
+  const isRefined = questionnaireFilterActive;
 
   // Calculate adjusted scores
   const adjustedScores = useMemo(() => {
@@ -189,17 +214,29 @@ export function Dashboard({
     return Array.from(s);
   }, [items]);
 
-  // Counts
+  // Quality-filtered items (always on — only relevant, evaluated listings)
+  const RELEVANT_TYPES = useMemo(() => new Set(["offre-location", "creation-groupe", "habitat-leger", "ecovillage", "community-profile", "cohousing"]), []);
+  const qualityFiltered = useMemo(() => {
+    return items.filter((i) => {
+      const lt = i.listing.listing_type;
+      if (!lt || !RELEVANT_TYPES.has(lt)) return false;
+      if (!i.evaluation) return false;
+      if (i.evaluation.overall_score < 15) return false;
+      return true;
+    });
+  }, [items, RELEVANT_TYPES]);
+
+  // Counts (based on quality-filtered items so they match displayed results)
   const counts = useMemo(() => {
     return {
-      all: items.filter((i) => i.status !== "archived" && i.status !== "rejected").length,
-      new: items.filter((i) => i.status === "new").length,
-      favorite: items.filter((i) => i.status === "favorite").length,
-      active: items.filter((i) => ["contacted", "visit_planned", "visited"].includes(i.status)).length,
-      in_discussion: items.filter((i) => i.status === "in_discussion").length,
-      archived: items.filter((i) => i.status === "archived" || i.status === "rejected").length,
+      all: qualityFiltered.filter((i) => i.status !== "archived" && i.status !== "rejected").length,
+      new: qualityFiltered.filter((i) => i.status === "new").length,
+      favorite: qualityFiltered.filter((i) => i.status === "favorite").length,
+      active: qualityFiltered.filter((i) => ["contacted", "visit_planned", "visited"].includes(i.status)).length,
+      in_discussion: qualityFiltered.filter((i) => i.status === "in_discussion").length,
+      archived: qualityFiltered.filter((i) => i.status === "archived" || i.status === "rejected").length,
     };
-  }, [items]);
+  }, [qualityFiltered]);
 
   // Available provinces with counts
   const availableProvinces = useMemo(() => {
@@ -247,6 +284,16 @@ export function Dashboard({
     let petsYes = 0, petsNo = 0;
     let childrenYes = 0, childrenNo = 0;
     let charterYes = 0, charterNo = 0;
+    // New maps & counters
+    const ageRange = new Map<string, number>();
+    const familyTypes = new Map<string, number>();
+    const petDetails = new Map<string, number>();
+    const governance = new Map<string, number>();
+    let furnishedYes = 0, furnishedNo = 0;
+    let pmrYes = 0, pmrNo = 0;
+    let natureYes = 0, natureNo = 0;
+    let transportYes = 0, transportNo = 0;
+    const availabilityStatus = new Map<string, number>();
 
     for (const item of items) {
       const t = item.tags;
@@ -263,6 +310,22 @@ export function Dashboard({
       else if (t.has_children === false) childrenNo++;
       if (t.has_charter === true) charterYes++;
       else if (t.has_charter === false) charterNo++;
+      // New tag counting
+      for (const v of t.age_range) ageRange.set(v, (ageRange.get(v) || 0) + 1);
+      for (const v of t.family_types) familyTypes.set(v, (familyTypes.get(v) || 0) + 1);
+      for (const v of t.pet_details) petDetails.set(v, (petDetails.get(v) || 0) + 1);
+      if (t.governance) governance.set(t.governance, (governance.get(t.governance) || 0) + 1);
+      if (t.furnished === true) furnishedYes++;
+      else if (t.furnished === false) furnishedNo++;
+      if (t.accessible_pmr === true) pmrYes++;
+      else if (t.accessible_pmr === false) pmrNo++;
+      if (t.near_nature === true) natureYes++;
+      else if (t.near_nature === false) natureNo++;
+      if (t.near_transport === true) transportYes++;
+      else if (t.near_transport === false) transportNo++;
+      // Availability from evaluation
+      const avail = item.evaluation?.availability_status;
+      if (avail) availabilityStatus.set(avail, (availabilityStatus.get(avail) || 0) + 1);
     }
 
     const toSorted = (m: Map<string, number>) =>
@@ -280,6 +343,15 @@ export function Dashboard({
       petsAllowed: { yes: petsYes, no: petsNo },
       hasChildren: { yes: childrenYes, no: childrenNo },
       hasCharter: { yes: charterYes, no: charterNo },
+      ageRange: toSorted(ageRange),
+      familyTypes: toSorted(familyTypes),
+      petDetails: toSorted(petDetails),
+      governance: toSorted(governance),
+      furnished: { yes: furnishedYes, no: furnishedNo },
+      accessiblePmr: { yes: pmrYes, no: pmrNo },
+      nearNature: { yes: natureYes, no: natureNo },
+      nearTransport: { yes: transportYes, no: transportNo },
+      availabilityStatus: toSorted(availabilityStatus),
     };
   }, [items]);
 
@@ -303,6 +375,17 @@ export function Dashboard({
     if (tagFilters.unitTypes.length > 0) count++;
     if (tagFilters.minBedrooms !== null) count++;
     if (tagFilters.minSurface !== null || tagFilters.maxSurface !== null) count++;
+    // New tag filters
+    if (tagFilters.ageRange.length > 0) count++;
+    if (tagFilters.familyTypes.length > 0) count++;
+    if (tagFilters.minGroupSize !== null || tagFilters.maxGroupSize !== null) count++;
+    if (tagFilters.petDetails.length > 0) count++;
+    if (tagFilters.furnished !== null) count++;
+    if (tagFilters.accessiblePmr !== null) count++;
+    if (tagFilters.governance.length > 0) count++;
+    if (tagFilters.nearNature !== null) count++;
+    if (tagFilters.nearTransport !== null) count++;
+    if (tagFilters.availabilityStatus.length > 0) count++;
     return count;
   }, [uiFilters, tagFilters]);
 
@@ -328,18 +411,14 @@ export function Dashboard({
       result = result.filter((i) => i.listing.source === sourceFilter);
     }
 
-    // Quality mode: only show relevant listing types (collaborative housing offers)
-    if (qualityMode) {
-      const RELEVANT_TYPES = new Set(["offre-location", "creation-groupe", "habitat-leger"]);
-      result = result.filter((i) => {
-        const lt = i.listing.listing_type;
-        // Only keep listing types that are actual collaborative housing offers
-        if (!lt || !RELEVANT_TYPES.has(lt)) return false;
-        // Hide low-scoring evaluated listings (score < 15)
-        if (i.evaluation && i.evaluation.overall_score < 15) return false;
-        return true;
-      });
-    }
+    // Quality filter: always on — only relevant, evaluated listings
+    result = result.filter((i) => {
+      const lt = i.listing.listing_type;
+      if (!lt || !RELEVANT_TYPES.has(lt)) return false;
+      if (!i.evaluation) return false;
+      if (i.evaluation.overall_score < 15) return false;
+      return true;
+    });
 
     // Refinement filters
     if (isRefined) {
@@ -354,6 +433,7 @@ export function Dashboard({
       result = result.filter(
         (i) =>
           i.listing.title.toLowerCase().includes(query) ||
+          (i.evaluation?.ai_title && i.evaluation.ai_title.toLowerCase().includes(query)) ||
           i.listing.description.toLowerCase().includes(query) ||
           (i.listing.location && i.listing.location.toLowerCase().includes(query)) ||
           (i.listing.province && i.listing.province.toLowerCase().includes(query))
@@ -460,6 +540,55 @@ export function Dashboard({
         i.tags?.surface_m2 !== null && i.tags!.surface_m2 !== undefined && i.tags!.surface_m2 <= tagFilters.maxSurface!
       );
     }
+    // New tag filters
+    if (tagFilters.ageRange.length > 0) {
+      result = result.filter((i) =>
+        i.tags && tagFilters.ageRange.some((a) => i.tags!.age_range.includes(a))
+      );
+    }
+    if (tagFilters.familyTypes.length > 0) {
+      result = result.filter((i) =>
+        i.tags && tagFilters.familyTypes.some((f) => i.tags!.family_types.includes(f))
+      );
+    }
+    if (tagFilters.minGroupSize !== null) {
+      result = result.filter((i) =>
+        i.tags?.group_size != null && i.tags!.group_size >= tagFilters.minGroupSize!
+      );
+    }
+    if (tagFilters.maxGroupSize !== null) {
+      result = result.filter((i) =>
+        i.tags?.group_size != null && i.tags!.group_size <= tagFilters.maxGroupSize!
+      );
+    }
+    if (tagFilters.petDetails.length > 0) {
+      result = result.filter((i) =>
+        i.tags && tagFilters.petDetails.some((p) => i.tags!.pet_details.includes(p))
+      );
+    }
+    if (tagFilters.furnished !== null) {
+      result = result.filter((i) => i.tags?.furnished === tagFilters.furnished);
+    }
+    if (tagFilters.accessiblePmr !== null) {
+      result = result.filter((i) => i.tags?.accessible_pmr === tagFilters.accessiblePmr);
+    }
+    if (tagFilters.governance.length > 0) {
+      result = result.filter((i) =>
+        i.tags?.governance && tagFilters.governance.includes(i.tags.governance)
+      );
+    }
+    if (tagFilters.nearNature !== null) {
+      result = result.filter((i) => i.tags?.near_nature === tagFilters.nearNature);
+    }
+    if (tagFilters.nearTransport !== null) {
+      result = result.filter((i) => i.tags?.near_transport === tagFilters.nearTransport);
+    }
+    if (tagFilters.availabilityStatus.length > 0) {
+      result = result.filter((i) => {
+        const status = i.evaluation?.availability_status ?? "unknown";
+        return tagFilters.availabilityStatus.includes(status);
+      });
+    }
 
     // Sort
     result.sort((a, b) => {
@@ -472,9 +601,6 @@ export function Dashboard({
           : (b.evaluation?.overall_score ?? -1);
         return sb - sa;
       }
-      if (sort === "date") {
-        return (b.listing.date_scraped || "").localeCompare(a.listing.date_scraped || "");
-      }
       if (sort === "price") {
         return (a.listing.price_amount ?? Infinity) - (b.listing.price_amount ?? Infinity);
       }
@@ -485,7 +611,7 @@ export function Dashboard({
     });
 
     return result;
-  }, [items, filter, sort, sourceFilter, qualityMode, isRefined, adjustedScores, filters, uiFilters, tagFilters, searchText, distances]);
+  }, [items, filter, sort, sourceFilter, RELEVANT_TYPES, isRefined, adjustedScores, filters, uiFilters, tagFilters, searchText, distances]);
 
   const handleStatusChange = (id: string, newStatus: ListingStatus) => {
     const prevStatus = items.find((i) => i.listing.id === id)?.status;
@@ -555,57 +681,10 @@ export function Dashboard({
         setTagFilters(result.tagFilters);
         setQuestionnaireFilterActive(true);
         setQuestionnaireSummary(result.summary);
-        saveRefinementState(result.weights, result.filters, []);
+        saveRefinementState(result.weights, result.filters);
       }
     }
   }, [questionnaireState, saveRefinementState]);
-
-  // Refinement handlers
-  const handleRefine = (
-    newWeights: RefinementWeights,
-    newFilters: RefinementFilters,
-    entry: RefinementEntry
-  ) => {
-    setWeights(newWeights);
-    setFilters(newFilters);
-    const newHistory = [...history, entry];
-    setHistory(newHistory);
-    saveRefinementState(newWeights, newFilters, newHistory);
-  };
-
-  const handleUndo = () => {
-    if (history.length === 0) return;
-    const lastEntry = history[history.length - 1];
-    const newHistory = history.slice(0, -1);
-    setWeights(lastEntry.weightsBefore);
-    setFilters(lastEntry.filtersBefore);
-    setHistory(newHistory);
-    saveRefinementState(lastEntry.weightsBefore, lastEntry.filtersBefore, newHistory);
-  };
-
-  const handleReset = () => {
-    // Reset to questionnaire baseline if active, otherwise to defaults
-    if (questionnaireState?.completedAt) {
-      const result = mapQuestionnaireToFilters(questionnaireState.answers);
-      setWeights(result.weights);
-      setFilters(result.filters);
-      setTagFilters(result.tagFilters);
-      setHistory([]);
-      saveRefinementState(result.weights, result.filters, []);
-    } else {
-      setWeights({ ...DEFAULT_WEIGHTS });
-      setFilters({ ...DEFAULT_FILTERS });
-      setTagFilters({ ...DEFAULT_TAG_FILTERS });
-      setHistory([]);
-      localStorage.removeItem(REFINEMENT_STORAGE_KEY);
-    }
-  };
-
-  // Check if a listing is new since last visit
-  const isListingNew = (item: ListingWithEval): boolean => {
-    if (!lastVisitDate) return false;
-    return item.listing.date_scraped > lastVisitDate;
-  };
 
   // Preview navigation
   const navigatePreview = (direction: "prev" | "next") => {
@@ -626,10 +705,20 @@ export function Dashboard({
 
   return (
     <div>
-      {/* Questionnaire banner */}
+      {/* Questionnaire banner (unified: match count + profile summary) */}
       <QuestionnaireBanner
         state={questionnaireState}
         matchCount={questionnaireFilterActive ? filtered.length : undefined}
+        questionnaireSummary={questionnaireFilterActive ? questionnaireSummary : undefined}
+        onStartVoice={() => setShowVoiceModal(true)}
+        onClearFilters={questionnaireFilterActive ? () => {
+          setQuestionnaireFilterActive(false);
+          setQuestionnaireSummary([]);
+          setWeights({ ...DEFAULT_WEIGHTS });
+          setFilters({ ...DEFAULT_FILTERS });
+          setTagFilters({ ...DEFAULT_TAG_FILTERS });
+          localStorage.removeItem(REFINEMENT_STORAGE_KEY);
+        } : undefined}
         onReset={() => {
           // Clear questionnaire from localStorage
           localStorage.removeItem(QUESTIONNAIRE_STORAGE_KEY);
@@ -640,7 +729,6 @@ export function Dashboard({
           setWeights({ ...DEFAULT_WEIGHTS });
           setFilters({ ...DEFAULT_FILTERS });
           setTagFilters({ ...DEFAULT_TAG_FILTERS });
-          setHistory([]);
           localStorage.removeItem(REFINEMENT_STORAGE_KEY);
         }}
       />
@@ -652,54 +740,11 @@ export function Dashboard({
             {newCount} nouvelle{newCount > 1 ? "s" : ""} annonce{newCount > 1 ? "s" : ""} depuis ta derniere visite !
           </span>
           <button
-            onClick={() => { setSort("date"); setNewCount(0); }}
+            onClick={() => { setNewCount(0); }}
             className="text-sm px-3 py-1 bg-emerald-600 text-white rounded-md hover:bg-emerald-700"
           >
             Voir
           </button>
-        </div>
-      )}
-
-      {/* Questionnaire filter indicator */}
-      {questionnaireFilterActive && questionnaireSummary.length > 0 && (
-        <div className="mb-4 px-4 py-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg print:hidden">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <svg className="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              <span className="text-sm font-medium text-violet-700 dark:text-violet-300">Filtrage actif</span>
-              <div className="flex flex-wrap gap-1.5">
-                {questionnaireSummary.map((s, i) => (
-                  <span key={i} className="text-xs px-2 py-0.5 bg-violet-100 dark:bg-violet-800/40 text-violet-700 dark:text-violet-300 rounded-full">
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <a
-                href="/questionnaire"
-                className="text-xs px-2.5 py-1 text-violet-700 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-800/30 rounded-md transition-colors font-medium"
-              >
-                Modifier
-              </a>
-              <button
-                onClick={() => {
-                  setQuestionnaireFilterActive(false);
-                  setQuestionnaireSummary([]);
-                  setWeights({ ...DEFAULT_WEIGHTS });
-                  setFilters({ ...DEFAULT_FILTERS });
-                  setTagFilters({ ...DEFAULT_TAG_FILTERS });
-                  setHistory([]);
-                  localStorage.removeItem(REFINEMENT_STORAGE_KEY);
-                }}
-                className="text-xs px-2.5 py-1 text-violet-500 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-800/30 rounded-md transition-colors"
-              >
-                Tout voir
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
@@ -791,38 +836,116 @@ export function Dashboard({
 
           <div className="w-px h-5 bg-[var(--border-color)] shrink-0" />
 
-          {/* Sort */}
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortType)}
-            className="px-3 py-1.5 border border-[var(--input-border)] rounded-lg text-sm bg-[var(--input-bg)] text-[var(--foreground)] shrink-0"
-          >
-            <option value="score">{history.length > 0 ? "Score paufine" : questionnaireFilterActive ? "Score personnalise" : "Score"}</option>
-            <option value="date">Date</option>
-            <option value="price">Prix</option>
-            <option value="distance">Distance (Bruxelles)</option>
-          </select>
-
-          {sources.length > 1 && (
-            <select
-              value={sourceFilter}
-              onChange={(e) => setSourceFilter(e.target.value)}
-              className="px-3 py-1.5 border border-[var(--input-border)] rounded-lg text-sm bg-[var(--input-bg)] text-[var(--foreground)] shrink-0"
+          {/* Sort dropdown */}
+          <div ref={sortRef} className="relative shrink-0">
+            <button
+              onClick={() => { setSortOpen(!sortOpen); setSourceOpen(false); }}
+              className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+                sortOpen
+                  ? "border-[var(--primary)] bg-[var(--primary)]/5"
+                  : "border-[var(--input-border)] bg-[var(--input-bg)] hover:border-[var(--primary)]/50"
+              }`}
             >
-              <option value="all">Toutes sources</option>
-              {sources.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
+              <svg className="w-3.5 h-3.5 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+              </svg>
+              <span className="text-[var(--muted)]">Trier</span>
+              <span className="font-medium text-[var(--foreground)]">{SORT_LABELS[sort]}</span>
+              <svg className={`w-3 h-3 text-[var(--muted)] transition-transform ${sortOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {sortOpen && (
+              <div className="absolute top-full mt-1.5 left-0 min-w-[220px] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden z-40 animate-fadeIn">
+                {SORT_OPTIONS.map(({ value, label, icon }) => (
+                  <button
+                    key={value}
+                    onClick={() => { setSort(value); setSortOpen(false); }}
+                    className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
+                      sort === value
+                        ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
+                        : "text-[var(--foreground)] hover:bg-[var(--surface)]"
+                    }`}
+                  >
+                    <span className="text-base">{icon}</span>
+                    <span className="flex-1">{label}</span>
+                    {sort === value && (
+                      <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Source dropdown */}
+          {sources.length > 1 && (
+            <div ref={sourceRef} className="relative shrink-0">
+              <button
+                onClick={() => { setSourceOpen(!sourceOpen); setSortOpen(false); }}
+                className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+                  sourceOpen
+                    ? "border-[var(--primary)] bg-[var(--primary)]/5"
+                    : "border-[var(--input-border)] bg-[var(--input-bg)] hover:border-[var(--primary)]/50"
+                }`}
+              >
+                <span className="text-[var(--muted)]">Source</span>
+                <span className="font-medium text-[var(--foreground)]">
+                  {sourceFilter === "all" ? "Toutes" : sourceFilter}
+                </span>
+                <svg className={`w-3 h-3 text-[var(--muted)] transition-transform ${sourceOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {sourceOpen && (
+                <div className="absolute top-full mt-1.5 left-0 min-w-[200px] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden z-40 animate-fadeIn">
+                  <button
+                    onClick={() => { setSourceFilter("all"); setSourceOpen(false); }}
+                    className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
+                      sourceFilter === "all"
+                        ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
+                        : "text-[var(--foreground)] hover:bg-[var(--surface)]"
+                    }`}
+                  >
+                    <span className="flex-1">Toutes sources</span>
+                    {sourceFilter === "all" && (
+                      <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                  {sources.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => { setSourceFilter(s); setSourceOpen(false); }}
+                      className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
+                        sourceFilter === s
+                          ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
+                          : "text-[var(--foreground)] hover:bg-[var(--surface)]"
+                      }`}
+                    >
+                      <span className="flex-1">{s}</span>
+                      {sourceFilter === s && (
+                        <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Filter toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-1 px-2 py-1 border rounded-md text-xs transition-colors shrink-0 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-sm transition-colors shrink-0 ${
               showFilters || activeFilterCount > 0
-                ? "border-[var(--primary)] text-[var(--primary)] bg-[var(--primary)]/10"
-                : "border-[var(--border-color)] text-[var(--muted)] hover:bg-[var(--surface)]"
+                ? "border-[var(--primary)] text-[var(--primary)] bg-[var(--primary)]/5"
+                : "border-[var(--input-border)] text-[var(--muted)] hover:border-[var(--primary)]/50 bg-[var(--input-bg)]"
             }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -836,42 +959,6 @@ export function Dashboard({
             )}
           </button>
 
-          {/* Paufini toggle */}
-          <button
-            onClick={() => setShowRefine(!showRefine)}
-            className={`flex items-center gap-1 px-2 py-1 border rounded-md text-xs transition-colors shrink-0 ${
-              showRefine || isRefined
-                ? "border-amber-500 text-amber-700 bg-amber-50"
-                : "border-[var(--border-color)] text-[var(--muted)] hover:bg-[var(--surface)]"
-            }`}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Paufiner
-            {isRefined && (
-              <span className="bg-amber-600 text-white text-[10px] px-1 py-0.5 rounded-full min-w-[16px] text-center leading-none">
-                {history.length || "P"}
-              </span>
-            )}
-          </button>
-
-          {/* Quality mode toggle */}
-          <button
-            onClick={() => setQualityMode(!qualityMode)}
-            className={`flex items-center gap-1 px-2 py-1 border rounded-md text-xs transition-colors shrink-0 ${
-              qualityMode
-                ? "border-green-500 text-green-700 bg-green-50"
-                : "border-[var(--border-color)] text-[var(--muted)] hover:bg-[var(--surface)]"
-            }`}
-            title={qualityMode ? "Mode qualite actif : masque les annonces peu pertinentes" : "Afficher toutes les annonces"}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Qualite
-          </button>
-
           {/* Result count */}
           <span className="text-sm text-[var(--muted-light)] ml-auto shrink-0">
             {filtered.length} resultat{filtered.length !== 1 ? "s" : ""}
@@ -879,49 +966,21 @@ export function Dashboard({
         </div>
       </div>
 
-      {/* Collapsible panels */}
-      <div className="mt-3 print:hidden">
-        {showRefine && (
-          <RefineSearch
-            weights={weights}
-            filters={filters}
-            history={history}
-            onRefine={handleRefine}
-            onUndo={handleUndo}
-            onReset={handleReset}
-          />
-        )}
-
-        {showFilters && (
-          <FilterPanel
-            filters={uiFilters}
-            onChange={setUiFilters}
-            onReset={() => { setUiFilters({ ...DEFAULT_UI_FILTERS }); setTagFilters({ ...DEFAULT_TAG_FILTERS }); }}
-            availableProvinces={availableProvinces}
-            availableListingTypes={availableListingTypes}
-            priceRange={priceRange}
-          >
-            <TagFilterPanel
-              filters={tagFilters}
-              onChange={setTagFilters}
-              availableTags={availableTags}
-            />
-          </FilterPanel>
-        )}
-      </div>
-
-      {/* Refined indicator (when panel is closed and manual refinements exist) */}
-      {history.length > 0 && !showRefine && (
-        <div className="mt-2 flex items-center gap-2 text-xs text-amber-700 print:hidden">
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          Classement paufine actif ({history.length} ajustement{history.length > 1 ? "s" : ""})
-          <button onClick={() => setShowRefine(true)} className="underline hover:text-amber-900">
-            Modifier
-          </button>
-        </div>
-      )}
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        uiFilters={uiFilters}
+        onUiFiltersChange={setUiFilters}
+        availableProvinces={availableProvinces}
+        availableListingTypes={availableListingTypes}
+        priceRange={priceRange}
+        tagFilters={tagFilters}
+        onTagFiltersChange={setTagFilters}
+        availableTags={availableTags}
+        resultCount={filtered.length}
+        activeFilterCount={activeFilterCount}
+      />
 
       {/* Compare floating button */}
       {compareIds.length > 0 && (
@@ -981,7 +1040,6 @@ export function Dashboard({
                   adjustedScore={adjustedScores.get(item.listing.id)}
                   isHighlighted={hoveredListingId === item.listing.id}
                   isSelected={compareIds.includes(item.listing.id)}
-                  isNew={isListingNew(item)}
                   distance={distances.get(item.listing.id) ?? null}
                 />
               </div>
@@ -1026,6 +1084,21 @@ export function Dashboard({
           currentIndex={previewIndex}
           totalCount={filtered.length}
           adjustedScore={adjustedScores.get(previewItem.listing.id)}
+        />
+      )}
+
+      {/* Voice questionnaire modal */}
+      {showVoiceModal && (
+        <VoiceQuestionnaire
+          onClose={() => setShowVoiceModal(false)}
+          onComplete={() => {
+            setShowVoiceModal(false);
+            // Re-read questionnaire state from localStorage
+            const saved = localStorage.getItem(QUESTIONNAIRE_STORAGE_KEY);
+            if (saved) {
+              setQuestionnaireState(JSON.parse(saved));
+            }
+          }}
         />
       )}
 

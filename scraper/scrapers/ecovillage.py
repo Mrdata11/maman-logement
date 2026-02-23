@@ -33,7 +33,7 @@ class EcovillageScraper(BaseScraper):
         for link in soup.find_all("a", href=True):
             href = link["href"]
             # Look for links to individual ecovillage pages
-            if "ecovillage.org" in href and "/project/" in href:
+            if "ecovillage.org" in href and "/ecovillage/" in href:
                 if href not in ecovillage_links:
                     ecovillage_links.append(href)
 

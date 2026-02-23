@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   ListingWithEval,
@@ -341,7 +341,7 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
                     href={`/listing/${item.listing.id}`}
                     className="text-lg font-semibold text-[var(--foreground)] hover:text-pink-600 line-clamp-2 transition-colors"
                   >
-                    {item.listing.title}
+                    {item.evaluation?.ai_title || item.listing.title}
                   </Link>
 
                   {/* Location */}
@@ -361,7 +361,7 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
                   {/* AI Summary */}
                   {item.evaluation && (
                     <p className="mt-2 text-sm text-[var(--muted)] line-clamp-2">
-                      {item.evaluation.match_summary}
+                      {item.evaluation.ai_description || item.evaluation.match_summary}
                     </p>
                   )}
 

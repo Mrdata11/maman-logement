@@ -330,6 +330,23 @@ body {
   animation: slideUp 0.25s ease-out;
 }
 
+/* ---- Modal scale in ---- */
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-modalIn {
+  animation: modalIn 0.2s ease-out;
+}
+
 /* ---- Questionnaire step transitions ---- */
 
 @keyframes stepForward {
@@ -447,6 +464,18 @@ body {
 
 .favorites-tooltip-enter {
   animation: favorites-tooltip-enter 0.2s ease-out forwards, favorites-tooltip-exit 0.3s ease-in 1.8s forwards;
+}
+
+/* ---- Voice recording pulse ---- */
+
+@keyframes recording-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-recording-pulse {
+  animation: recording-pulse 1.5s ease-in-out infinite;
 }
 
 /* ---- Hide scrollbar ---- */

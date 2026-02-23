@@ -39,6 +39,8 @@ export interface Evaluation {
   concerns: string[];
   availability_status?: "likely_available" | "possibly_expired" | "unknown";
   data_quality_score?: number;
+  ai_title?: string;
+  ai_description?: string;
   date_evaluated: string;
 }
 
@@ -418,6 +420,23 @@ export interface UITagFilters {
   minBedrooms: number | null;
   minSurface: number | null;
   maxSurface: number | null;
+  // Community composition
+  ageRange: string[];
+  familyTypes: string[];
+  minGroupSize: number | null;
+  maxGroupSize: number | null;
+  // Pet details
+  petDetails: string[];
+  // Housing features
+  furnished: boolean | null;
+  accessiblePmr: boolean | null;
+  // Governance
+  governance: string[];
+  // Setting / proximity
+  nearNature: boolean | null;
+  nearTransport: boolean | null;
+  // Availability (from evaluation)
+  availabilityStatus: string[];
 }
 
 export const DEFAULT_TAG_FILTERS: UITagFilters = {
@@ -433,4 +452,165 @@ export const DEFAULT_TAG_FILTERS: UITagFilters = {
   minBedrooms: null,
   minSurface: null,
   maxSurface: null,
+  ageRange: [],
+  familyTypes: [],
+  minGroupSize: null,
+  maxGroupSize: null,
+  petDetails: [],
+  furnished: null,
+  accessiblePmr: null,
+  governance: [],
+  nearNature: null,
+  nearTransport: null,
+  availabilityStatus: [],
 };
+
+// === Apartment types (Brussels apartment search) ===
+
+export interface ApartmentListing {
+  id: string;
+  source: string;
+  source_url: string;
+  title: string;
+  description: string;
+  commune: string | null;
+  postal_code: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  price_monthly: number | null;
+  charges_monthly: number | null;
+  charges_included: boolean | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  surface_m2: number | null;
+  floor: number | null;
+  total_floors: number | null;
+  has_elevator: boolean | null;
+  peb_rating: string | null;
+  peb_value: number | null;
+  furnished: boolean | null;
+  has_balcony: boolean | null;
+  has_terrace: boolean | null;
+  has_garden: boolean | null;
+  has_parking: boolean | null;
+  parking_count: number | null;
+  has_cellar: boolean | null;
+  pets_allowed: boolean | null;
+  available_from: string | null;
+  date_published: string | null;
+  date_scraped: string;
+  images: string[];
+  agency_name: string | null;
+  agency_phone: string | null;
+  immoweb_id: number | null;
+}
+
+export interface ApartmentCriteriaScores {
+  price_budget: number;
+  bedroom_count: number;
+  proximity_ixelles: number;
+  surface_area: number;
+  condition_energy: number;
+  amenities: number;
+  transport_access: number;
+  value_for_money: number;
+}
+
+export interface ApartmentEvaluation {
+  listing_id: string;
+  overall_score: number;
+  match_summary: string;
+  criteria_scores: ApartmentCriteriaScores;
+  highlights: string[];
+  concerns: string[];
+  date_evaluated: string;
+}
+
+export interface ApartmentWithEval {
+  listing: ApartmentListing;
+  evaluation: ApartmentEvaluation | null;
+  status: ListingStatus;
+  notes: string;
+}
+
+export interface ApartmentFilterState {
+  searchText: string;
+  communes: string[];
+  priceMin: number | null;
+  priceMax: number | null;
+  bedroomsMin: number | null;
+  bathroomsMin: number | null;
+  surfaceMin: number | null;
+  surfaceMax: number | null;
+  pebRatings: string[];
+  furnished: boolean | null;
+  hasParking: boolean | null;
+  hasBalconyOrTerrace: boolean | null;
+  hasGarden: boolean | null;
+  petsAllowed: boolean | null;
+  hasElevator: boolean | null;
+  scoreMin: number | null;
+}
+
+export const DEFAULT_APARTMENT_FILTERS: ApartmentFilterState = {
+  searchText: "",
+  communes: [],
+  priceMin: null,
+  priceMax: null,
+  bedroomsMin: 2,
+  bathroomsMin: null,
+  surfaceMin: null,
+  surfaceMax: null,
+  pebRatings: [],
+  furnished: null,
+  hasParking: null,
+  hasBalconyOrTerrace: null,
+  hasGarden: null,
+  petsAllowed: null,
+  hasElevator: null,
+  scoreMin: null,
+};
+
+export const APARTMENT_CRITERIA_LABELS: Record<keyof ApartmentCriteriaScores, string> = {
+  price_budget: "Prix (budget 800-1300\u20ac)",
+  bedroom_count: "Nombre de chambres (min 2)",
+  proximity_ixelles: "Proximit\u00e9 d'Ixelles",
+  surface_area: "Surface habitable",
+  condition_energy: "\u00c9tat & PEB",
+  amenities: "\u00c9quipements (balcon, parking...)",
+  transport_access: "Transports en commun",
+  value_for_money: "Rapport qualit\u00e9-prix",
+};
+
+export const PEB_RATING_COLORS: Record<string, string> = {
+  A: "bg-green-600 text-white",
+  B: "bg-green-500 text-white",
+  C: "bg-yellow-400 text-gray-900",
+  D: "bg-orange-400 text-white",
+  E: "bg-orange-600 text-white",
+  F: "bg-red-500 text-white",
+  G: "bg-red-700 text-white",
+};
+
+export const BRUSSELS_COMMUNES = [
+  "Anderlecht",
+  "Auderghem",
+  "Berchem-Sainte-Agathe",
+  "Bruxelles",
+  "Etterbeek",
+  "Evere",
+  "Forest",
+  "Ganshoren",
+  "Ixelles",
+  "Jette",
+  "Koekelberg",
+  "Molenbeek-Saint-Jean",
+  "Saint-Gilles",
+  "Saint-Josse-ten-Noode",
+  "Schaerbeek",
+  "Uccle",
+  "Watermael-Boitsfort",
+  "Woluwe-Saint-Lambert",
+  "Woluwe-Saint-Pierre",
+];

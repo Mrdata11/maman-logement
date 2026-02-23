@@ -1,0 +1,5164 @@
+[
+  {
+    "listing_id": "49a19d1914e1",
+    "group_size": 2,
+    "age_range": [],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 2,
+    "unit_type": "apartment",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": false,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:44:32.347969"
+  },
+  {
+    "listing_id": "219a731f448e",
+    "group_size": 3,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "artistic",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": false,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:44:28.335958"
+  },
+  {
+    "listing_id": "706109235736",
+    "group_size": 3,
+    "age_range": [
+      "families",
+      "young_adults"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs",
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room",
+      "garden"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": false,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:44:21.222912"
+  },
+  {
+    "listing_id": "7198ce1bcd88",
+    "group_size": 2,
+    "age_range": [
+      "families",
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": 70,
+    "num_bedrooms": 1,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "laundry"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "spiritual",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": "consensus",
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:44:18.135818"
+  },
+  {
+    "listing_id": "0641c53dc2e0",
+    "group_size": 5,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "spiritual",
+      "artistic",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:44:14.723853"
+  },
+  {
+    "listing_id": "5d7c867fa455",
+    "group_size": 5,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "spiritual",
+      "artistic",
+      "solidarity",
+      "meditation"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:44:11.584723"
+  },
+  {
+    "listing_id": "d214d781fd7d",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples",
+      "families",
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [
+      "farm_animals"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 7,
+    "unit_type": "apartment",
+    "furnished": true,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "spiritual",
+      "solidarity",
+      "meditation"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:44:01.578289"
+  },
+  {
+    "listing_id": "6ef0c0e153e4",
+    "group_size": 2,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry",
+      "farm_animals"
+    ],
+    "surface_m2": 180,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "artistic",
+      "self_sufficiency",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:43:58.320347"
+  },
+  {
+    "listing_id": "ec5b5c51a84a",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "couples",
+      "families",
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [
+      "farm_animals"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 14,
+    "unit_type": "apartment",
+    "furnished": true,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "spiritual",
+      "solidarity",
+      "self_sufficiency",
+      "meditation"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:54.412643"
+  },
+  {
+    "listing_id": "6c94bfbdb024",
+    "group_size": 14,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 100,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "common_room"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:43:51.191829"
+  },
+  {
+    "listing_id": "42de1b6a4d2a",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 130,
+    "num_bedrooms": 2,
+    "unit_type": "house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "laundry"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:48.264366"
+  },
+  {
+    "listing_id": "45fcb449d787",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "habitat_groupe",
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 122,
+    "num_bedrooms": 4,
+    "unit_type": "apartment",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "parking",
+      "garden"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:44.653793"
+  },
+  {
+    "listing_id": "50abbb873c8f",
+    "group_size": 3,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry",
+      "farm_animals"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "solidarity",
+      "artistic",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": "consensus",
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:41.785808"
+  },
+  {
+    "listing_id": "ea302ad0e009",
+    "group_size": 3,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry",
+      "farm_animals"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "solidarity",
+      "artistic",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": "consensus",
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:37.062965"
+  },
+  {
+    "listing_id": "978e6e9e8809",
+    "group_size": 3,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs",
+      "poultry"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "laundry",
+      "kitchen"
+    ],
+    "values": [
+      "ecological"
+    ],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:33.614093"
+  },
+  {
+    "listing_id": "36e66294e0b7",
+    "group_size": null,
+    "age_range": [],
+    "has_children": false,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "workshop"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:30.063144"
+  },
+  {
+    "listing_id": "7211a1cad7ec",
+    "group_size": 3,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 2,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "laundry",
+      "parking"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:27.366997"
+  },
+  {
+    "listing_id": "532d2d48ad84",
+    "group_size": 4,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs"
+    ],
+    "surface_m2": 200,
+    "num_bedrooms": 2,
+    "unit_type": "house",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "artistic",
+      "solidarity",
+      "meditation"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": true,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:23.919835"
+  },
+  {
+    "listing_id": "19c57ae40a93",
+    "group_size": 2,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "vegetable_garden"
+    ],
+    "values": [
+      "ecological",
+      "spiritual",
+      "meditation",
+      "organic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:20.984877"
+  },
+  {
+    "listing_id": "ee1ccd4bf847",
+    "group_size": 2,
+    "age_range": [
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": null,
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:43:17.920183"
+  },
+  {
+    "listing_id": "7d9a17be116e",
+    "group_size": 6,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "spiritual",
+      "artistic",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": "consensus",
+    "environment": "rural",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:43:15.120320"
+  },
+  {
+    "listing_id": "e76d7798590b",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:43:12.392132"
+  },
+  {
+    "listing_id": "b6a994b826bb",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples",
+      "families",
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 14,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "spiritual",
+      "solidarity",
+      "self_sufficiency",
+      "meditation"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:43:09.378128"
+  },
+  {
+    "listing_id": "3cdff6df2653",
+    "group_size": 2,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation",
+      "cooperative"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "common_room",
+      "workshop"
+    ],
+    "values": [
+      "artistic",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": "consensus",
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:43:05.542383"
+  },
+  {
+    "listing_id": "85e01daf9507",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "habitat_groupe",
+      "cooperative"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:43:00.371424"
+  },
+  {
+    "listing_id": "f9e5a55604df",
+    "group_size": null,
+    "age_range": [
+      "intergenerational",
+      "seniors",
+      "families",
+      "young_adults"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples",
+      "families",
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:42:57.851386"
+  },
+  {
+    "listing_id": "8086ea9ea600",
+    "group_size": 3,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "habitat_leger",
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "tiny_house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "laundry"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:42:55.126105"
+  },
+  {
+    "listing_id": "e04c04ac0ed6",
+    "group_size": 6,
+    "age_range": [
+      "intergenerational",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "ecolieu",
+      "colocation",
+      "habitat_groupe"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": 300,
+    "num_bedrooms": 6,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:51.258042"
+  },
+  {
+    "listing_id": "f1ce6781efb0",
+    "group_size": 19,
+    "age_range": [
+      "intergenerational",
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "intergenerational"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:42:46.162373"
+  },
+  {
+    "listing_id": "73281121be65",
+    "group_size": 5,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "common_room"
+    ],
+    "values": [
+      "solidarity",
+      "artistic",
+      "self_sufficiency",
+      "ecological"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:42.798246"
+  },
+  {
+    "listing_id": "b258f903f5d6",
+    "group_size": null,
+    "age_range": [
+      "intergenerational",
+      "seniors",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "couples",
+      "families",
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "intergenerational",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "common_room"
+    ],
+    "values": [
+      "solidarity",
+      "intergenerational"
+    ],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": false,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:39.967376"
+  },
+  {
+    "listing_id": "d820bc88d550",
+    "group_size": null,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats",
+      "poultry"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "self_sufficiency",
+      "solidarity"
+    ],
+    "shared_meals": "weekly",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:34.822837"
+  },
+  {
+    "listing_id": "4dcf8cc2b47d",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation",
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "community",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:31.522576"
+  },
+  {
+    "listing_id": "c68bd9b9a345",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 38,
+    "num_bedrooms": 1,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden",
+      "common_room",
+      "laundry"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:28.457521"
+  },
+  {
+    "listing_id": "be9b22b6cf17",
+    "group_size": 4,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 300,
+    "num_bedrooms": 4,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "ecological"
+    ],
+    "shared_meals": null,
+    "has_charter": true,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:25.650373"
+  },
+  {
+    "listing_id": "cd53ee0d05e9",
+    "group_size": 11,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 63,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "workshop",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:22.787135"
+  },
+  {
+    "listing_id": "e764470c3cfc",
+    "group_size": 3,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 20,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room",
+      "laundry",
+      "parking"
+    ],
+    "values": [
+      "artistic",
+      "cultural"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:19.533771"
+  },
+  {
+    "listing_id": "4c9df165045e",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 52,
+    "num_bedrooms": 1,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "common_room",
+      "kitchen",
+      "laundry",
+      "garden"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:16.133950"
+  },
+  {
+    "listing_id": "270cda348320",
+    "group_size": null,
+    "age_range": [],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 17,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:12.595572"
+  },
+  {
+    "listing_id": "ffea46dc0cec",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "parking"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:09.663370"
+  },
+  {
+    "listing_id": "e481030fa482",
+    "group_size": null,
+    "age_range": [],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "habitat_leger"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "tiny_house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "bathroom"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:06.943849"
+  },
+  {
+    "listing_id": "1aa1bb5af1d2",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 4,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room",
+      "laundry",
+      "coworking",
+      "garden",
+      "parking"
+    ],
+    "values": [
+      "solidarity",
+      "community_creation"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": "consensus",
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:42:03.549843"
+  },
+  {
+    "listing_id": "5a98bbddc3b9",
+    "group_size": 9,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop",
+      "coworking",
+      "parking"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:59.898445"
+  },
+  {
+    "listing_id": "dd5394480540",
+    "group_size": 2,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 2,
+    "unit_type": "apartment",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room"
+    ],
+    "values": [],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:57.210568"
+  },
+  {
+    "listing_id": "f2c8557c46b9",
+    "group_size": 2,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats",
+      "poultry"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 2,
+    "unit_type": "house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:54.637877"
+  },
+  {
+    "listing_id": "3d85c418aad5",
+    "group_size": 4,
+    "age_range": [
+      "intergenerational",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "common_room"
+    ],
+    "values": [
+      "ecological",
+      "artistic",
+      "self_sufficiency",
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:51.256257"
+  },
+  {
+    "listing_id": "93a7361e867f",
+    "group_size": 7,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples",
+      "families",
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "intergenerational",
+      "ecolieu"
+    ],
+    "pets_allowed": null,
+    "pet_details": [
+      "poultry",
+      "farm_animals"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "apartment",
+    "furnished": true,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "common_room",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "spiritual",
+      "solidarity",
+      "self_sufficiency",
+      "meditation"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:48.107412"
+  },
+  {
+    "listing_id": "849c0a774d87",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 4,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "coworking",
+      "parking"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:45.257066"
+  },
+  {
+    "listing_id": "e79fa2f1d051",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "retirees",
+      "singles"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden"
+    ],
+    "values": [
+      "ecological",
+      "spiritual",
+      "meditation",
+      "organic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:42.463776"
+  },
+  {
+    "listing_id": "0bb4731dfff8",
+    "group_size": 5,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 5,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "parking"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:35.860388"
+  },
+  {
+    "listing_id": "a76d2e97346d",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "artistic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:41:31.243339"
+  },
+  {
+    "listing_id": "2799ec467fda",
+    "group_size": 2,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats",
+      "poultry"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 2,
+    "unit_type": "house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:27.918315"
+  },
+  {
+    "listing_id": "62c70d7c0bb1",
+    "group_size": 3,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "colocation",
+      "ecolieu"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs"
+    ],
+    "surface_m2": 400,
+    "num_bedrooms": 5,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "coworking",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": false,
+    "governance": "consensus",
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:41:24.724332"
+  },
+  {
+    "listing_id": "92bf592a8160",
+    "group_size": 5,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": 15,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "artistic"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:21.720289"
+  },
+  {
+    "listing_id": "88745882af31",
+    "group_size": 2,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "spiritual",
+      "solidarity",
+      "meditation"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": false,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:18.768498"
+  },
+  {
+    "listing_id": "07c3c03f4668",
+    "group_size": 25,
+    "age_range": [
+      "intergenerational",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families",
+      "couples",
+      "singles"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 130,
+    "num_bedrooms": 4,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "solidarity",
+      "mutual_aid",
+      "conviviality"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:15.638070"
+  },
+  {
+    "listing_id": "9d7b1d91e7bf",
+    "group_size": 1,
+    "age_range": [
+      "families"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "ecolieu"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs",
+      "poultry",
+      "farm_animals"
+    ],
+    "surface_m2": 50,
+    "num_bedrooms": 1,
+    "unit_type": "studio",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden"
+    ],
+    "values": [
+      "ecological",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:41:12.405699"
+  },
+  {
+    "listing_id": "4eb172f3c2a7",
+    "group_size": 3,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry",
+      "farm_animals"
+    ],
+    "surface_m2": 180,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "artistic",
+      "self_sufficiency",
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:41:09.612911"
+  },
+  {
+    "listing_id": "12e8b01c385d",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 5,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:41:05.701648"
+  },
+  {
+    "listing_id": "4081cab1a34c",
+    "group_size": 8,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": 10,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "parking"
+    ],
+    "values": [],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:41:02.360882"
+  },
+  {
+    "listing_id": "edd101d487c4",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "parking"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:40:59.542522"
+  },
+  {
+    "listing_id": "141b737318d7",
+    "group_size": 2,
+    "age_range": [],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": false,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:56.275870"
+  },
+  {
+    "listing_id": "ddc544a307e1",
+    "group_size": null,
+    "age_range": [
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [
+      "solidarity",
+      "artistic"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:40:53.348693"
+  },
+  {
+    "listing_id": "db4456de3963",
+    "group_size": 2,
+    "age_range": [
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families",
+      "singles"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden"
+    ],
+    "values": [
+      "solidarity",
+      "ecological"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:50.238555"
+  },
+  {
+    "listing_id": "2adccdc5b73b",
+    "group_size": 5,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "retirees"
+    ],
+    "project_types": [
+      "colocation",
+      "intergenerational"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry"
+    ],
+    "surface_m2": 13,
+    "num_bedrooms": 3,
+    "unit_type": "room",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "garage",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "self_sufficiency",
+      "organic",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:42.701616"
+  },
+  {
+    "listing_id": "36a81cc61ea9",
+    "group_size": 2,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "couples"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen"
+    ],
+    "values": [
+      "ecological"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": false,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:39.486867"
+  },
+  {
+    "listing_id": "c95a581b26d1",
+    "group_size": 2,
+    "age_range": [
+      "intergenerational",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [
+      "simplicity",
+      "authenticity",
+      "nature_proximity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:40:36.246086"
+  },
+  {
+    "listing_id": "09a433068416",
+    "group_size": 7,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation",
+      "habitat_leger"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "workshop",
+      "laundry",
+      "parking"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:32.542043"
+  },
+  {
+    "listing_id": "b6cdb4dc301a",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "habitat_leger",
+      "community_creation",
+      "cooperative"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 20000,
+    "num_bedrooms": null,
+    "unit_type": "other",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "workshop",
+      "common_room"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "artistic",
+      "self_sufficiency",
+      "organic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": "association",
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:40:29.678531"
+  },
+  {
+    "listing_id": "829abb9661f7",
+    "group_size": 5,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": 35,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "common_room",
+      "parking"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:26.266618"
+  },
+  {
+    "listing_id": "a2ad6a987cbc",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles",
+      "retirees"
+    ],
+    "project_types": [
+      "colocation",
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [
+      "simplicity",
+      "authenticity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:23.291686"
+  },
+  {
+    "listing_id": "a208b1d7b94c",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 12,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:40:20.408042"
+  },
+  {
+    "listing_id": "912886d2cd8b",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room",
+      "vegetable_garden"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:17.176016"
+  },
+  {
+    "listing_id": "5a96602f8d40",
+    "group_size": 3,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats",
+      "poultry"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [
+      "nature",
+      "artistic"
+    ],
+    "shared_meals": null,
+    "has_charter": true,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:14.528008"
+  },
+  {
+    "listing_id": "0344a13aa5b6",
+    "group_size": 3,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "artistic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:11.652400"
+  },
+  {
+    "listing_id": "69e54cf026e5",
+    "group_size": 2,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:08.790440"
+  },
+  {
+    "listing_id": "9b4abb8046af",
+    "group_size": 2,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": false,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:05.036798"
+  },
+  {
+    "listing_id": "3aa415c875be",
+    "group_size": 4,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": 40,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room",
+      "laundry",
+      "garden"
+    ],
+    "values": [],
+    "shared_meals": "occasional",
+    "has_charter": false,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": false,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:40:02.065279"
+  },
+  {
+    "listing_id": "1aa5a5793187",
+    "group_size": 10,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "ecological",
+      "spiritual",
+      "solidarity",
+      "self_sufficiency",
+      "organic"
+    ],
+    "shared_meals": "daily",
+    "has_charter": null,
+    "governance": "sociocracy",
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:39:57.315193"
+  },
+  {
+    "listing_id": "16703a850ab3",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [],
+    "pets_allowed": false,
+    "pet_details": [
+      "poultry"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:39:54.143507"
+  },
+  {
+    "listing_id": "bdd57adb8754",
+    "group_size": 8,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "studio",
+    "furnished": null,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:39:51.273770"
+  },
+  {
+    "listing_id": "3f6c819a7a0d",
+    "group_size": 3,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:39:48.443118"
+  },
+  {
+    "listing_id": "396f9115e1ce",
+    "group_size": 2,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "retirees"
+    ],
+    "project_types": [
+      "intergenerational"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 2,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:39:44.930078"
+  },
+  {
+    "listing_id": "b2b49aa52980",
+    "group_size": 2,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "couples"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "habitat_leger",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [
+      "poultry"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "other",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "solidarity",
+      "artistic",
+      "self_sufficiency",
+      "organic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:39:41.467975"
+  },
+  {
+    "listing_id": "246410a7446b",
+    "group_size": 5,
+    "age_range": [
+      "intergenerational",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 2,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "artistic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:39:38.433905"
+  },
+  {
+    "listing_id": "0babe9bccaec",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:39:35.538696"
+  },
+  {
+    "listing_id": "a38b0bbc96c3",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "farm_animals"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "self_sufficiency",
+      "spiritual",
+      "artistic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:39:32.650986"
+  },
+  {
+    "listing_id": "57ab268b43ac",
+    "group_size": 2,
+    "age_range": [
+      "families"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry"
+    ],
+    "values": [
+      "solidarity",
+      "serenity"
+    ],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:39:29.668045"
+  },
+  {
+    "listing_id": "26e2dad24ced",
+    "group_size": 7,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen"
+    ],
+    "values": [
+      "solidarity",
+      "bienveillance"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:39:26.515251"
+  },
+  {
+    "listing_id": "11e53a592e58",
+    "group_size": 2,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs"
+    ],
+    "surface_m2": 25,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen"
+    ],
+    "values": [
+      "ecological",
+      "organic",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": true,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:39:23.516794"
+  },
+  {
+    "listing_id": "638fded3d784",
+    "group_size": 5,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 5,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop",
+      "parking",
+      "play_area"
+    ],
+    "values": [
+      "artistic",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": false,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:39:20.658623"
+  },
+  {
+    "listing_id": "2fd4473f2cda",
+    "group_size": 4,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room",
+      "garden"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "artistic"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:39:16.560984"
+  },
+  {
+    "listing_id": "41fbfdb87962",
+    "group_size": 3,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry",
+      "farm_animals"
+    ],
+    "surface_m2": 180,
+    "num_bedrooms": 4,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "artistic",
+      "self_sufficiency",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:39:13.385676"
+  },
+  {
+    "listing_id": "1e97e82b3c9a",
+    "group_size": 7,
+    "age_range": [
+      "families",
+      "young_adults"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families",
+      "couples"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry",
+      "farm_animals"
+    ],
+    "surface_m2": 285,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop",
+      "parking",
+      "play_area"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "self_sufficiency",
+      "organic"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": "consensus",
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:39:09.993640"
+  },
+  {
+    "listing_id": "6b4351541369",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "retirees"
+    ],
+    "project_types": [
+      "colocation",
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room",
+      "vegetable_garden"
+    ],
+    "values": [
+      "artistic",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:39:06.319546"
+  },
+  {
+    "listing_id": "5dbb5ada4fd6",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 4,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:39:03.443947"
+  },
+  {
+    "listing_id": "e2bd48dc5b06",
+    "group_size": 6,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 6,
+    "unit_type": "house",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "parking",
+      "workshop"
+    ],
+    "values": [
+      "artistic"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:39:00.779783"
+  },
+  {
+    "listing_id": "f5b7e83d4cec",
+    "group_size": 5,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 5,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:57.765161"
+  },
+  {
+    "listing_id": "2f1ecd5789ab",
+    "group_size": 4,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 20,
+    "num_bedrooms": 4,
+    "unit_type": "house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "laundry"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:55.039994"
+  },
+  {
+    "listing_id": "a9468458639a",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples",
+      "families",
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 14,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "spiritual",
+      "permaculture"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": "sociocracy",
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:52.313347"
+  },
+  {
+    "listing_id": "420f859442b4",
+    "group_size": 2,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "families",
+      "couples"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 140,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:49.206488"
+  },
+  {
+    "listing_id": "78d35a513b45",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "common_room",
+      "park"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:46.120052"
+  },
+  {
+    "listing_id": "2ce130451e5f",
+    "group_size": 6,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "colocation",
+      "ecolieu"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:43.599583"
+  },
+  {
+    "listing_id": "c6701b2c1b36",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:38:40.624164"
+  },
+  {
+    "listing_id": "523a071d2e13",
+    "group_size": 3,
+    "age_range": [
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "kitchen",
+      "common_room",
+      "garden"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": false,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:37.239481"
+  },
+  {
+    "listing_id": "e25ce290806c",
+    "group_size": 4,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "colocation",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 240,
+    "num_bedrooms": 4,
+    "unit_type": "house",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "artistic",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:34.399894"
+  },
+  {
+    "listing_id": "8f50b0117338",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles",
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": true,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden"
+    ],
+    "values": [
+      "spiritual",
+      "organic",
+      "meditation"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:38:31.326609"
+  },
+  {
+    "listing_id": "5fbd4133a374",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [
+      "dogs",
+      "cats"
+    ],
+    "surface_m2": 50,
+    "num_bedrooms": 1,
+    "unit_type": "studio",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "laundry"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:38:28.187431"
+  },
+  {
+    "listing_id": "6405dd6b693b",
+    "group_size": 12,
+    "age_range": [
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "common_room"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": false,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:25.442162"
+  },
+  {
+    "listing_id": "0c9fc6c07256",
+    "group_size": 11,
+    "age_range": [
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "common_room"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": null,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:22.736879"
+  },
+  {
+    "listing_id": "53d72685f0b1",
+    "group_size": 4,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "colocation",
+      "ecolieu"
+    ],
+    "pets_allowed": false,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": 140,
+    "num_bedrooms": 2,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:19.963345"
+  },
+  {
+    "listing_id": "622f8c472a4c",
+    "group_size": 6,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 18,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "laundry",
+      "parking",
+      "common_room"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:16.561886"
+  },
+  {
+    "listing_id": "b531426fb20c",
+    "group_size": 5,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": 5,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "workshop",
+      "parking"
+    ],
+    "values": [
+      "artistic",
+      "ecological"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:13.169486"
+  },
+  {
+    "listing_id": "2f62e68b4c83",
+    "group_size": 4,
+    "age_range": [
+      "intergenerational",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families"
+    ],
+    "project_types": [
+      "community_creation",
+      "ecolieu",
+      "habitat_leger"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "common_room",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "solidarity",
+      "artistic",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": "consensus",
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:38:10.112102"
+  },
+  {
+    "listing_id": "a9243a881b46",
+    "group_size": 10,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "cooperative",
+      "intergenerational"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 114,
+    "num_bedrooms": 3,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": "cooperative",
+    "environment": "urban",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:38:07.038544"
+  },
+  {
+    "listing_id": "6dfc1d005fc5",
+    "group_size": 8,
+    "age_range": [
+      "intergenerational",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry"
+    ],
+    "values": [
+      "ecological",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": "consensus",
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:04.347778"
+  },
+  {
+    "listing_id": "d6699bf9b6fa",
+    "group_size": 5,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 14,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": "daily",
+    "has_charter": false,
+    "governance": "consensus",
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:38:01.361230"
+  },
+  {
+    "listing_id": "95fdb71d39ca",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs",
+      "cats"
+    ],
+    "surface_m2": 32,
+    "num_bedrooms": 1,
+    "unit_type": "room",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "bathroom",
+      "parking"
+    ],
+    "values": [
+      "ecological"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:37:57.330340"
+  },
+  {
+    "listing_id": "3f8160c8950d",
+    "group_size": 2,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "cats"
+    ],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": false,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:37:54.266031"
+  },
+  {
+    "listing_id": "51391921e3cc",
+    "group_size": null,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "habitat_groupe",
+      "intergenerational"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 1,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "vegetable_garden"
+    ],
+    "values": [
+      "ecological",
+      "organic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:37:50.755203"
+  },
+  {
+    "listing_id": "1e475fee4555",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "singles",
+      "couples"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry",
+      "horses",
+      "farm_animals"
+    ],
+    "surface_m2": 60,
+    "num_bedrooms": 2,
+    "unit_type": "house",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "laundry",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "permaculture",
+      "self_sufficiency",
+      "organic"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:37:47.998990"
+  },
+  {
+    "listing_id": "b6ed4abd117d",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles",
+      "retirees"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "common_room",
+      "laundry",
+      "kitchen"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:37:44.870279"
+  },
+  {
+    "listing_id": "92e675ed0137",
+    "group_size": 3,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "colocation",
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 3,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden"
+    ],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:37:41.981280"
+  },
+  {
+    "listing_id": "9716472cbd46",
+    "group_size": 3,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "couples",
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": 120,
+    "num_bedrooms": 4,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [
+      "ecological"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:37:39.292996"
+  },
+  {
+    "listing_id": "7a3c07451eb6",
+    "group_size": 30,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [
+      "families"
+    ],
+    "project_types": [
+      "habitat_groupe"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 3,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "common_room",
+      "laundry",
+      "parking",
+      "play_area"
+    ],
+    "values": [],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:37:36.243324"
+  },
+  {
+    "listing_id": "e7a80223e9a7",
+    "group_size": 5,
+    "age_range": [
+      "intergenerational",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families",
+      "singles"
+    ],
+    "project_types": [
+      "colocation",
+      "intergenerational",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "dogs",
+      "poultry",
+      "farm_animals"
+    ],
+    "surface_m2": 200,
+    "num_bedrooms": 4,
+    "unit_type": "house",
+    "furnished": false,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "kitchen",
+      "common_room",
+      "workshop",
+      "parking"
+    ],
+    "values": [
+      "ecological",
+      "self_sufficiency",
+      "artistic"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:37:33.421060"
+  },
+  {
+    "listing_id": "d58846fbe1b4",
+    "group_size": 3,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation"
+    ],
+    "pets_allowed": false,
+    "pet_details": [],
+    "surface_m2": 350,
+    "num_bedrooms": 1,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "parking"
+    ],
+    "values": [
+      "artistic",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": true,
+    "governance": "consensus",
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:37:29.827571"
+  },
+  {
+    "listing_id": "f8697997c62b",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "apartment",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [
+      "solidarity"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": "urban",
+    "near_nature": null,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:37:27.004052"
+  },
+  {
+    "listing_id": "aa466dacb981",
+    "group_size": null,
+    "age_range": [
+      "seniors"
+    ],
+    "has_children": false,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": true,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": null,
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [
+      "ecological",
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": null,
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:37:23.151297"
+  },
+  {
+    "listing_id": "d71302874312",
+    "group_size": null,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "ecolieu",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "tiny_house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [],
+    "values": [
+      "ecological"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": null,
+    "environment": null,
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:37:20.269235"
+  },
+  {
+    "listing_id": "199569b64b96",
+    "group_size": 3,
+    "age_range": [
+      "young_adults"
+    ],
+    "has_children": null,
+    "family_types": [
+      "singles"
+    ],
+    "project_types": [
+      "colocation",
+      "ecolieu"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 2,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room",
+      "laundry"
+    ],
+    "values": [
+      "ecological",
+      "artistic",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "suburban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:37:16.888254"
+  },
+  {
+    "listing_id": "0973ae386d5e",
+    "group_size": 3,
+    "age_range": [
+      "intergenerational"
+    ],
+    "has_children": true,
+    "family_types": [
+      "singles",
+      "families"
+    ],
+    "project_types": [
+      "ecolieu",
+      "habitat_leger"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": null,
+    "unit_type": "tiny_house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "vegetable_garden",
+      "common_room",
+      "workshop"
+    ],
+    "values": [
+      "ecological",
+      "self_sufficiency",
+      "solidarity"
+    ],
+    "shared_meals": "occasional",
+    "has_charter": null,
+    "governance": null,
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": null,
+    "date_extracted": "2026-02-23T12:37:13.851958"
+  },
+  {
+    "listing_id": "46d98e37120f",
+    "group_size": 5,
+    "age_range": [],
+    "has_children": null,
+    "family_types": [],
+    "project_types": [
+      "habitat_leger",
+      "cooperative"
+    ],
+    "pets_allowed": true,
+    "pet_details": [
+      "poultry"
+    ],
+    "surface_m2": 120,
+    "num_bedrooms": 3,
+    "unit_type": "other",
+    "furnished": true,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden"
+    ],
+    "values": [
+      "self_sufficiency",
+      "ecological"
+    ],
+    "shared_meals": null,
+    "has_charter": null,
+    "governance": "association",
+    "environment": "rural",
+    "near_nature": true,
+    "near_transport": false,
+    "date_extracted": "2026-02-23T12:37:11.001675"
+  },
+  {
+    "listing_id": "f62a3c291ad0",
+    "group_size": 6,
+    "age_range": [
+      "intergenerational",
+      "families"
+    ],
+    "has_children": true,
+    "family_types": [
+      "families",
+      "singles"
+    ],
+    "project_types": [
+      "colocation",
+      "habitat_groupe",
+      "community_creation"
+    ],
+    "pets_allowed": null,
+    "pet_details": [],
+    "surface_m2": null,
+    "num_bedrooms": 8,
+    "unit_type": "house",
+    "furnished": null,
+    "accessible_pmr": null,
+    "shared_spaces": [
+      "garden",
+      "kitchen",
+      "common_room"
+    ],
+    "values": [
+      "solidarity",
+      "self_sufficiency"
+    ],
+    "shared_meals": "weekly",
+    "has_charter": null,
+    "governance": "consensus",
+    "environment": "urban",
+    "near_nature": true,
+    "near_transport": true,
+    "date_extracted": "2026-02-23T12:37:07.655089"
+  }
+]

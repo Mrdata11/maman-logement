@@ -11,6 +11,7 @@ import {
   BELGIUM_CENTER,
   DEFAULT_ZOOM,
   getJitteredCoordinates,
+  getListingCoordinates,
 } from "@/lib/coordinates";
 
 // --- Pin prix style Airbnb ---
@@ -120,7 +121,7 @@ function createPopupContent(item: ListingWithEval): string {
             : ""
         }
       </div>
-      <div class="map-popup-title">${escapeHtml(listing.title)}</div>
+      <div class="map-popup-title">${escapeHtml(evaluation?.ai_title || listing.title)}</div>
       <div class="map-popup-meta">
         ${listing.price ? `<span class="map-popup-price">${escapeHtml(listing.price)}</span>` : ""}
         <span class="map-popup-location-text">
@@ -167,12 +168,16 @@ export default function ListingsMap({
 }: ListingsMapProps) {
   const mappableItems = useMemo(() => {
     return items
-      .filter((item) => LOCATION_COORDINATES[item.listing.location || ""])
       .map((item) => {
-        const base = LOCATION_COORDINATES[item.listing.location!]!;
+        const base = getListingCoordinates(
+          item.listing.location,
+          item.listing.province
+        );
+        if (!base) return null;
         const coords = getJitteredCoordinates(base, item.listing.id);
         return { item, coords };
-      });
+      })
+      .filter(Boolean) as { item: ListingWithEval; coords: { lat: number; lng: number } }[];
   }, [items]);
 
   const boundsCoords = useMemo(

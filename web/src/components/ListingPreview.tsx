@@ -162,7 +162,7 @@ export function ListingPreview({
               )}
             </div>
             <h2 className="text-xl font-bold text-[var(--foreground)] mb-2">
-              {listing.title}
+              {evaluation?.ai_title || listing.title}
             </h2>
             <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
               {listing.location && <span>{listing.location}</span>}
@@ -208,7 +208,7 @@ export function ListingPreview({
                 Évaluation IA
               </h3>
               <p className="text-sm text-[var(--foreground)] mb-3">
-                {evaluation.match_summary}
+                {evaluation.ai_description || evaluation.match_summary}
               </p>
 
               <div className="grid gap-1.5 mb-3">
@@ -276,8 +276,16 @@ export function ListingPreview({
             <h3 className="text-sm font-semibold text-[var(--foreground)] mb-2">
               Description
             </h3>
-            <div className="text-sm text-[var(--foreground)] whitespace-pre-wrap leading-relaxed max-h-80 overflow-y-auto">
-              {listing.description}
+            <div className="text-sm text-[var(--foreground)] leading-relaxed max-h-80 overflow-y-auto space-y-1.5">
+              {listing.description.split('\n').map((line, i) => {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed === ',') return <div key={i} className="h-0.5" />;
+                return (
+                  <p key={i}>
+                    {trimmed}
+                  </p>
+                );
+              })}
             </div>
           </div>
 

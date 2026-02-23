@@ -1,6 +1,9 @@
 import fs from "fs";
 import path from "path";
-import { Listing, Evaluation, ListingTags, ListingWithEval, ListingStatus } from "./types";
+import {
+  Listing, Evaluation, ListingTags, ListingWithEval, ListingStatus,
+  ApartmentListing, ApartmentEvaluation, ApartmentWithEval,
+} from "./types";
 
 function findDataDir(): string {
   const candidates = [
@@ -57,5 +60,58 @@ export function getListingsWithEvals(): ListingWithEval[] {
 
 export function getListingById(id: string): ListingWithEval | null {
   const all = getListingsWithEvals();
+  return all.find((item) => item.listing.id === id) || null;
+}
+
+// === Apartment data loading ===
+
+function findApartmentDataDir(): string {
+  const candidates = [
+    path.join(process.cwd(), "..", "data", "apartments"),
+    path.join(process.cwd(), "data", "apartments"),
+    path.join(process.cwd(), "public", "data", "apartments"),
+  ];
+  for (const dir of candidates) {
+    if (fs.existsSync(path.join(dir, "listings.json"))) {
+      return dir;
+    }
+  }
+  return candidates[0];
+}
+
+function readApartmentJSON<T>(filename: string, fallback: T[]): T[] {
+  const dataDir = findApartmentDataDir();
+  const filepath = path.join(dataDir, filename);
+  try {
+    const content = fs.readFileSync(filepath, "utf-8");
+    return JSON.parse(content);
+  } catch {
+    return fallback;
+  }
+}
+
+export function getApartments(): ApartmentListing[] {
+  return readApartmentJSON<ApartmentListing>("listings.json", []);
+}
+
+export function getApartmentEvaluations(): ApartmentEvaluation[] {
+  return readApartmentJSON<ApartmentEvaluation>("evaluations.json", []);
+}
+
+export function getApartmentsWithEvals(): ApartmentWithEval[] {
+  const listings = getApartments();
+  const evaluations = getApartmentEvaluations();
+  const evalMap = new Map(evaluations.map((e) => [e.listing_id, e]));
+
+  return listings.map((listing) => ({
+    listing,
+    evaluation: evalMap.get(listing.id) || null,
+    status: "new" as ListingStatus,
+    notes: "",
+  }));
+}
+
+export function getApartmentById(id: string): ApartmentWithEval | null {
+  const all = getApartmentsWithEvals();
   return all.find((item) => item.listing.id === id) || null;
 }

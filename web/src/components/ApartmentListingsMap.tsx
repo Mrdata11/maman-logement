@@ -1,0 +1,191 @@
+"use client";
+
+import { useEffect, useMemo, useCallback } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { ApartmentWithEval, PEB_RATING_COLORS } from "@/lib/types";
+import { BRUSSELS_MAP_CENTER, BRUSSELS_DEFAULT_ZOOM } from "@/lib/coordinates";
+
+function formatPrice(price: number | null): string {
+  if (!price) return "\u2022";
+  if (price >= 1000) return `${(price / 1000).toFixed(1)}k\u20ac`;
+  return `${price}\u20ac`;
+}
+
+function createPricePinIcon(label: string, isHighlighted: boolean): L.DivIcon {
+  return L.divIcon({
+    className: "",
+    html: `<div class="map-price-pin${isHighlighted ? " highlighted" : ""}">
+      <span>${label}</span>
+    </div>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+  });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createClusterIcon(cluster: any): L.DivIcon {
+  const count = cluster.getChildCount();
+  let size = "small";
+  if (count >= 30) size = "large";
+  else if (count >= 10) size = "medium";
+
+  return L.divIcon({
+    html: `<div class="map-cluster map-cluster-${size}"><span>${count}</span></div>`,
+    className: "",
+    iconSize: L.point(40, 40),
+  });
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function createPopupContent(item: ApartmentWithEval): string {
+  const { listing, evaluation } = item;
+  const imageUrl = listing.images.length > 0 ? listing.images[0] : null;
+  const score = evaluation?.overall_score;
+
+  const details = [
+    listing.bedrooms ? `${listing.bedrooms} ch.` : null,
+    listing.surface_m2 ? `${listing.surface_m2} m\u00b2` : null,
+    listing.peb_rating ? `PEB ${listing.peb_rating}` : null,
+  ].filter(Boolean).join(" \u00b7 ");
+
+  return `<div class="map-popup-content">
+    ${imageUrl ? `<img src="${imageUrl}" alt="" class="map-popup-img" onerror="this.style.display='none'" />` : ""}
+    <div class="map-popup-body">
+      <div class="map-popup-header">
+        ${listing.commune ? `<span class="map-popup-type">${escapeHtml(listing.commune)}</span>` : ""}
+        ${score !== undefined ? `<span class="map-popup-score" style="background:${score >= 70 ? "#dcfce7" : score >= 40 ? "#fef9c3" : "#fecaca"};color:${score >= 70 ? "#166534" : score >= 40 ? "#854d0e" : "#991b1b"}">${score}/100</span>` : ""}
+      </div>
+      <div class="map-popup-title">${escapeHtml(listing.title)}</div>
+      <div class="map-popup-meta">
+        ${listing.price_monthly ? `<span class="map-popup-price">${listing.price_monthly.toLocaleString("fr-BE")} \u20ac/mois</span>` : ""}
+        <span class="map-popup-location-text">${details}</span>
+      </div>
+      ${evaluation?.match_summary ? `<div class="map-popup-summary">${escapeHtml(evaluation.match_summary)}</div>` : ""}
+      <div class="map-popup-actions">
+        <a href="/appartements/listing/${listing.id}" class="map-popup-link">Voir d\u00e9tail</a>
+        <a href="${listing.source_url}" target="_blank" rel="noopener noreferrer" class="map-popup-link-secondary">Immoweb</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function FitBounds({ coords }: { coords: [number, number][] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (coords.length === 0) return;
+    if (coords.length === 1) {
+      map.setView(coords[0], 14);
+      return;
+    }
+    const bounds = L.latLngBounds(coords);
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+  }, [coords, map]);
+
+  return null;
+}
+
+interface ApartmentListingsMapProps {
+  items: ApartmentWithEval[];
+  hoveredListingId: string | null;
+  onMarkerHover: (id: string | null) => void;
+}
+
+export default function ApartmentListingsMap({
+  items,
+  hoveredListingId,
+  onMarkerHover,
+}: ApartmentListingsMapProps) {
+  const mappableItems = useMemo(() => {
+    return items
+      .filter((item) => item.listing.latitude && item.listing.longitude)
+      .map((item) => ({
+        item,
+        coords: { lat: item.listing.latitude!, lng: item.listing.longitude! },
+      }));
+  }, [items]);
+
+  const boundsCoords = useMemo(
+    () => mappableItems.map(({ coords }) => [coords.lat, coords.lng] as [number, number]),
+    [mappableItems],
+  );
+
+  const unmappableCount = items.length - mappableItems.length;
+
+  const handleMouseOver = useCallback(
+    (id: string) => () => onMarkerHover(id),
+    [onMarkerHover],
+  );
+  const handleMouseOut = useCallback(
+    () => onMarkerHover(null),
+    [onMarkerHover],
+  );
+
+  return (
+    <div className="relative w-full h-full min-h-[400px] rounded-xl overflow-hidden border border-[var(--border-color)]">
+      <MapContainer
+        center={[BRUSSELS_MAP_CENTER.lat, BRUSSELS_MAP_CENTER.lng]}
+        zoom={BRUSSELS_DEFAULT_ZOOM}
+        className="w-full h-full"
+        style={{ minHeight: "400px" }}
+        scrollWheelZoom={true}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {boundsCoords.length > 0 && <FitBounds coords={boundsCoords} />}
+
+        <MarkerClusterGroup
+          iconCreateFunction={createClusterIcon}
+          maxClusterRadius={40}
+          spiderfyOnMaxZoom={true}
+          showCoverageOnHover={false}
+          zoomToBoundsOnClick={true}
+          disableClusteringAtZoom={15}
+        >
+          {mappableItems.map(({ item, coords }) => {
+            const isHovered = hoveredListingId === item.listing.id;
+            const label = formatPrice(item.listing.price_monthly);
+
+            return (
+              <Marker
+                key={item.listing.id}
+                position={[coords.lat, coords.lng]}
+                icon={createPricePinIcon(label, isHovered)}
+                eventHandlers={{
+                  mouseover: handleMouseOver(item.listing.id),
+                  mouseout: handleMouseOut,
+                }}
+              >
+                <Popup maxWidth={300} closeButton={true}>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: createPopupContent(item),
+                    }}
+                  />
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MarkerClusterGroup>
+      </MapContainer>
+
+      {unmappableCount > 0 && (
+        <div className="absolute bottom-2 left-2 bg-[var(--card-bg)]/90 text-xs text-[var(--muted)] px-2 py-1 rounded shadow">
+          {unmappableCount} annonce{unmappableCount > 1 ? "s" : ""} sans coordonnées
+        </div>
+      )}
+    </div>
+  );
+}

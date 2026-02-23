@@ -15,9 +15,12 @@ from scraper.scrapers.habitat_groupe import HabitatGroupeScraper
 from scraper.scrapers.ic_org import ICOrgScraper
 from scraper.scrapers.ecovillage import EcovillageScraper
 from scraper.scrapers.samenhuizen import SamenhuizenScraper
+from scraper.scrapers.findacohouse import FindACoHouseScraper
 from scraper.evaluator import evaluate_all
 from scraper.tag_extractor import extract_all_tags
+from scraper.content_generator import generate_all_content
 from scraper.quality_filter import pre_filter, post_filter_evaluations
+from scraper.description_cleaner import clean_all_descriptions
 
 
 def load_existing_listings() -> Dict[str, Listing]:
@@ -87,6 +90,7 @@ def main():
     scrapers = [
         HabitatGroupeScraper(),
         SamenhuizenScraper(),
+        FindACoHouseScraper(),
         ICOrgScraper(),
         EcovillageScraper(),
     ]
@@ -117,6 +121,14 @@ def main():
     if len(rejection_log) > 10:
         print(f"    ... and {len(rejection_log) - 10} more")
 
+    # Clean descriptions (remove web page garbage via LLM)
+    print(f"\n--- Description Cleaning ---")
+    all_to_clean = list(existing_listings.values())
+    cleaned = clean_all_descriptions(all_to_clean)
+    for listing_id, clean_desc in cleaned.items():
+        if listing_id in existing_listings:
+            existing_listings[listing_id].description = clean_desc
+
     # Save ALL listings (unfiltered) for reference
     save_listings(existing_listings)
 
@@ -127,6 +139,14 @@ def main():
     # Merge evaluations
     for evaluation in new_evaluations:
         existing_evaluations[evaluation.listing_id] = evaluation
+
+    # Generate AI titles and descriptions
+    print(f"\n--- AI Content Generation ---")
+    ai_content = generate_all_content(filtered_listings, existing_evaluations)
+    for listing_id, content in ai_content.items():
+        if listing_id in existing_evaluations:
+            existing_evaluations[listing_id].ai_title = content["ai_title"]
+            existing_evaluations[listing_id].ai_description = content["ai_description"]
 
     save_evaluations(existing_evaluations)
 

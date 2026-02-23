@@ -159,17 +159,26 @@ class HabitatGroupeScraper(BaseScraper):
 
         # Extract listing type and location from URL
         listing_type = self._extract_type(url)
-        location = self._extract_location_from_url(url)
+        url_location = self._extract_location_from_url(url)
+        url_province = self._extract_province(url)
+
+        # Try to extract specific city from title first, then description
+        city_from_text = self._extract_location_from_text(title)
+        if not city_from_text:
+            city_from_text = self._extract_location_from_text(description)
+
+        if city_from_text:
+            location = city_from_text
+            province = self._city_to_province(city_from_text) or url_province
+        else:
+            location = url_location
+            province = url_province
 
         # Try to extract price from description
-        price, price_amount = self._extract_price(description)
+        price, price_amount = self._extract_price(description, listing_type)
 
         # Try to extract contact from description
         contact = self._extract_contact(description)
-
-        # Extract location from content if not in URL
-        if not location or location == "autres-pays-regions":
-            location = self._extract_location_from_text(description) or location
 
         return Listing(
             id=hashlib.md5(url.encode()).hexdigest()[:12],
@@ -178,7 +187,7 @@ class HabitatGroupeScraper(BaseScraper):
             title=title,
             description=description[:5000],  # Limit description length
             location=location,
-            province=self._extract_province(url),
+            province=province,
             price=price,
             price_amount=price_amount,
             listing_type=listing_type,
@@ -199,7 +208,7 @@ class HabitatGroupeScraper(BaseScraper):
             return "demande-vente"
         elif "creation-groupe" in url:
             return "creation-groupe"
-        elif "habitats-legers" in url:
+        elif "habitat-leger" in url or "habitats-legers" in url:
             return "habitat-leger"
         elif "divers" in url:
             return "divers"
@@ -230,31 +239,43 @@ class HabitatGroupeScraper(BaseScraper):
                 return value
         return None
 
-    def _extract_price(self, text: str) -> Tuple[Optional[str], Optional[float]]:
-        # Look for price patterns like "500€", "500 €", "500 euros"
+    def _extract_price(self, text: str, listing_type: str = "") -> Tuple[Optional[str], Optional[float]]:
+        # Look for price patterns like "500€", "1 150 €", "500 euros"
         patterns = [
-            r"(\d{2,4})\s*€(?:\s*/\s*mois)?",
-            r"(\d{2,4})\s*euros?(?:\s*/\s*mois)?",
-            r"loyer\s*(?:de\s*)?(\d{2,4})",
+            r"(\d{1,3}(?:[\s.]\d{3})*)\s*€(?:\s*/\s*mois)?",
+            r"(\d{1,3}(?:[\s.]\d{3})*)\s*euros?(?:\s*/\s*mois)?",
+            r"loyer\s*(?:de\s*)?(\d{1,3}(?:[\s.]\d{3})*)",
         ]
+        is_sale = listing_type in ("offre-vente", "demande-vente")
         for pattern in patterns:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
-                amount = float(match.group(1))
-                if 100 <= amount <= 5000:  # Reasonable price range
+                raw = match.group(1).replace(" ", "").replace(".", "")
+                amount = float(raw)
+                if is_sale and 5000 <= amount <= 2000000:
+                    return f"{int(amount)}€", amount
+                elif not is_sale and 100 <= amount <= 5000:
                     return f"{int(amount)}€/mois", amount
         return None, None
 
     def _extract_contact(self, text: str) -> Optional[str]:
+        contacts = []
         # Look for email
         email_match = re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", text)
         if email_match:
-            return email_match.group(0)
-        # Look for phone
-        phone_match = re.search(r"0\d[\s./]?\d{2,3}[\s./]?\d{2}[\s./]?\d{2}[\s./]?\d{2}", text)
-        if phone_match:
-            return phone_match.group(0)
-        return None
+            contacts.append(email_match.group(0))
+        # Look for phone (Belgian formats including international)
+        phone_patterns = [
+            r"(?:\+32|0032)\s*\(?\d\)?\s*\d{2,3}[\s./]?\d{2}[\s./]?\d{2}",
+            r"0\d{2}/\d{3}[\s.]?\d{3}",
+            r"0\d[\s./]?\d{2,3}[\s./]?\d{2}[\s./]?\d{2}[\s./]?\d{2}",
+        ]
+        for pattern in phone_patterns:
+            phone_match = re.search(pattern, text)
+            if phone_match:
+                contacts.append(phone_match.group(0))
+                break
+        return " | ".join(contacts) if contacts else None
 
     def _parse_french_date(self, text: str) -> Optional[str]:
         """Parse French date like 'Le 22 février 2026' and return YYYY-MM-DD."""
@@ -285,14 +306,77 @@ class HabitatGroupeScraper(BaseScraper):
             return f"{year}-{month}-{day}"
         return None
 
+    # Mapping ville → province pour corriger la province automatiquement
+    CITY_PROVINCE_MAP = {
+        # Bruxelles communes
+        "Bruxelles": "Bruxelles", "Schaerbeek": "Bruxelles", "Ixelles": "Bruxelles",
+        "Uccle": "Bruxelles", "Forest": "Bruxelles", "Anderlecht": "Bruxelles",
+        "Molenbeek": "Bruxelles", "Etterbeek": "Bruxelles",
+        "Woluwe-Saint-Lambert": "Bruxelles", "Woluwe-Saint-Pierre": "Bruxelles",
+        "Auderghem": "Bruxelles", "Watermael-Boitsfort": "Bruxelles",
+        "Jette": "Bruxelles", "Ganshoren": "Bruxelles",
+        "Berchem-Sainte-Agathe": "Bruxelles", "Evere": "Bruxelles",
+        "Saint-Gilles": "Bruxelles", "Koekelberg": "Bruxelles",
+        "Saint-Josse": "Bruxelles",
+        # Brabant Wallon
+        "Louvain-la-Neuve": "Brabant Wallon", "Wavre": "Brabant Wallon",
+        "Nivelles": "Brabant Wallon", "Ottignies": "Brabant Wallon",
+        "Waterloo": "Brabant Wallon", "Perwez": "Brabant Wallon",
+        "Jodoigne": "Brabant Wallon", "Tubize": "Brabant Wallon",
+        # Namur
+        "Namur": "Namur", "Gembloux": "Namur", "Dinant": "Namur",
+        "Ciney": "Namur", "Couvin": "Namur", "Philippeville": "Namur",
+        "Andenne": "Namur", "Ohey": "Namur", "Gesves": "Namur",
+        "Fosses-la-Ville": "Namur", "Sambreville": "Namur",
+        # Hainaut
+        "Charleroi": "Hainaut", "Mons": "Hainaut", "Tournai": "Hainaut",
+        "Soignies": "Hainaut", "Enghien": "Hainaut",
+        "Braine-le-Comte": "Hainaut", "La Louvière": "Hainaut",
+        "Binche": "Hainaut", "Thuin": "Hainaut", "Ath": "Hainaut",
+        "Lessines": "Hainaut", "Mouscron": "Hainaut",
+        # Liège
+        "Liège": "Liège", "Huy": "Liège", "Verviers": "Liège",
+        "Spa": "Liège", "Eupen": "Liège", "Malmedy": "Liège",
+        "Waremme": "Liège", "Hannut": "Liège", "Visé": "Liège",
+        # Luxembourg (province)
+        "Arlon": "Luxembourg", "Bastogne": "Luxembourg",
+        "Marche-en-Famenne": "Luxembourg", "Durbuy": "Luxembourg",
+        "Rochefort": "Luxembourg", "Forrières": "Luxembourg",
+        # Brabant Flamand
+        "Hoeilaart": "Flandre",
+    }
+
+    def _city_to_province(self, city: str) -> Optional[str]:
+        return self.CITY_PROVINCE_MAP.get(city)
+
     def _extract_location_from_text(self, text: str) -> Optional[str]:
         # Try to find Belgian city/region mentions
+        # More specific cities first to avoid matching "Bruxelles" when "Schaerbeek" is present
         belgian_cities = [
-            "Bruxelles", "Schaerbeek", "Ixelles", "Uccle", "Forest", "Anderlecht",
-            "Louvain-la-Neuve", "Namur", "Liège", "Charleroi", "Mons", "Tournai",
-            "Wavre", "Nivelles", "Ottignies", "Gembloux", "Marche-en-Famenne",
-            "Arlon", "Bastogne", "Dinant", "Ciney", "Rochefort", "Durbuy",
-            "Waterloo", "Braine-le-Comte", "Enghien", "Soignies",
+            # Bruxelles communes (specific before generic)
+            "Schaerbeek", "Ixelles", "Uccle", "Forest", "Anderlecht",
+            "Molenbeek", "Etterbeek", "Woluwe-Saint-Lambert", "Woluwe-Saint-Pierre",
+            "Auderghem", "Watermael-Boitsfort", "Jette", "Ganshoren",
+            "Berchem-Sainte-Agathe", "Evere", "Saint-Gilles", "Koekelberg",
+            "Saint-Josse", "Bruxelles",
+            # Brabant Wallon
+            "Louvain-la-Neuve", "Wavre", "Nivelles", "Ottignies", "Waterloo",
+            "Perwez", "Jodoigne", "Tubize",
+            # Namur
+            "Gembloux", "Dinant", "Ciney", "Couvin", "Rochefort",
+            "Philippeville", "Andenne", "Ohey", "Gesves",
+            "Fosses-la-Ville", "Sambreville", "Namur",
+            # Hainaut
+            "Charleroi", "Mons", "Tournai", "Soignies", "Enghien",
+            "Braine-le-Comte", "La Louvière", "Binche", "Thuin", "Ath",
+            "Lessines", "Mouscron",
+            # Liège
+            "Liège", "Huy", "Verviers", "Spa", "Eupen", "Malmedy",
+            "Waremme", "Hannut", "Visé",
+            # Luxembourg
+            "Arlon", "Bastogne", "Marche-en-Famenne", "Durbuy", "Forrières",
+            # Brabant Flamand
+            "Hoeilaart",
         ]
         text_lower = text.lower()
         for city in belgian_cities:

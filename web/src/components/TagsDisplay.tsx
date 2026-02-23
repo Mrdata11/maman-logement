@@ -31,12 +31,12 @@ function BooleanBadge({
   return value ? (
     <TagPill
       label={trueLabel}
-      color="bg-green-100 text-green-800"
+      color="bg-emerald-100 text-emerald-800"
     />
   ) : (
     <TagPill
       label={falseLabel}
-      color="bg-red-100 text-red-800"
+      color="bg-rose-100 text-rose-800"
     />
   );
 }
@@ -50,7 +50,7 @@ function Section({
 }) {
   return (
     <div>
-      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+      <h4 className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide mb-1.5">
         {title}
       </h4>
       <div className="flex flex-wrap gap-1.5">{children}</div>
@@ -97,8 +97,11 @@ export function TagsDisplay({ tags }: { tags: ListingTags }) {
   if (isEmpty) return null;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
-      <h3 className="text-sm font-semibold text-gray-900 mb-3">
+    <div className="bg-indigo-50/60 rounded-xl border border-indigo-200/70 p-5">
+      <h3 className="text-sm font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+        <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+        </svg>
         Tags extraits
       </h3>
       <div className="space-y-3">
@@ -108,21 +111,21 @@ export function TagsDisplay({ tags }: { tags: ListingTags }) {
             {tags.group_size !== null && (
               <TagPill
                 label={`${tags.group_size} personne${tags.group_size > 1 ? "s" : ""}`}
-                color="bg-blue-100 text-blue-800"
+                color="bg-sky-100 text-sky-800"
               />
             )}
             {tags.age_range.map((a) => (
               <TagPill
                 key={a}
                 label={TAG_LABELS.age_range[a] || a}
-                color="bg-blue-100 text-blue-800"
+                color="bg-sky-100 text-sky-800"
               />
             ))}
             {tags.family_types.map((f) => (
               <TagPill
                 key={f}
                 label={TAG_LABELS.family_types[f] || f}
-                color="bg-blue-100 text-blue-800"
+                color="bg-sky-100 text-sky-800"
               />
             ))}
             <BooleanBadge
@@ -140,7 +143,7 @@ export function TagsDisplay({ tags }: { tags: ListingTags }) {
               <TagPill
                 key={t}
                 label={TAG_LABELS.project_types[t] || t}
-                color="bg-violet-100 text-violet-800"
+                color="bg-[var(--primary)]/15 text-[var(--primary)]"
               />
             ))}
           </Section>
@@ -230,7 +233,7 @@ export function TagsDisplay({ tags }: { tags: ListingTags }) {
             {tags.shared_meals && (
               <TagPill
                 label={`Repas ${TAG_LABELS.shared_meals[tags.shared_meals] || tags.shared_meals}`}
-                color="bg-pink-100 text-pink-800"
+                color="bg-rose-100 text-rose-800"
               />
             )}
             <BooleanBadge
@@ -241,7 +244,7 @@ export function TagsDisplay({ tags }: { tags: ListingTags }) {
             {tags.governance && (
               <TagPill
                 label={TAG_LABELS.governance[tags.governance] || tags.governance}
-                color="bg-pink-100 text-pink-800"
+                color="bg-rose-100 text-rose-800"
               />
             )}
           </Section>
@@ -275,68 +278,45 @@ export function TagsDisplay({ tags }: { tags: ListingTags }) {
 
 /** Compact version for cards and preview panels */
 export function TagsPills({ tags }: { tags: ListingTags }) {
-  const pills: { label: string; color: string }[] = [];
+  const pills: string[] = [];
 
   // Environment
   if (tags.environment) {
-    pills.push({
-      label: TAG_LABELS.environment[tags.environment] || tags.environment,
-      color:
-        "bg-teal-50 text-teal-700",
-    });
+    pills.push(TAG_LABELS.environment[tags.environment] || tags.environment);
   }
 
   // Project types (max 2)
   for (const t of tags.project_types.slice(0, 2)) {
-    pills.push({
-      label: TAG_LABELS.project_types[t] || t,
-      color:
-        "bg-violet-50 text-violet-700",
-    });
+    pills.push(TAG_LABELS.project_types[t] || t);
   }
 
   // Top values (max 2)
   for (const v of tags.values.slice(0, 2)) {
-    pills.push({
-      label: TAG_LABELS.values[v] || v,
-      color:
-        "bg-amber-50 text-amber-700",
-    });
+    pills.push(TAG_LABELS.values[v] || v);
   }
 
   // Pets
   if (tags.pets_allowed === true) {
-    pills.push({
-      label: "Animaux OK",
-      color:
-        "bg-orange-50 text-orange-700",
-    });
+    pills.push("Animaux OK");
   } else if (tags.pets_allowed === false) {
-    pills.push({
-      label: "Pas d'animaux",
-      color: "bg-gray-100 text-gray-600",
-    });
+    pills.push("Pas d'animaux");
   }
 
   // Group size
   if (tags.group_size !== null) {
-    pills.push({
-      label: `${tags.group_size} pers.`,
-      color:
-        "bg-blue-50 text-blue-700",
-    });
+    pills.push(`${tags.group_size} pers.`);
   }
 
   if (pills.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-1 mt-1.5">
-      {pills.slice(0, 5).map((p, i) => (
+    <div className="flex flex-wrap gap-1 mt-2">
+      {pills.slice(0, 5).map((label, i) => (
         <span
           key={i}
-          className={`text-xs px-1.5 py-0.5 rounded ${p.color}`}
+          className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500"
         >
-          {p.label}
+          {label}
         </span>
       ))}
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Listing,
@@ -47,6 +47,10 @@ export function ListingDetailActions({
   const [showProfileEditor, setShowProfileEditor] = useState(false);
   const [editingName, setEditingName] = useState("");
   const [editingContext, setEditingContext] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const recognitionRef = useRef<unknown>(null);
+  const emailTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const isFavorite = status === "favorite";
 
@@ -80,6 +84,7 @@ export function ListingDetailActions({
     } catch {
       // Ignore parse errors
     }
+
   }, [listing.id]);
 
   // Show toast helper
@@ -130,6 +135,65 @@ export function ListingDetailActions({
     showToast("Notes sauvegardees");
   };
 
+  // Voice recording for profile
+  const startVoiceRecording = useCallback(() => {
+    const SpeechRecognition = (
+      (window as unknown as Record<string, unknown>).SpeechRecognition ||
+      (window as unknown as Record<string, unknown>).webkitSpeechRecognition
+    ) as (new () => { lang: string; continuous: boolean; interimResults: boolean; onresult: ((e: unknown) => void) | null; onerror: ((e: unknown) => void) | null; onend: (() => void) | null; start(): void; stop(): void }) | undefined;
+
+    if (!SpeechRecognition) {
+      showToast("La reconnaissance vocale n'est pas supportee par ce navigateur", "error");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "fr-FR";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognitionRef.current = recognition;
+
+    let finalTranscript = "";
+
+    recognition.onresult = (event: unknown) => {
+      const e = event as { resultIndex: number; results: { length: number; [i: number]: { isFinal: boolean; [j: number]: { transcript: string } } } };
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) {
+          finalTranscript += e.results[i][0].transcript;
+        } else {
+          interim += e.results[i][0].transcript;
+        }
+      }
+      setVoiceTranscript(finalTranscript + interim);
+    };
+
+    recognition.onerror = () => {
+      setIsRecording(false);
+      showToast("Erreur de reconnaissance vocale", "error");
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+      if (finalTranscript.trim()) {
+        setEditingContext((prev) => prev ? prev + "\n" + finalTranscript.trim() : finalTranscript.trim());
+        setVoiceTranscript("");
+      }
+    };
+
+    setIsRecording(true);
+    setVoiceTranscript("");
+    recognition.start();
+  }, [showToast]);
+
+  const stopVoiceRecording = useCallback(() => {
+    const recognition = recognitionRef.current as { stop(): void } | null;
+    if (recognition) {
+      recognition.stop();
+    }
+    setIsRecording(false);
+  }, []);
+
   // Save profile
   const handleProfileSave = useCallback(() => {
     const profile = { name: editingName, context: editingContext };
@@ -151,16 +215,7 @@ export function ListingDetailActions({
     }
 
     if (generatedEmail) {
-      // Already generated - open mailto with editable version
-      const emailToSend = editableEmail ?? generatedEmail;
-      const subject = encodeURIComponent(
-        `Demande d'information - ${listing.title}`
-      );
-      const body = encodeURIComponent(emailToSend);
-      window.open(
-        `mailto:${listing.contact}?subject=${subject}&body=${body}`,
-        "_self"
-      );
+      // Already generated - email is visible below
       return;
     }
 
@@ -198,20 +253,6 @@ export function ListingDetailActions({
       setEmailGenerating(false);
     }
   }, [listing, evaluation, generatedEmail, editableEmail, profileName, profileContext, showToast]);
-
-  // Send email via mailto
-  const handleSendEmail = useCallback(() => {
-    const emailToSend = editableEmail ?? generatedEmail;
-    if (!emailToSend || !listing.contact) return;
-    const subject = encodeURIComponent(
-      `Demande d'information - ${listing.title}`
-    );
-    const body = encodeURIComponent(emailToSend);
-    window.open(
-      `mailto:${listing.contact}?subject=${subject}&body=${body}`,
-      "_self"
-    );
-  }, [editableEmail, generatedEmail, listing.contact, listing.title]);
 
   // Copy email to clipboard
   const handleCopyEmail = useCallback(async () => {
@@ -293,6 +334,14 @@ export function ListingDetailActions({
     setEditableEmail(null);
   }, []);
 
+  // Auto-resize email textarea to fit content
+  useEffect(() => {
+    const ta = emailTextareaRef.current;
+    if (!ta) return;
+    ta.style.height = "auto";
+    ta.style.height = ta.scrollHeight + "px";
+  }, [editableEmail]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -351,7 +400,7 @@ export function ListingDetailActions({
   return (
     <>
       {/* Sticky action bar */}
-      <div className="sticky top-0 z-30 -mx-6 px-6 py-3 bg-[var(--card-bg)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 flex items-center gap-2 flex-wrap">
+      <div className="sticky top-0 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 py-3 bg-[var(--card-bg)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 flex items-center gap-2 flex-wrap">
         {/* Favorite toggle */}
         <button
           onClick={toggleFavorite}
@@ -431,42 +480,11 @@ export function ListingDetailActions({
             {emailGenerating
               ? "Generation..."
               : generatedEmail
-                ? "Envoyer l'email"
-                : "Email auto"}
+                ? "Email genere"
+                : "Generer l'email"}
             <kbd className="hidden sm:inline-block text-[10px] px-1 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)] ml-1">
               E
             </kbd>
-          </button>
-        )}
-
-        {/* Profile button */}
-        {listing.contact && listing.contact.includes("@") && (
-          <button
-            onClick={() => {
-              setShowProfileEditor(!showProfileEditor);
-              setEditingName(profileName);
-              setEditingContext(profileContext);
-            }}
-            className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm transition-all ${
-              profileName
-                ? "text-[var(--primary)] hover:bg-[var(--surface)]"
-                : "text-[var(--muted-light)] hover:bg-[var(--surface)]"
-            }`}
-            title="Mon profil email"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
           </button>
         )}
 
@@ -642,85 +660,105 @@ export function ListingDetailActions({
         </div>
       </div>
 
-      {/* Profile editor (collapsible) */}
+      {/* Profile editor (centered modal popup) */}
       {showProfileEditor && (
-        <div className="mt-4 p-4 bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 rounded-xl animate-fadeIn">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-              Mon profil email
-            </h3>
-            <button
-              onClick={() => setShowProfileEditor(false)}
-              className="text-emerald-400 hover:text-emerald-600"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">
-                Prenom (pour la signature)
-              </label>
-              <input
-                type="text"
-                value={editingName}
-                onChange={(e) => setEditingName(e.target.value)}
-                placeholder="Ex: Marie"
-                className="w-full px-3 py-2 text-sm border border-[var(--input-border)] rounded-md bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">
-                Ma situation / ce que je cherche
-              </label>
-              <textarea
-                value={editingContext}
-                onChange={(e) => setEditingContext(e.target.value)}
-                placeholder="Decrivez votre situation, vos besoins, ce qui est important pour vous..."
-                rows={5}
-                className="w-full px-3 py-2 text-sm border border-[var(--input-border)] rounded-md bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-              />
-              <p className="text-xs text-[var(--muted)] mt-1">
-                Ce texte sera utilise pour personnaliser tous vos emails de contact.
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={handleProfileSave}
-                className="text-sm px-4 py-1.5 bg-[var(--primary)] text-white rounded-md hover:bg-[var(--primary-hover)] font-medium"
-              >
-                Sauvegarder
-              </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowProfileEditor(false)}
+          />
+          <div className="relative w-full max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-2xl animate-fadeIn p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-semibold text-[var(--foreground)] flex items-center gap-2">
+                <svg className="w-5 h-5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Mon profil email
+              </h3>
               <button
                 onClick={() => setShowProfileEditor(false)}
-                className="text-sm px-3 py-1.5 text-[var(--muted)] hover:text-[var(--foreground)]"
+                className="text-[var(--muted)] hover:text-[var(--foreground)] p-1 rounded-lg hover:bg-[var(--surface)]"
               >
-                Annuler
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
-              <button
-                onClick={() => {
-                  setEditingName("");
-                  setEditingContext(DEFAULT_PROFILE_CONTEXT);
-                }}
-                className="text-sm px-3 py-1.5 text-[var(--primary)] hover:opacity-80 ml-auto"
-              >
-                Reinitialiser
-              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-[var(--foreground)] mb-1">
+                  Prenom (pour la signature)
+                </label>
+                <input
+                  type="text"
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  placeholder="Ex: Marie"
+                  className="w-full px-3 py-2 text-sm border border-[var(--input-border)] rounded-md bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-[var(--foreground)]">
+                    Ma situation / ce que je cherche
+                  </label>
+                  <button
+                    onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
+                    className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors ${
+                      isRecording
+                        ? "bg-red-50 text-red-600 hover:bg-red-100"
+                        : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
+                    }`}
+                    title={isRecording ? "Arreter l'enregistrement" : "Dicter avec le micro"}
+                  >
+                    <svg className={`w-3.5 h-3.5 ${isRecording ? "animate-recording-pulse" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    {isRecording ? "Arreter" : "Dicter"}
+                  </button>
+                </div>
+                {isRecording && voiceTranscript && (
+                  <div className="mb-1.5 px-3 py-2 text-xs bg-red-50 border border-red-200 rounded-md text-red-700 italic">
+                    {voiceTranscript}
+                  </div>
+                )}
+                <textarea
+                  value={editingContext}
+                  onChange={(e) => setEditingContext(e.target.value)}
+                  placeholder="Decrivez votre situation, vos besoins, ce qui est important pour vous..."
+                  rows={6}
+                  className="w-full px-3 py-2 text-sm border border-[var(--input-border)] rounded-md bg-[var(--input-bg)] text-[var(--foreground)] placeholder-[var(--muted-light)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                />
+                <p className="text-xs text-[var(--muted)] mt-1">
+                  Ce texte sera utilise pour personnaliser tous vos emails de contact.
+                </p>
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={handleProfileSave}
+                  className="text-sm px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:bg-[var(--primary-hover)] font-medium"
+                >
+                  Sauvegarder
+                </button>
+                <button
+                  onClick={() => setShowProfileEditor(false)}
+                  className="text-sm px-3 py-2 text-[var(--muted)] hover:text-[var(--foreground)]"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingName("");
+                    setEditingContext(DEFAULT_PROFILE_CONTEXT);
+                  }}
+                  className="text-sm px-3 py-2 text-[var(--primary)] hover:opacity-80 ml-auto"
+                >
+                  Reinitialiser
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -835,28 +873,19 @@ export function ListingDetailActions({
                 </span>
               )}
             </h3>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   setShowProfileEditor(true);
                   setEditingName(profileName);
                   setEditingContext(profileContext);
                 }}
-                className="text-xs px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 transition-colors"
+                className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg bg-[var(--surface)] text-[var(--foreground)] border border-[var(--border-color)] hover:bg-[var(--border-light)] shadow-sm transition-colors font-medium"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
                 Mon profil
-              </button>
-              <button
-                onClick={handleCopyEmail}
-                className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200:bg-green-900/60 transition-colors"
-              >
-                {copied ? "Copie !" : "Copier"}
-              </button>
-              <button
-                onClick={handleSendEmail}
-                className="text-xs px-2 py-1 rounded bg-green-600 text-white hover:bg-green-700 transition-colors"
-              >
-                Ouvrir dans mail
               </button>
               <button
                 onClick={() => {
@@ -882,22 +911,51 @@ export function ListingDetailActions({
             </div>
           </div>
           <textarea
+            ref={emailTextareaRef}
             value={editableEmail ?? ""}
             onChange={(e) => setEditableEmail(e.target.value)}
-            rows={10}
-            className="w-full px-3 py-2 text-sm border border-green-300 rounded-md bg-[var(--input-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-green-400 leading-relaxed resize-y"
+            className="w-full px-3 py-2 text-sm border border-green-300 rounded-md bg-[var(--input-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-green-400 leading-relaxed resize-none overflow-hidden"
           />
-          <div className="flex items-center gap-2 mt-2">
+
+          <p className="text-xs text-green-600 text-center mt-3">
+            Vous pouvez modifier le texte avant de le copier
+          </p>
+
+          <div className="flex gap-3 mt-3">
             <button
               onClick={handleRegenerateEmail}
               disabled={emailGenerating}
-              className="text-xs px-3 py-1.5 border border-green-300 text-green-700 rounded-md hover:bg-green-100:bg-green-900/30 disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold border border-green-300 text-green-700 hover:bg-green-100 disabled:opacity-50 transition-all"
             >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
               Regenerer
             </button>
-            <span className="text-xs text-green-600">
-              Vous pouvez modifier le texte avant d&apos;envoyer
-            </span>
+            <button
+              onClick={handleCopyEmail}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
+                copied
+                  ? "bg-green-100 text-green-700 ring-2 ring-green-300"
+                  : "bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] shadow-md hover:shadow-lg"
+              }`}
+            >
+              {copied ? (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Copie !
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
+                  Copier l&apos;email
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}

@@ -95,30 +95,30 @@ export function mapQuestionnaireToFilters(
     switch (mostImportant) {
       case "budget":
         w.rental_price += 1.0;
-        summary.push("Priorite : budget");
+        summary.push("Priorité : budget");
         break;
       case "location":
         w.location_brussels += 1.0;
-        summary.push("Priorite : emplacement");
+        summary.push("Priorité : emplacement");
         break;
       case "community_spirit":
         w.community_meals += 0.5;
         w.community_size_and_maturity += 0.5;
         w.common_projects += 0.5;
-        summary.push("Priorite : esprit communautaire");
+        summary.push("Priorité : esprit communautaire");
         break;
       case "values":
         w.values_alignment += 1.0;
-        summary.push("Priorite : valeurs partagees");
+        summary.push("Priorité : valeurs partagées");
         break;
       case "practical":
         w.unit_type += 0.5;
         w.parking += 0.5;
-        summary.push("Priorite : logement pratique");
+        summary.push("Priorité : logement pratique");
         break;
       case "health":
         w.near_hospital += 1.5;
-        summary.push("Priorite : proximite des soins");
+        summary.push("Priorité : proximité des soins");
         break;
     }
   }
@@ -307,7 +307,7 @@ export function mapQuestionnaireToFilters(
     }
     if (provinces.size > 0) {
       f.locations_include = Array.from(provinces);
-      summary.push(`Regions: ${f.locations_include.join(", ")}`);
+      summary.push(`Régions: ${f.locations_include.join(", ")}`);
     }
   }
 
@@ -326,15 +326,19 @@ export function mapQuestionnaireToFilters(
     switch (setting) {
       case "rural":
         t.environments = ["rural"];
+        t.nearNature = true;
         break;
       case "semi_rural":
         t.environments = ["rural", "suburban"];
+        t.nearNature = true;
         break;
       case "urban_green":
         t.environments = ["suburban", "urban"];
+        t.nearTransport = true;
         break;
       case "urban":
         t.environments = ["urban"];
+        t.nearTransport = true;
         break;
     }
   }
@@ -346,6 +350,12 @@ export function mapQuestionnaireToFilters(
   }
   if (practical.includes("garden_access")) {
     t.sharedSpaces = [...new Set([...t.sharedSpaces, "garden", "vegetable_garden"])];
+  }
+  if (practical.includes("ground_floor")) {
+    t.accessiblePmr = true;
+  }
+  if (practical.includes("furnished")) {
+    t.furnished = true;
   }
 
   // ─── community_activities ───
@@ -372,6 +382,20 @@ export function mapQuestionnaireToFilters(
   const communitySize = getStr(answers, "community_size");
   if (communitySize && communitySize !== "no_preference") {
     w.community_size_and_maturity += 0.5;
+    switch (communitySize) {
+      case "small":
+        t.minGroupSize = 4;
+        t.maxGroupSize = 8;
+        break;
+      case "medium":
+        t.minGroupSize = 8;
+        t.maxGroupSize = 15;
+        break;
+      case "large":
+        t.minGroupSize = 15;
+        t.maxGroupSize = null;
+        break;
+    }
   }
 
   // ─── core_values ───
@@ -413,8 +437,8 @@ export function mapQuestionnaireToFilters(
     w.charter_openness = Math.max(0.3, w.charter_openness - 0.5);
   }
   if (dealbreakers.includes("no_accessibility")) {
-    // Boost practical housing criteria
     w.unit_type += 0.3;
+    t.accessiblePmr = true;
   }
 
   // ─── Clamp all weights to [0.2, 3.0] ───
@@ -429,15 +453,15 @@ export function mapQuestionnaireToFilters(
       in_brussels: "Dans Bruxelles",
       very_close: "Proche Bruxelles (30 min)",
       somewhat: "30-45 min de Bruxelles",
-      not_important: "Distance indifferente",
+      not_important: "Distance indifférente",
     };
     if (labels[brussels]) summary.push(labels[brussels]);
   }
 
-  if (spiritual === "central") summary.push("Spiritualite importante");
-  if (health === "essential") summary.push("Proximite soins essentielle");
+  if (spiritual === "central") summary.push("Spiritualité importante");
+  if (health === "essential") summary.push("Proximité soins essentielle");
 
-  if (meals === "essential") summary.push("Repas partages importants");
+  if (meals === "essential") summary.push("Repas partagés importants");
 
   if (unitType && unitType !== "flexible") {
     const labels: Record<string, string> = {

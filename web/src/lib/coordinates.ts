@@ -57,6 +57,12 @@ export const LOCATION_COORDINATES: Record<string, Coordinates> = {
   "Huy": { lat: 50.5186, lng: 5.2394 },
   "Waremme": { lat: 50.6958, lng: 5.2542 },
   "Visé": { lat: 50.7333, lng: 5.7 },
+  "Ohey": { lat: 50.4342, lng: 5.1283 },
+  "Gesves": { lat: 50.4047, lng: 5.0772 },
+  "Fosses-la-Ville": { lat: 50.395, lng: 4.6958 },
+  "Sambreville": { lat: 50.4353, lng: 4.6111 },
+  "Hoeilaart": { lat: 50.7667, lng: 4.4667 },
+  "Forrières": { lat: 50.1439, lng: 5.3114 },
 
   // Bruxelles communes
   "Schaerbeek": { lat: 50.8667, lng: 4.3833 },
@@ -95,6 +101,11 @@ export const LOCATION_COORDINATES: Record<string, Coordinates> = {
 
 export const BELGIUM_CENTER: Coordinates = { lat: 50.5039, lng: 4.4699 };
 export const DEFAULT_ZOOM = 8;
+
+// Brussels apartment search references
+export const IXELLES_CENTER: Coordinates = { lat: 50.8306, lng: 4.3722 };
+export const BRUSSELS_MAP_CENTER: Coordinates = { lat: 50.8400, lng: 4.3700 };
+export const BRUSSELS_DEFAULT_ZOOM = 13;
 
 // Point de reference par defaut (centre de Bruxelles)
 export const DEFAULT_REFERENCE_POINT: Coordinates = {

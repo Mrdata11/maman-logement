@@ -40,6 +40,7 @@ export interface QuestionnaireState {
   completedAt: string | null;
   lastEditedAt: string;
   version: number;
+  inputMethod?: "manual" | "voice";
 }
 
 export const QUESTIONNAIRE_STORAGE_KEY = "questionnaire_state";

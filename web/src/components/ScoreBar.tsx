@@ -41,9 +41,9 @@ export function ScoreBadge({ score }: { score: number }) {
 
   return (
     <span
-      className={`inline-flex items-center px-3 py-1.5 rounded-xl text-base font-bold border ${color}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${color}`}
     >
-      {score}/100
+      {score}
     </span>
   );
 }

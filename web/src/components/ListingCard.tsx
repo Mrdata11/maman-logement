@@ -19,7 +19,6 @@ interface ListingCardProps {
   adjustedScore?: number;
   isHighlighted?: boolean;
   isSelected?: boolean;
-  isNew?: boolean;
   distance?: number | null;
 }
 
@@ -31,7 +30,6 @@ export function ListingCard({
   adjustedScore,
   isHighlighted = false,
   isSelected = false,
-  isNew = false,
   distance,
 }: ListingCardProps) {
   const { listing, evaluation, tags, status, notes } = item;
@@ -54,17 +52,15 @@ export function ListingCard({
 
   return (
     <div
-      className={`bg-[var(--card-bg)] rounded-xl border p-5 transition-all shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] ${
+      className={`bg-[var(--card-bg)] rounded-xl border p-4 transition-all shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] ${
         isFaded ? "opacity-50" : ""
       } ${
-        isFavorite
-          ? "border-rose-300 ring-1 ring-rose-200"
-          : isHighlighted
-            ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/20 shadow-lg"
-            : "border-[var(--border-color)]"
+        isHighlighted
+          ? "border-[var(--primary)] ring-2 ring-[var(--primary)]/20 shadow-lg"
+          : "border-[var(--border-color)]"
       }`}
     >
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         {/* Image thumbnail */}
         <div className="shrink-0">
           {listing.images.length > 0 ? (
@@ -74,14 +70,14 @@ export function ListingCard({
                 src={listing.images[0]}
                 alt=""
                 loading="lazy"
-                className="w-[130px] h-[90px] object-cover rounded-lg border border-[var(--border-color)] hover:opacity-90 transition-opacity"
+                className="w-full h-[160px] sm:w-[130px] sm:h-[90px] object-cover rounded-lg border border-[var(--border-color)] hover:opacity-90 transition-opacity"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
               />
             </Link>
           ) : (
-            <div className="w-[130px] h-[90px] rounded-lg border border-[var(--border-color)] bg-[var(--surface)] flex items-center justify-center">
+            <div className="w-full h-[120px] sm:w-[130px] sm:h-[90px] rounded-lg border border-[var(--border-color)] bg-[var(--surface)] flex items-center justify-center">
               <svg
                 className="w-8 h-8 text-[var(--muted-light)]"
                 fill="none"
@@ -105,11 +101,6 @@ export function ListingCard({
             <div className="flex-1 min-w-0">
               {/* Badges row */}
               <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                {isNew && (
-                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-bold animate-pulse">
-                    NEW
-                  </span>
-                )}
                 {evaluation && (
                   <div className="flex items-center gap-1">
                     <ScoreBadge
@@ -133,20 +124,13 @@ export function ListingCard({
                       listing.listing_type}
                   </span>
                 )}
-                {evaluation?.availability_status && evaluation.availability_status !== "unknown" && (
-                  <span className={`text-xs px-2 py-0.5 rounded ${
-                    evaluation.availability_status === "likely_available"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-orange-100 text-orange-700"
-                  }`}>
-                    {evaluation.availability_status === "likely_available" ? "Dispo probable" : "Peut-etre expire"}
+                {status !== "new" && status !== "favorite" && (
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded ${STATUS_CONFIG[status].color}`}
+                  >
+                    {STATUS_CONFIG[status].label}
                   </span>
                 )}
-                <span
-                  className={`text-xs px-2 py-0.5 rounded ${STATUS_CONFIG[status].color}`}
-                >
-                  {STATUS_CONFIG[status].label}
-                </span>
                 {distance !== null && distance !== undefined && (
                   <span className="text-xs px-2 py-0.5 rounded bg-sky-50 text-sky-700">
                     ~{Math.round(distance)} km
@@ -159,11 +143,11 @@ export function ListingCard({
                 href={`/listing/${listing.id}`}
                 className="text-lg font-semibold text-[var(--foreground)] hover:text-[var(--primary)] line-clamp-2"
               >
-                {listing.title}
+                {evaluation?.ai_title || listing.title}
               </Link>
 
               {/* Location, price, source */}
-              <div className="flex items-center gap-3 mt-1 text-sm text-[var(--muted)]">
+              <div className="flex items-center gap-2 sm:gap-3 mt-1 text-sm text-[var(--muted)] flex-wrap">
                 {listing.location && <span>{listing.location}</span>}
                 {listing.province &&
                   listing.province !== listing.location && (
@@ -184,7 +168,7 @@ export function ListingCard({
             </div>
 
             {/* Favorite + Compare buttons */}
-            <div className="flex flex-col items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 onClick={() =>
                   onStatusChange(
@@ -192,15 +176,15 @@ export function ListingCard({
                     isFavorite ? "new" : "favorite"
                   )
                 }
-                className={`p-2 rounded-full transition-colors ${
+                className={`p-1.5 rounded-full transition-colors ${
                   isFavorite
-                    ? "text-rose-500 hover:text-rose-600 bg-rose-50"
-                    : "text-[var(--muted-light)] hover:text-rose-400 hover:bg-rose-50:bg-rose-900/20"
+                    ? "text-rose-500 hover:text-rose-600"
+                    : "text-[var(--muted-light)] hover:text-rose-400"
                 }`}
                 title={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
               >
                 <svg
-                  className="w-6 h-6"
+                  className="w-5 h-5"
                   fill={isFavorite ? "currentColor" : "none"}
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -238,27 +222,9 @@ export function ListingCard({
           {/* AI Summary */}
           {evaluation && (
             <div className="mt-2">
-              <p className="text-sm text-[var(--foreground)] line-clamp-2">
-                {evaluation.match_summary}
+              <p className="text-sm text-[var(--foreground)] line-clamp-3">
+                {evaluation.ai_description || evaluation.match_summary}
               </p>
-              <div className="mt-1.5 flex flex-wrap gap-1">
-                {evaluation.highlights.map((h, i) => (
-                  <span
-                    key={i}
-                    className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded"
-                  >
-                    {h}
-                  </span>
-                ))}
-                {evaluation.concerns.slice(0, 2).map((c, i) => (
-                  <span
-                    key={i}
-                    className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded"
-                  >
-                    {c}
-                  </span>
-                ))}
-              </div>
             </div>
           )}
 

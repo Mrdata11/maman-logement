@@ -16,42 +16,38 @@ class ICOrgScraper(BaseScraper):
     def scrape(self) -> List[Listing]:
         listings = []
 
-        # Search for Belgian communities
-        params = {
-            "search": "1",
-            "property_country[]": "Belgium",
-            "lang": "en",
-        }
-        print(f"  [{self.name}] Searching for Belgian communities...")
+        print(f"  [{self.name}] Fetching directory page...")
 
         try:
-            resp = self._rate_limited_get(self.search_url, params=params)
+            resp = self._rate_limited_get(self.search_url)
         except Exception as e:
-            print(f"  [{self.name}] Error searching: {e}")
+            print(f"  [{self.name}] Error: {e}")
             return listings
 
         soup = BeautifulSoup(resp.text, "lxml")
 
-        # Find community links - they link to /directory/community-name/
+        # Find all community links - /directory/community-name/
         community_links = []
         for link in soup.find_all("a", href=True):
             href = link["href"]
             if "/directory/" in href and href != self.search_url:
-                # Filter out non-community links
                 path = href.rstrip("/").split("/directory/")[-1]
-                if path and "/" not in path and path not in ("search", "map", "submit"):
+                skip = {"search", "map", "submit", "intentional-communities-by-country",
+                        "new-communities", "forming-communities", "established-communities"}
+                if path and "/" not in path and path not in skip:
                     full_url = href if href.startswith("http") else self.base_url + href
                     if full_url not in community_links:
                         community_links.append(full_url)
 
-        print(f"  [{self.name}] Found {len(community_links)} community pages")
+        print(f"  [{self.name}] Found {len(community_links)} community pages, checking for Belgian ones...")
 
+        # Visit each page and check if it's in Belgium
         for url in community_links:
             listing = self._scrape_community(url)
             if listing:
                 listings.append(listing)
 
-        print(f"  [{self.name}] Total: {len(listings)} communities scraped")
+        print(f"  [{self.name}] Total: {len(listings)} Belgian communities found")
         return listings
 
     def _scrape_community(self, url: str) -> Optional[Listing]:
@@ -62,11 +58,15 @@ class ICOrgScraper(BaseScraper):
             return None
 
         soup = BeautifulSoup(resp.text, "lxml")
+        page_text = soup.get_text()
+
+        # Only keep if Belgium is mentioned in the page
+        if not re.search(r"\bBelgi(um|que|ë)\b", page_text, re.IGNORECASE):
+            return None
 
         title_el = soup.select_one("h1, .entry-title")
         title = title_el.get_text(strip=True) if title_el else "Unknown Community"
 
-        # Get the main content
         content_el = soup.select_one(".entry-content, article, main")
         if content_el:
             for tag in content_el.find_all(["script", "style", "nav"]):
@@ -75,21 +75,24 @@ class ICOrgScraper(BaseScraper):
         else:
             description = ""
 
-        # Extract location
+        # Extract location from address mentioning Belgium
         location = None
-        address_el = soup.find(string=re.compile(r"Belgium", re.IGNORECASE))
-        if address_el:
-            parent = address_el.parent
+        for el in soup.find_all(string=re.compile(r"Belgi", re.IGNORECASE)):
+            parent = el.parent
             if parent:
-                location = parent.get_text(strip=True)
+                addr_text = parent.get_text(strip=True)
+                if len(addr_text) < 200:
+                    location = addr_text
+                    break
 
-        # Extract images
         images = []
         if content_el:
             for img in content_el.find_all("img", src=True):
                 src = img["src"]
                 if src.startswith("http") and "logo" not in src.lower():
                     images.append(src)
+
+        print(f"  [{self.name}] Found Belgian community: {title[:50]}")
 
         return Listing(
             id=hashlib.md5(url.encode()).hexdigest()[:12],
