@@ -3,11 +3,28 @@ import { HeroBanner } from "@/components/HeroBanner";
 import { ListingCardCompact } from "@/components/ListingCardCompact";
 import { HomepageProfiles } from "@/components/HomepageProfiles";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://maman-logement.vercel.app";
+
+export const metadata: Metadata = {
+  title: "Cohabitat Europe \u2014 Trouvez votre habitat group\u00e9 en Europe",
+  description:
+    "Plateforme de recherche d\u2019habitats group\u00e9s en Europe. Annonces \u00e9valu\u00e9es par IA, profils communautaires, questionnaire personnalis\u00e9 et outils de mise en relation.",
+  openGraph: {
+    title: "Cohabitat Europe \u2014 Trouvez votre habitat group\u00e9 en Europe",
+    description:
+      "Plateforme de recherche d\u2019habitats group\u00e9s en Europe. Annonces \u00e9valu\u00e9es par IA, profils communautaires et outils de mise en relation.",
+    url: BASE_URL,
+    type: "website",
+  },
+};
 
 export default function Home() {
   const items = getListingsWithEvals();
-  const evaluated = items.filter((item) => item.evaluation !== null);
-  const topListings = evaluated
+  const topListings = items
+    .filter((item) => item.evaluation !== null)
     .sort(
       (a, b) =>
         (b.evaluation?.quality_score ?? 0) -
@@ -15,69 +32,69 @@ export default function Home() {
     )
     .slice(0, 6);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${BASE_URL}/#organization`,
+        name: "Cohabitat Europe",
+        url: BASE_URL,
+        logo: `${BASE_URL}/logo_alt_living.png`,
+        description:
+          "Plateforme de recherche d\u2019habitats group\u00e9s en Europe. Annonces \u00e9valu\u00e9es par IA et profils communautaires.",
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${BASE_URL}/#website`,
+        url: BASE_URL,
+        name: "Cohabitat Europe",
+        publisher: { "@id": `${BASE_URL}/#organization` },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${BASE_URL}/habitats?q={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${BASE_URL}/#webpage`,
+        url: BASE_URL,
+        name: "Cohabitat Europe \u2014 Trouvez votre habitat group\u00e9 en Europe",
+        isPartOf: { "@id": `${BASE_URL}/#website` },
+        about: { "@id": `${BASE_URL}/#organization` },
+        description:
+          "Plateforme de recherche d\u2019habitats group\u00e9s en Europe. Annonces \u00e9valu\u00e9es par IA, profils communautaires et outils de mise en relation.",
+      },
+    ],
+  };
+
   return (
-    <div className="space-y-16">
-      {/* Hero */}
-      <HeroBanner
-        alwaysVisible
-        listingCount={items.length}
+    <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Comment &ccedil;a marche — 3 &eacute;tapes */}
-      <section>
-        <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)] text-center mb-2">
-          Comment &ccedil;a marche
-        </h2>
-        <p className="text-sm text-[var(--muted)] text-center mb-8 max-w-lg mx-auto">
-          En 3 &eacute;tapes, trouvez l&apos;habitat qui vous correspond
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="relative text-center px-4 py-6">
-            <div className="w-12 h-12 rounded-full bg-[var(--primary)]/10 flex items-center justify-center mx-auto mb-4">
-              <span className="text-lg font-bold text-[var(--primary)]">1</span>
-            </div>
-            <h3 className="font-semibold text-[var(--foreground)] mb-1.5">R&eacute;pondez au questionnaire</h3>
-            <p className="text-sm text-[var(--muted)] leading-relaxed">
-              Vos envies, votre budget, vos valeurs &mdash; en 5 minutes, on comprend ce que vous cherchez.
-            </p>
-          </div>
-          <div className="relative text-center px-4 py-6">
-            <div className="w-12 h-12 rounded-full bg-[var(--accent)]/10 flex items-center justify-center mx-auto mb-4">
-              <span className="text-lg font-bold text-[var(--accent)]">2</span>
-            </div>
-            <h3 className="font-semibold text-[var(--foreground)] mb-1.5">D&eacute;couvrez des lieux &eacute;valu&eacute;s</h3>
-            <p className="text-sm text-[var(--muted)] leading-relaxed">
-              Notre IA analyse chaque annonce et vous pr&eacute;sente les projets les plus pertinents pour vous.
-            </p>
-          </div>
-          <div className="relative text-center px-4 py-6">
-            <div className="w-12 h-12 rounded-full bg-[var(--golden)]/10 flex items-center justify-center mx-auto mb-4">
-              <span className="text-lg font-bold text-[var(--golden)]">3</span>
-            </div>
-            <h3 className="font-semibold text-[var(--foreground)] mb-1.5">Connectez-vous avec d&apos;autres</h3>
-            <p className="text-sm text-[var(--muted)] leading-relaxed">
-              Cr&eacute;ez votre profil et rencontrez des personnes qui partagent votre vision de vie.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* \u2500\u2500 Hero full-bleed \u2500\u2500 */}
+      <HeroBanner alwaysVisible listingCount={items.length} />
 
-      {/* Habitats group&eacute;s &agrave; d&eacute;couvrir */}
-      <section>
-        <div className="flex items-center justify-between mb-5">
+      {/* \u2500\u2500 S\u00e9lection IA : top listings \u2500\u2500 */}
+      <section className="mt-16 sm:mt-20">
+        <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-xl font-bold text-[var(--foreground)]">
-              Les projets les mieux not&eacute;s
-            </h2>
-            <p className="text-sm text-[var(--muted)] mt-1">
-              S&eacute;lectionn&eacute;s et &eacute;valu&eacute;s par notre IA parmi {items.length}+ annonces
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--primary)] mb-1">
+              S\u00e9lection IA
             </p>
+            <h2 className="text-2xl font-bold text-[var(--foreground)]">
+              Les projets les mieux not\u00e9s
+            </h2>
           </div>
           <Link
             href="/habitats"
             className="text-sm font-medium text-[var(--primary)] hover:underline whitespace-nowrap shrink-0"
           >
-            Voir tout &rarr;
+            Tout voir \u2192
           </Link>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -87,49 +104,66 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Personnes qui cherchent */}
-      <section>
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-xl font-bold text-[var(--foreground)]">
-              Ils cherchent aussi
-            </h2>
-            <p className="text-sm text-[var(--muted)] mt-1">
-              Des personnes comme vous, pr&ecirc;tes &agrave; vivre autrement
-            </p>
+      {/* \u2500\u2500 Profils : section full-bleed fond chaud \u2500\u2500 */}
+      <section className="-mx-4 sm:-mx-6 mt-16 sm:mt-20">
+        <div className="bg-[var(--surface)] border-y border-[var(--border-color)] px-4 sm:px-6 py-12 sm:py-16">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-end justify-between mb-6">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)] mb-1">
+                  Communaut\u00e9
+                </p>
+                <h2 className="text-2xl font-bold text-[var(--foreground)]">
+                  Ils cherchent un lieu, comme vous
+                </h2>
+              </div>
+              <Link
+                href="/profils"
+                className="text-sm font-medium text-[var(--primary)] hover:underline whitespace-nowrap shrink-0"
+              >
+                Tout voir \u2192
+              </Link>
+            </div>
+            <HomepageProfiles />
+            <div className="mt-8 text-center">
+              <Link
+                href="/profils/creer"
+                className="inline-flex items-center gap-2 px-6 py-3 border border-[var(--border-color)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors bg-[var(--card-bg)]"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Cr\u00e9er mon profil et rejoindre la communaut\u00e9
+              </Link>
+            </div>
           </div>
-          <Link
-            href="/profils"
-            className="text-sm font-medium text-[var(--primary)] hover:underline whitespace-nowrap shrink-0"
-          >
-            Voir tout &rarr;
-          </Link>
         </div>
-        <HomepageProfiles />
       </section>
 
-      {/* CTA final */}
-      <section className="rounded-2xl overflow-hidden border border-[var(--border-color)]">
-        <div className="bg-[var(--primary)] px-6 py-10 sm:px-10 sm:py-14 text-center">
-          <h2 className="text-xl sm:text-2xl font-bold text-white mb-3">
-            Vous n&apos;&ecirc;tes pas seul&middot;e &agrave; vouloir vivre autrement
-          </h2>
-          <p className="text-white/80 mb-8 max-w-lg mx-auto leading-relaxed">
-            Rejoignez une communaut&eacute; de personnes qui r&ecirc;vent, cherchent et construisent des lieux de vie partag&eacute;s &agrave; travers l&apos;Europe.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/questionnaire"
-              className="px-6 py-3 bg-white text-[var(--primary)] rounded-xl text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm"
-            >
-              Commencer ma recherche
-            </Link>
-            <Link
-              href="/profils/creer"
-              className="px-6 py-3 border border-white/40 text-white rounded-xl text-sm font-medium hover:bg-white/10 transition-colors"
-            >
-              Cr&eacute;er mon profil
-            </Link>
+      {/* \u2500\u2500 CTA final full-bleed dark \u2500\u2500 */}
+      <section className="-mx-4 sm:-mx-6 -mb-8">
+        <div className="bg-[var(--foreground)] px-4 sm:px-6 py-16 sm:py-20">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+              Vous n&apos;\u00eates pas seul\u00b7e
+            </h2>
+            <p className="text-white/50 mb-10 max-w-md mx-auto leading-relaxed">
+              Des centaines de personnes cherchent un lieu de vie partag\u00e9 en Europe. Rejoignez-les.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/questionnaire"
+                className="px-7 py-3.5 bg-white text-[var(--foreground)] rounded-xl font-bold hover:bg-white/90 transition-colors"
+              >
+                Commencer ma recherche
+              </Link>
+              <Link
+                href="/creer"
+                className="px-7 py-3.5 border border-white/15 text-white/70 rounded-xl font-medium hover:bg-white/5 hover:text-white transition-colors"
+              >
+                Proposer un projet
+              </Link>
+            </div>
           </div>
         </div>
       </section>

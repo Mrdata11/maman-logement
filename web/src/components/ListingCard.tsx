@@ -8,7 +8,6 @@ import {
   STATUS_CONFIG,
   LISTING_TYPE_LABELS,
 } from "@/lib/types";
-import { ScoreBadge } from "./ScoreBar";
 import { TagsPills } from "./TagsDisplay";
 import { PlaceholderImage } from "./PlaceholderImage";
 
@@ -16,11 +15,8 @@ interface ListingCardProps {
   item: ListingWithEval;
   onStatusChange: (id: string, status: ListingStatus) => void;
   onNotesChange: (id: string, notes: string) => void;
-  onToggleCompare?: (id: string) => void;
-  adjustedScore?: number;
   personalScore?: { score: number; explanation: string } | null;
   isHighlighted?: boolean;
-  isSelected?: boolean;
   distance?: number | null;
 }
 
@@ -28,22 +24,13 @@ export function ListingCard({
   item,
   onStatusChange,
   onNotesChange,
-  onToggleCompare,
-  adjustedScore,
   personalScore,
   isHighlighted = false,
-  isSelected = false,
   distance,
 }: ListingCardProps) {
   const { listing, evaluation, tags, status, notes } = item;
   const isFaded = status === "archived" || status === "rejected";
   const isFavorite = status === "favorite";
-  const originalScore = evaluation?.quality_score;
-  const scoreDiff =
-    adjustedScore !== undefined && originalScore !== undefined
-      ? adjustedScore - originalScore
-      : undefined;
-
   const [showNotes, setShowNotes] = useState(false);
   const [localNotes, setLocalNotes] = useState(notes);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -76,7 +63,7 @@ export function ListingCard({
 
   return (
     <div
-      className={`bg-[var(--card-bg)] rounded-xl border overflow-hidden transition-all shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] flex flex-row h-56 ${
+      className={`bg-[var(--card-bg)] rounded-xl border transition-all shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] flex flex-row ${
         isFaded ? "opacity-50" : ""
       } ${
         isHighlighted
@@ -85,14 +72,14 @@ export function ListingCard({
       }`}
     >
       {/* Image carousel — côté gauche */}
-      <div className="relative group w-56 sm:w-64 md:w-80 shrink-0 bg-[var(--surface)]">
+      <div className="relative group w-56 sm:w-64 md:w-80 shrink-0 bg-[var(--surface)] overflow-hidden rounded-l-xl">
         {images.length > 0 ? (
           <>
             <Link href={`/listing/${listing.id}`} className="block h-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={images[imgIndex]}
-                alt=""
+                alt={evaluation?.ai_title || listing.title}
                 loading="lazy"
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -151,12 +138,6 @@ export function ListingCard({
               </span>
             )}
 
-            {/* Score badge overlay */}
-            {evaluation && (
-              <div className="absolute top-2 left-2">
-                <ScoreBadge score={adjustedScore ?? evaluation.quality_score} />
-              </div>
-            )}
           </>
         ) : (
           <PlaceholderImage className="w-full h-full" />
@@ -164,28 +145,11 @@ export function ListingCard({
       </div>
 
       {/* Content — côté droit */}
-      <div className="flex-1 min-w-0 p-4">
+      <div className="flex-1 min-w-0 p-5 overflow-hidden flex flex-col">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               {/* Badges row */}
               <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                {evaluation && (
-                  <div className="flex items-center gap-1">
-                    <ScoreBadge
-                      score={adjustedScore ?? evaluation.quality_score}
-                    />
-                    {scoreDiff !== undefined && scoreDiff !== 0 && (
-                      <span
-                        className={`text-xs font-semibold ${
-                          scoreDiff > 0 ? "text-emerald-600" : "text-rose-500"
-                        }`}
-                      >
-                        {scoreDiff > 0 ? "+" : ""}
-                        {scoreDiff}
-                      </span>
-                    )}
-                  </div>
-                )}
                 {personalScore && (
                   <span
                     className="text-xs px-2 py-0.5 rounded-lg font-semibold bg-violet-100 text-violet-700"
@@ -290,25 +254,6 @@ export function ListingCard({
                   />
                 </svg>
               </button>
-              {onToggleCompare && (
-                <div className="relative group">
-                  <button
-                    onClick={() => onToggleCompare(listing.id)}
-                    className={`p-1.5 rounded transition-colors text-xs font-medium ${
-                      isSelected
-                        ? "bg-[var(--primary)] text-white"
-                        : "bg-[var(--surface)] text-[var(--muted)] hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]"
-                    }`}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H5a2 2 0 00-2 2v10a2 2 0 002 2h4a2 2 0 002-2V7a2 2 0 00-2-2zm10 0h-4a2 2 0 00-2 2v10a2 2 0 002 2h4a2 2 0 002-2V7a2 2 0 00-2-2z" />
-                    </svg>
-                  </button>
-                  <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-white bg-[var(--foreground)] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    {isSelected ? "Retirer de la comparaison" : "Comparer"}
-                  </span>
-                </div>
-              )}
               {/* Notes icon */}
               <button
                 onClick={() => {

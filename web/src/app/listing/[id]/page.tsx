@@ -22,7 +22,7 @@ export async function generateMetadata({
   const { id } = await params;
   const item = getListingById(id);
   if (!item) {
-    return { title: "Annonce introuvable - Cohabitat Europe" };
+    return { title: "Annonce introuvable" };
   }
 
   const { listing, evaluation } = item;
@@ -35,14 +35,12 @@ export async function generateMetadata({
     listing.images.length > 0 ? listing.images[0] : undefined;
 
   return {
-    title: `${title} - Cohabitat Europe`,
+    title,
     description,
     openGraph: {
       title,
       description,
       url: `${BASE_URL}/listing/${listing.id}`,
-      siteName: "Cohabitat Europe",
-      locale: "fr_BE",
       type: "article",
       ...(firstImage && {
         images: [
@@ -84,8 +82,71 @@ export default async function ListingPage({
     ? Math.round(haversineDistance(EUROPE_CENTER, coords))
     : null;
 
+  const title = evaluation?.ai_title || listing.title;
+  const description =
+    evaluation?.ai_description ||
+    evaluation?.quality_summary ||
+    listing.description.slice(0, 160);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "RealEstateListing",
+        name: title,
+        description,
+        url: `${BASE_URL}/listing/${listing.id}`,
+        ...(listing.images.length > 0 && { image: listing.images[0] }),
+        ...(listing.date_published && { datePublished: listing.date_published }),
+        ...(listing.location && {
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: listing.location,
+            ...(listing.province && { addressRegion: listing.province }),
+            ...(listing.country && { addressCountry: listing.country }),
+          },
+        }),
+        ...(listing.price_amount && {
+          offers: {
+            "@type": "Offer",
+            price: listing.price_amount,
+            priceCurrency: "EUR",
+          },
+        }),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Accueil",
+            item: BASE_URL,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Habitats",
+            item: `${BASE_URL}/habitats`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: title,
+            item: `${BASE_URL}/listing/${listing.id}`,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
-    <div>
+    <article>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <Link
         href="/"
         className="text-[var(--primary)] hover:opacity-80 text-sm mb-4 inline-flex items-center gap-1"
@@ -128,17 +189,17 @@ export default async function ListingPage({
             </span>
             {listing.country && listing.country !== "BE" && (
               <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
-                {listing.country === "FR" ? "🇫🇷 France" : listing.country === "ES" ? "🇪🇸 Espagne" : listing.country}
+                {listing.country === "FR" ? "\uD83C\uDDEB\uD83C\uDDF7 France" : listing.country === "ES" ? "\uD83C\uDDEA\uD83C\uDDF8 Espagne" : listing.country}
               </span>
             )}
             {listing.original_language === "es" && (
               <span className="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                🇪🇸 Traduit de l&apos;espagnol
+                \uD83C\uDDEA\uD83C\uDDF8 Traduit de l&apos;espagnol
               </span>
             )}
             {listing.original_language === "en" && listing.country === "ES" && (
               <span className="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                🇬🇧 Traduit de l&apos;anglais
+                \uD83C\uDDEC\uD83C\uDDE7 Traduit de l&apos;anglais
               </span>
             )}
             {listing.date_published && (
@@ -312,6 +373,6 @@ export default async function ListingPage({
           {evaluation && <p>Evalue : {evaluation.date_evaluated}</p>}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

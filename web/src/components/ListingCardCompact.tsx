@@ -45,7 +45,7 @@ export function ListingCardCompact({ item }: ListingCardCompactProps) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={images[imgIndex]}
-                alt=""
+                alt={evaluation?.ai_title || listing.title}
                 loading="lazy"
                 className="w-full h-full object-cover"
                 onError={(e) => {

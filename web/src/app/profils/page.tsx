@@ -287,36 +287,6 @@ export default function ProfilsPage() {
     load();
   }, [supabase]);
 
-  // Counts per tab
-  const counts = useMemo(() => {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    const newProfiles = profiles.filter(
-      (p) => new Date(p.created_at) >= sevenDaysAgo
-    );
-    const favorites = profiles.filter(
-      (p) => profileStates[p.id] === "favorite"
-    );
-    const active = profiles.filter(
-      (p) => profileStates[p.id] === "contacted" || profileStates[p.id] === "in_discussion"
-    );
-    const archived = profiles.filter(
-      (p) => profileStates[p.id] === "archived"
-    );
-    const all = profiles.filter(
-      (p) => profileStates[p.id] !== "archived"
-    );
-
-    return {
-      all: all.length,
-      new: newProfiles.length,
-      favorite: favorites.length,
-      active: active.length,
-      archived: archived.length,
-    };
-  }, [profiles, profileStates]);
-
   // Available filter counts (computed from all profiles)
   const availableCounts = useMemo((): ProfileFilterCounts => {
     const regions = new Map<string, number>();
@@ -634,12 +604,12 @@ export default function ProfilsPage() {
           {/* Scrollable status tabs */}
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0">
             {([
-              ["all", "Actifs", counts.all],
-              ["new", "Nouveaux", counts.new],
-              ["favorite", "Favoris", counts.favorite],
-              ["active", "Discussion en cours", counts.active],
-              ["archived", "Archives", counts.archived],
-            ] as [ProfileFilter, string, number][]).map(([key, label, count]) => (
+              ["all", "Actifs"],
+              ["new", "Nouveaux"],
+              ["favorite", "Favoris"],
+              ["active", "Discussion en cours"],
+              ["archived", "Archives"],
+            ] as [ProfileFilter, string][]).map(([key, label]) => (
               <button
                 key={key}
                 onClick={() => setFilter(key)}
@@ -657,11 +627,6 @@ export default function ProfilsPage() {
                   </svg>
                 )}
                 {label}
-                {count > 0 && (
-                  <span className={`ml-1 ${filter === key ? "opacity-80" : "text-[var(--muted-light)]"}`}>
-                    {count}
-                  </span>
-                )}
               </button>
             ))}
           </div>

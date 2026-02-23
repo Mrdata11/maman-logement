@@ -34,9 +34,10 @@ export function ProfileCard({ profile, isFavorite, onToggleFavorite }: ProfileCa
       {/* Header: avatar + name + favorite */}
       <div className="flex items-start gap-3 mb-3">
         {profile.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={profile.avatar_url}
-            alt=""
+            alt={`Photo de ${profile.display_name}`}
             className="w-16 h-16 rounded-full object-cover shrink-0"
           />
         ) : (

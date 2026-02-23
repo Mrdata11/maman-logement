@@ -3,9 +3,14 @@ import { Dashboard } from "@/components/Dashboard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Habitats group\u00e9s - Cohabitat Europe",
+  title: "Habitats group\u00e9s en Europe",
   description:
-    "Parcourez toutes les annonces d\u2019habitats group\u00e9s en Europe, \u00e9valu\u00e9es automatiquement selon vos crit\u00e8res.",
+    "Parcourez toutes les annonces d\u2019habitats group\u00e9s en Europe, \u00e9valu\u00e9es automatiquement par IA selon vos crit\u00e8res de recherche.",
+  openGraph: {
+    title: "Habitats group\u00e9s en Europe",
+    description:
+      "Parcourez toutes les annonces d\u2019habitats group\u00e9s en Europe, \u00e9valu\u00e9es automatiquement par IA.",
+  },
 };
 
 export default function HabitatsPage() {

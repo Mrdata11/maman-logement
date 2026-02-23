@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Conditions d'utilisation - Cohabitat Europe",
-  description: "Conditions g\u00e9n\u00e9rales d'utilisation de Cohabitat Europe",
+  title: "Conditions d'utilisation",
+  description: "Conditions g\u00e9n\u00e9rales d'utilisation de la plateforme Cohabitat Europe.",
 };
 
 export default function CGU() {

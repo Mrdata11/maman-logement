@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Creer un habitat groupe - Cohabitat Europe",
+  title: "Cr\u00e9er un habitat group\u00e9",
   description:
-    "Lancez votre projet d'habitat groupe en Europe. Decrivez votre vision par questionnaire guide, message vocal ou texte libre, et trouvez des personnes pour vous rejoindre.",
+    "Lancez votre projet d\u2019habitat group\u00e9 en Europe. D\u00e9crivez votre vision par questionnaire guid\u00e9, message vocal ou texte libre, et trouvez des personnes pour vous rejoindre.",
   openGraph: {
-    title: "Creer un habitat groupe - Cohabitat Europe",
+    title: "Cr\u00e9er un habitat group\u00e9",
     description:
-      "Lancez votre projet d'habitat groupe. Decrivez votre vision et trouvez des personnes pour vous rejoindre.",
-    type: "website",
-    locale: "fr_BE",
-    siteName: "Cohabitat Europe",
+      "Lancez votre projet d\u2019habitat group\u00e9. D\u00e9crivez votre vision et trouvez des personnes pour vous rejoindre.",
   },
 };
 

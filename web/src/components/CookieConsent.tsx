@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 const CONSENT_KEY = "cookie_consent";
 
@@ -27,9 +28,9 @@ export function CookieConsent() {
         <p className="text-sm text-[var(--muted)] flex-1">
           Ce site utilise uniquement des cookies techniques n&eacute;cessaires &agrave; son fonctionnement (authentification).
           Aucun tra&ccedil;age publicitaire.{" "}
-          <a href="/mentions-legales" className="text-[var(--primary)] hover:underline">
+          <Link href="/mentions-legales" className="text-[var(--primary)] hover:underline">
             En savoir plus
-          </a>
+          </Link>
         </p>
         <button
           onClick={accept}

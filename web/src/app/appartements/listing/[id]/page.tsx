@@ -4,7 +4,52 @@ import { ScoreBadge } from "@/components/ScoreBar";
 import { ImageGallery } from "@/components/ImageGallery";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { haversineDistance, IXELLES_CENTER } from "@/lib/coordinates";
+
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://maman-logement.vercel.app";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const item = getApartmentById(id);
+  if (!item) {
+    return { title: "Appartement introuvable" };
+  }
+
+  const { listing, evaluation } = item;
+  const title = listing.title;
+  const description =
+    evaluation?.quality_summary ||
+    listing.description?.slice(0, 160) ||
+    `Appartement ${listing.bedrooms ? listing.bedrooms + " chambres" : ""} \u00e0 ${listing.commune || "Bruxelles"}`;
+  const firstImage =
+    listing.images.length > 0 ? listing.images[0] : undefined;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${BASE_URL}/appartements/listing/${listing.id}`,
+      type: "article",
+      ...(firstImage && {
+        images: [{ url: firstImage, alt: title }],
+      }),
+    },
+    twitter: {
+      card: firstImage ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(firstImage && { images: [firstImage] }),
+    },
+  };
+}
 
 export function generateStaticParams() {
   const items = getApartmentsWithEvals();
@@ -50,8 +95,78 @@ export default async function ApartmentDetailPage({
     : daysAgo <= 14 ? "bg-orange-100 text-orange-700"
     : "bg-stone-100 text-stone-600";
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Apartment",
+        name: listing.title,
+        description: evaluation?.quality_summary || listing.description?.slice(0, 300),
+        url: `${BASE_URL}/appartements/listing/${listing.id}`,
+        ...(listing.images.length > 0 && { image: listing.images[0] }),
+        ...(listing.bedrooms !== null && { numberOfRooms: listing.bedrooms }),
+        ...(listing.surface_m2 !== null && {
+          floorSize: {
+            "@type": "QuantitativeValue",
+            value: listing.surface_m2,
+            unitCode: "MTK",
+          },
+        }),
+        ...(listing.commune && {
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: listing.commune,
+            ...(listing.postal_code && { postalCode: listing.postal_code }),
+            addressCountry: "BE",
+          },
+        }),
+        ...(listing.price_monthly && {
+          offers: {
+            "@type": "Offer",
+            price: listing.price_monthly,
+            priceCurrency: "EUR",
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: listing.price_monthly,
+              priceCurrency: "EUR",
+              unitText: "MONTH",
+            },
+          },
+        }),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Accueil",
+            item: BASE_URL,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Appartements",
+            item: `${BASE_URL}/appartements`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: listing.title,
+            item: `${BASE_URL}/appartements/listing/${listing.id}`,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
-    <div>
+    <article>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <Link
         href="/appartements"
         className="text-[var(--primary)] hover:opacity-80 text-sm mb-4 inline-flex items-center gap-1"
@@ -370,6 +485,6 @@ export default async function ApartmentDetailPage({
           </span>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Profile,
   PROFILE_VOICE_QUESTIONS,
@@ -19,12 +19,11 @@ interface ProfileDetailProps {
 export function ProfileDetail({ profile }: ProfileDetailProps) {
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
-  const [showFloatingContact, setShowFloatingContact] = useState(false);
+
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [emailRevealed, setEmailRevealed] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
-  const headerRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
   const intro = profile.introduction;
   const display = deriveProfileCardData(profile.questionnaire_answers);
@@ -89,16 +88,6 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
     } catch {}
   };
 
-  // Floating contact bar visibility
-  useEffect(() => {
-    if (!headerRef.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setShowFloatingContact(!entry.isIntersecting),
-      { threshold: 0 }
-    );
-    observer.observe(headerRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   // Build detailed questionnaire display
   const questionnaireDetails: { label: string; value: string }[] = [];
@@ -181,7 +170,7 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
       </div>
 
       {/* Header section */}
-      <div ref={headerRef} className="space-y-4">
+      <div className="space-y-4">
         <div className="flex items-start gap-4">
           {profile.avatar_url ? (
             <img
@@ -562,31 +551,6 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
         })}
       </p>
 
-      {/* Floating contact bar */}
-      {showFloatingContact && (
-        <div className="fixed bottom-0 left-0 right-0 bg-[var(--card-bg)] border-t border-[var(--border-color)] p-3 shadow-lg z-40 animate-slideUp">
-          <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
-            <span className="text-sm text-[var(--muted)] truncate">
-              Envie de contacter {profile.display_name} ?
-            </span>
-            {emailRevealed ? (
-              <a
-                href={`mailto:${profile.contact_email}`}
-                className="shrink-0 px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
-              >
-                Envoyer un email
-              </a>
-            ) : (
-              <button
-                onClick={handleContactClick}
-                className="shrink-0 px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
-              >
-                Voir les coordonn&eacute;es
-              </button>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

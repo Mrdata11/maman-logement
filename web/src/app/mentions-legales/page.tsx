@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Mentions l\u00e9gales - Cohabitat Europe",
-  description: "Politique de confidentialit\u00e9 et mentions l\u00e9gales de Cohabitat Europe",
+  title: "Mentions l\u00e9gales",
+  description: "Politique de confidentialit\u00e9 et mentions l\u00e9gales de la plateforme Cohabitat Europe.",
 };
 
 export default function MentionsLegales() {

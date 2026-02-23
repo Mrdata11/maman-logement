@@ -23,7 +23,6 @@ import { TagFilterCounts } from "./TagFilterPanel";
 import { FilterModal } from "./FilterModal";
 import { ListingsMapWrapper } from "./ListingsMapWrapper";
 import { ListingPreview } from "./ListingPreview";
-import { ComparePanel } from "./ComparePanel";
 import { VoiceQuestionnaire } from "./VoiceQuestionnaire";
 import { QuestionnaireBanner } from "./QuestionnaireBanner";
 import {
@@ -107,9 +106,6 @@ export function Dashboard({
   const [questionnaireFilterActive, setQuestionnaireFilterActive] = useState(false);
   const [questionnaireSummary, setQuestionnaireSummary] = useState<string[]>([]);
 
-  // Compare state
-  const [compareIds, setCompareIds] = useState<string[]>([]);
-  const [showCompare, setShowCompare] = useState(false);
 
   // Questionnaire state
   const [questionnaireState, setQuestionnaireState] = useState<QuestionnaireState | null>(null);
@@ -301,28 +297,7 @@ export function Dashboard({
       .sort((a, b) => b.count - a.count);
   }, [items]);
 
-  // Quality-filtered items (always on — only relevant, evaluated listings)
   const RELEVANT_TYPES = useMemo(() => new Set(["offre-location", "creation-groupe", "habitat-leger", "ecovillage", "community-profile", "cohousing"]), []);
-  const qualityFiltered = useMemo(() => {
-    return items.filter((i) => {
-      const lt = i.listing.listing_type;
-      if (!lt || !RELEVANT_TYPES.has(lt)) return false;
-      if (!i.evaluation) return false;
-      if (i.evaluation.quality_score < 15) return false;
-      return true;
-    });
-  }, [items, RELEVANT_TYPES]);
-
-  // Counts (based on quality-filtered items so they match displayed results)
-  const counts = useMemo(() => {
-    return {
-      all: qualityFiltered.filter((i) => i.status !== "archived" && i.status !== "rejected").length,
-      new: qualityFiltered.filter((i) => i.status === "new").length,
-      favorite: qualityFiltered.filter((i) => i.status === "favorite").length,
-      active: qualityFiltered.filter((i) => ["contacted", "visit_planned", "in_discussion"].includes(i.status)).length,
-      archived: qualityFiltered.filter((i) => i.status === "archived" || i.status === "rejected").length,
-    };
-  }, [qualityFiltered]);
 
   // Available provinces with counts
   const availableProvinces = useMemo(() => {
@@ -752,19 +727,6 @@ export function Dashboard({
     }
   }, []);
 
-  // Compare handlers
-  const handleToggleCompare = (id: string) => {
-    setCompareIds((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id);
-      if (prev.length >= 4) return prev;
-      return [...prev, id];
-    });
-  };
-
-  const compareItems = useMemo(
-    () => items.filter((i) => compareIds.includes(i.listing.id)),
-    [items, compareIds]
-  );
 
   // Apply questionnaire filters when questionnaire is completed
   useEffect(() => {
@@ -850,12 +812,12 @@ export function Dashboard({
           {/* Scrollable status tabs */}
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0">
             {([
-              ["all", "Actifs", counts.all],
-              ["new", "Nouveaux", counts.new],
-              ["favorite", "Favoris", counts.favorite],
-              ["active", "En cours", counts.active],
-              ["archived", "Archives", counts.archived],
-            ] as [FilterType, string, number][]).map(([key, label, count]) => (
+              ["all", "Actifs"],
+              ["new", "Nouveaux"],
+              ["favorite", "Favoris"],
+              ["active", "En cours"],
+              ["archived", "Archives"],
+            ] as [FilterType, string][]).map(([key, label]) => (
               <button
                 key={key}
                 onClick={() => setFilter(key)}
@@ -873,11 +835,6 @@ export function Dashboard({
                   </svg>
                 )}
                 {label}
-                {count > 0 && (
-                  <span className={`ml-1 ${filter === key ? "opacity-80" : "text-[var(--muted-light)]"}`}>
-                    {count}
-                  </span>
-                )}
               </button>
             ))}
           </div>
@@ -1067,38 +1024,6 @@ export function Dashboard({
         </div>
       )}
 
-      {/* Compare floating button */}
-      {compareIds.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2 print:hidden">
-          <button
-            onClick={() => setCompareIds([])}
-            className="p-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-full shadow-lg text-[var(--muted)] hover:text-red-500"
-            title="Vider la selection"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <button
-            onClick={() => setShowCompare(true)}
-            className="px-5 py-3 bg-[var(--primary)] text-white rounded-full shadow-xl hover:bg-[var(--primary-hover)] font-medium text-sm flex items-center gap-2 transition-all"
-          >
-            Comparer ({compareIds.length})
-          </button>
-        </div>
-      )}
-
-      {/* Compare modal */}
-      {showCompare && (
-        <ComparePanel
-          items={compareItems}
-          onClose={() => setShowCompare(false)}
-          onRemove={(id) => {
-            setCompareIds((prev) => prev.filter((x) => x !== id));
-            if (compareIds.length <= 1) setShowCompare(false);
-          }}
-        />
-      )}
 
       {/* Content: list, map, or split */}
       <div className={`mt-5 ${viewMode === "split" ? "flex gap-4" : ""}`}>
@@ -1120,11 +1045,8 @@ export function Dashboard({
                   item={item}
                   onStatusChange={handleStatusChange}
                   onNotesChange={handleNotesChange}
-                  onToggleCompare={handleToggleCompare}
-                  adjustedScore={undefined}
                   personalScore={personalScores.get(item.listing.id) ? { score: personalScores.get(item.listing.id)!.score, explanation: personalScores.get(item.listing.id)!.explanation } : null}
                   isHighlighted={hoveredListingId === item.listing.id}
-                  isSelected={compareIds.includes(item.listing.id)}
                   distance={distances.get(item.listing.id) ?? null}
                 />
               </div>

@@ -9,7 +9,13 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: "/api/",
+        disallow: [
+          "/api/",
+          "/parametres",
+          "/profils/mon-profil",
+          "/profils/creer",
+          "/creer/apercu",
+        ],
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,

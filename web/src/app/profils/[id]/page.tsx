@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { Profile } from "@/lib/profile-types";
 import { ProfileDetail } from "@/components/ProfileDetail";
@@ -215,12 +216,12 @@ export default function ProfilePage() {
         <p className="text-[var(--muted)]">
           Ce profil n&apos;existe pas ou n&apos;est plus publi&eacute;.
         </p>
-        <a
+        <Link
           href="/profils"
           className="inline-block px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
         >
           Retour aux profils
-        </a>
+        </Link>
       </div>
     );
   }

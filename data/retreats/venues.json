@@ -1,42 +1,76 @@
 [
   {
     "id": "prov001",
-    "source": "bookretreats.com",
-    "source_url": "https://example.com/mas-lumineux",
-    "name": "Le Mas Lumineux",
-    "description": "Ancien mas proven\u00e7al restaur\u00e9 avec go\u00fbt, nich\u00e9 au coeur de la lavande. Deux grandes salles de pratique avec vue sur les collines, un jardin m\u00e9ditatif et une piscine naturelle. Cuisine bio locale servie sur la terrasse ombrag\u00e9e. Id\u00e9al pour les retraites de yoga et m\u00e9ditation de 10 \u00e0 24 personnes.",
+    "source": "tripadvisor.com",
+    "source_url": "https://www.tripadvisor.com/Hotel_Review-g1080290-d8306937-Reviews-Yobaba_Lounge_Yoga_Retreat_Centre-Chalabre_Aude_Occitanie.html",
+    "name": "Yobaba Lounge",
+    "description": "Centre de retraite boutique de yoga et méditation, installé dans un château historique au coeur d'un village médiéval du sud de la France. Primée et publiée dans \"Great Escapes Yoga\" de Taschen. Cuisine vegan, sans gluten et sans sucre raffiné. Capacité de 10 à 20 personnes en usage exclusif. À 50 km au sud-est de Carcassonne, dans les contreforts des Pyrénées.",
     "country": "FR",
-    "region": "Provence-Alpes-C\u00f4te d'Azur",
-    "city": "Gordes",
-    "latitude": 43.9116,
-    "longitude": 5.2004,
-    "nearest_airport": "Marseille Provence (MRS) - 75 km",
+    "region": "Occitanie",
+    "city": "Chalabre",
+    "latitude": 42.9714,
+    "longitude": 2.0006,
+    "nearest_airport": "Carcassonne (CCF) - 50 km / Toulouse (TLS) - 100 km",
     "transfer_available": true,
     "capacity_min": 10,
-    "capacity_max": 24,
+    "capacity_max": 20,
     "num_rooms": 12,
-    "num_beds": 24,
-    "accommodation_types": ["private_room", "shared_room"],
+    "num_beds": 20,
+    "accommodation_types": [
+      "private_room",
+      "shared_room"
+    ],
     "room_has_private_bathroom": true,
-    "activity_spaces": ["yoga_studio", "meditation_hall", "outdoor_deck"],
-    "main_practice_space_capacity": 25,
-    "main_practice_space_m2": 100,
+    "activity_spaces": [
+      "yoga_studio",
+      "meditation_hall",
+      "outdoor_deck"
+    ],
+    "main_practice_space_capacity": 22,
+    "main_practice_space_m2": 90,
     "num_practice_spaces": 3,
-    "outdoor_spaces": ["pool", "garden", "terrace", "meditation_garden"],
+    "outdoor_spaces": [
+      "garden",
+      "terrace",
+      "meditation_garden"
+    ],
     "meal_service": "full_board",
-    "cuisine_options": ["vegetarian", "vegan", "organic", "local_seasonal"],
+    "cuisine_options": [
+      "vegan",
+      "gluten_free",
+      "organic"
+    ],
     "kitchen_access": false,
     "dietary_accommodations": true,
     "currency": "EUR",
     "price_per_person_per_night": 75,
     "price_per_person_per_night_max": 110,
     "price_full_venue_per_day": 1200,
-    "price_notes": "Tarif d\u00e9gressif \u00e0 partir de 5 nuits. Haute saison juin-septembre.",
+    "price_notes": "Location exclusive uniquement. Cuisine vegan, sans gluten et sans sucre raffiné incluse.",
     "meals_included_in_price": true,
-    "setting": ["countryside"],
-    "style": ["rustic", "eco", "spiritual"],
-    "services": ["airport_transfer", "yoga_mats", "meditation_cushions", "sound_system", "wifi", "laundry"],
-    "suitable_for": ["yoga", "meditation", "breathwork", "silent_retreat", "teacher_training"],
+    "setting": [
+      "countryside"
+    ],
+    "style": [
+      "boutique",
+      "spiritual",
+      "traditional"
+    ],
+    "services": [
+      "airport_transfer",
+      "yoga_mats",
+      "meditation_cushions",
+      "sound_system",
+      "wifi",
+      "laundry"
+    ],
+    "suitable_for": [
+      "yoga",
+      "meditation",
+      "breathwork",
+      "silent_retreat",
+      "teacher_training"
+    ],
     "alcohol_policy": "limited",
     "children_welcome": false,
     "accessible": false,
@@ -47,64 +81,111 @@
       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"],
-      "practice_spaces": ["https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"
+      ],
+      "practice_spaces": [
+        "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"
+      ]
     },
-    "contact_email": "contact@maslumineux.fr",
-    "contact_phone": "+33 4 90 12 34 56",
-    "website": "https://maslumineux.fr",
-    "booking_url": null,
+    "contact_email": "breathe@yobabalounge.com",
+    "contact_phone": "+44 20 7097 3933",
+    "website": "https://www.yobabalounge.com",
+    "booking_url": "https://www.booking.com/hotel/fr/yobaba-lounge-chalabre.en-gb.html",
     "rating_average": 4.8,
     "rating_count": 47,
     "available_year_round": false,
     "min_stay_nights": 3,
     "lead_time_weeks": 12,
-    "original_language": "fr",
+    "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
     "is_claimed": false
   },
   {
     "id": "alga002",
-    "source": "retreat.guru",
-    "source_url": "https://example.com/quinta-serenidade",
-    "name": "Quinta da Serenidade",
-    "description": "Domaine de 5 hectares dans l'arri\u00e8re-pays de l'Algarve avec vue sur l'oc\u00e9an. Grande salle octogonale de yoga (150 m\u00b2), piscine infinity, potager bio. H\u00e9bergement en bungalows et chambres d'h\u00f4tes. Cuisine v\u00e9g\u00e9tarienne avec produits du jardin.",
+    "source": "tripadvisor.com",
+    "source_url": "https://www.tripadvisor.com/Hotel_Review-g1190874-d29358494-Reviews-Wild_View_Retreat-Sao_Bras_de_Alportel_Faro_District_Algarve.html",
+    "name": "Wild View Retreat",
+    "description": "Village de montagne abandonné entièrement restauré dans les contreforts de l'Algarve, au coeur d'une zone protégée Natura 2000. Piscine à débordement avec vue 360 degrés, studio de yoga dédié, cuisine saine et détox. Accueille jusqu'à 24 personnes en chambres doubles ou triples avec salle de bain privée. Reconnu par The Guardian parmi les 10 meilleurs centres de retraite en Europe. À 35 minutes de l'aéroport de Faro.",
     "country": "PT",
     "region": "Algarve",
-    "city": "Aljezur",
-    "latitude": 37.3176,
-    "longitude": -8.8016,
-    "nearest_airport": "Faro (FAO) - 110 km",
+    "city": "São Brás de Alportel",
+    "latitude": 37.18,
+    "longitude": -7.89,
+    "nearest_airport": "Faro (FAO) - 35 km",
     "transfer_available": true,
     "capacity_min": 8,
-    "capacity_max": 30,
-    "num_rooms": 15,
-    "num_beds": 30,
-    "accommodation_types": ["private_room", "bungalow", "glamping"],
+    "capacity_max": 24,
+    "num_rooms": 12,
+    "num_beds": 24,
+    "accommodation_types": [
+      "private_room",
+      "shared_room"
+    ],
     "room_has_private_bathroom": true,
-    "activity_spaces": ["yoga_studio", "outdoor_deck", "ceremony_space"],
-    "main_practice_space_capacity": 35,
-    "main_practice_space_m2": 150,
+    "activity_spaces": [
+      "yoga_studio",
+      "outdoor_deck"
+    ],
+    "main_practice_space_capacity": 26,
+    "main_practice_space_m2": 100,
     "num_practice_spaces": 2,
-    "outdoor_spaces": ["pool", "garden", "beach_access", "hiking_trails", "terrace"],
+    "outdoor_spaces": [
+      "pool",
+      "garden",
+      "terrace",
+      "hiking_trails"
+    ],
     "meal_service": "full_board",
-    "cuisine_options": ["vegetarian", "vegan", "organic", "gluten_free", "local_seasonal"],
+    "cuisine_options": [
+      "vegetarian",
+      "vegan",
+      "organic",
+      "gluten_free",
+      "local_seasonal"
+    ],
     "kitchen_access": false,
     "dietary_accommodations": true,
     "currency": "EUR",
     "price_per_person_per_night": 65,
     "price_per_person_per_night_max": 95,
     "price_full_venue_per_day": 1500,
-    "price_notes": "Location exclusive possible. R\u00e9duction hors saison (oct-mars).",
+    "price_notes": "Location exclusive possible. Zone protégée Natura 2000. Réduction hors saison.",
     "meals_included_in_price": true,
-    "setting": ["countryside", "beach"],
-    "style": ["eco", "bohemian", "spiritual"],
-    "services": ["airport_transfer", "yoga_mats", "meditation_cushions", "sound_system", "massage", "excursions", "wifi"],
-    "suitable_for": ["yoga", "meditation", "dance", "breathwork", "silent_retreat", "detox", "teacher_training", "ecstatic_dance"],
+    "setting": [
+      "countryside",
+      "mountain"
+    ],
+    "style": [
+      "eco",
+      "modern",
+      "spiritual"
+    ],
+    "services": [
+      "airport_transfer",
+      "yoga_mats",
+      "meditation_cushions",
+      "sound_system",
+      "massage",
+      "excursions",
+      "wifi"
+    ],
+    "suitable_for": [
+      "yoga",
+      "meditation",
+      "detox",
+      "silent_retreat",
+      "teacher_training",
+      "breathwork"
+    ],
     "alcohol_policy": "limited",
-    "children_welcome": true,
+    "children_welcome": false,
     "accessible": false,
     "images": [
       "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800",
@@ -113,15 +194,23 @@
       "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800"],
-      "practice_spaces": ["https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800"
+      ],
+      "practice_spaces": [
+        "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"
+      ]
     },
-    "contact_email": "info@quintaserenidade.pt",
-    "contact_phone": "+351 282 123 456",
-    "website": "https://quintaserenidade.pt",
-    "booking_url": "https://quintaserenidade.pt/book",
+    "contact_email": "hello@wildviewretreat.com",
+    "contact_phone": null,
+    "website": "https://wildviewretreat.com",
+    "booking_url": "https://wildviewretreat.com/retreat-schedule/",
     "rating_average": 4.9,
     "rating_count": 82,
     "available_year_round": true,
@@ -133,63 +222,112 @@
   },
   {
     "id": "bali003",
-    "source": "bookretreats.com",
-    "source_url": "https://example.com/ubud-sanctuary",
-    "name": "Ubud Bamboo Sanctuary",
-    "description": "Sanctuaire de bambou au milieu des rizi\u00e8res d'Ubud. Architecture durable en bambou avec deux shalas de yoga ouverts sur la nature. Cuisine ayurv\u00e9dique et balinaise. Exp\u00e9rience immersive avec c\u00e9r\u00e9monies locales et traitements spa traditionnels.",
+    "source": "retreatsandvenues.com",
+    "source_url": "https://retreatsandvenues.com/venue/indonesia/gaia-retreat-center",
+    "name": "Gaia Retreat Center",
+    "description": "Centre de retraite bien-être niché au coeur des rizières en terrasses d'Ubud, le centre créatif et spirituel de Bali. Villa Gaia propose 8 chambres (16-18 personnes), location exclusive pour groupes privés, formations de professeurs et ateliers. Piscine sans chlore, jacuzzi, sauna infrarouge, salle de massage. À 15 minutes à pied du centre-ville d'Ubud et 90 minutes de l'aéroport international. Noté 4.87/5 sur BookRetreats (103 avis).",
     "country": "ID",
     "region": "Bali",
     "city": "Ubud",
     "latitude": -8.5069,
-    "longitude": 115.2625,
+    "longitude": 115.2624,
     "nearest_airport": "Ngurah Rai (DPS) - 35 km",
     "transfer_available": true,
     "capacity_min": 6,
-    "capacity_max": 20,
-    "num_rooms": 10,
-    "num_beds": 20,
-    "accommodation_types": ["bungalow", "private_room"],
+    "capacity_max": 18,
+    "num_rooms": 8,
+    "num_beds": 18,
+    "accommodation_types": [
+      "private_room"
+    ],
     "room_has_private_bathroom": true,
-    "activity_spaces": ["yoga_studio", "outdoor_deck", "ceremony_space", "healing_room"],
-    "main_practice_space_capacity": 22,
+    "activity_spaces": [
+      "yoga_studio",
+      "outdoor_deck",
+      "healing_room"
+    ],
+    "main_practice_space_capacity": 20,
     "main_practice_space_m2": 80,
-    "num_practice_spaces": 3,
-    "outdoor_spaces": ["pool", "garden", "terrace", "meditation_garden"],
+    "num_practice_spaces": 2,
+    "outdoor_spaces": [
+      "pool",
+      "garden",
+      "terrace",
+      "hot_tub",
+      "sauna"
+    ],
     "meal_service": "full_board",
-    "cuisine_options": ["vegetarian", "vegan", "organic", "ayurvedic", "gluten_free"],
+    "cuisine_options": [
+      "vegetarian",
+      "vegan",
+      "organic",
+      "gluten_free"
+    ],
     "kitchen_access": false,
     "dietary_accommodations": true,
     "currency": "EUR",
     "price_per_person_per_night": 35,
     "price_per_person_per_night_max": 60,
     "price_full_venue_per_day": null,
-    "price_notes": "Prix tr\u00e8s comp\u00e9titif incluant tous les repas et traitements spa basiques.",
+    "price_notes": "Prix très compétitif incluant tous les repas et accès piscine/sauna.",
     "meals_included_in_price": true,
-    "setting": ["jungle", "countryside"],
-    "style": ["spiritual", "eco", "traditional"],
-    "services": ["airport_transfer", "yoga_mats", "meditation_cushions", "sound_system", "massage", "spa", "excursions", "wifi", "laundry"],
-    "suitable_for": ["yoga", "meditation", "breathwork", "silent_retreat", "detox", "sound_healing", "teacher_training"],
+    "setting": [
+      "jungle",
+      "countryside"
+    ],
+    "style": [
+      "spiritual",
+      "eco",
+      "traditional"
+    ],
+    "services": [
+      "airport_transfer",
+      "yoga_mats",
+      "meditation_cushions",
+      "sound_system",
+      "massage",
+      "spa",
+      "wifi",
+      "laundry"
+    ],
+    "suitable_for": [
+      "yoga",
+      "meditation",
+      "breathwork",
+      "silent_retreat",
+      "detox",
+      "sound_healing",
+      "teacher_training"
+    ],
     "alcohol_policy": "not_allowed",
     "children_welcome": false,
     "accessible": false,
     "images": [
       "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800",
       "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800",
-      "https://images.unsplash.com/photo-1540555700478-4be289fbec6d?w=800",
+      "https://images.unsplash.com/photo-1758908296291-8dde3655d07a?w=800",
       "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800"],
-      "practice_spaces": ["https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1540555700478-4be289fbec6d?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800"
+      ],
+      "practice_spaces": [
+        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1758908296291-8dde3655d07a?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800"
+      ]
     },
-    "contact_email": "hello@ubudbamboo.com",
-    "contact_phone": "+62 361 123 456",
-    "website": "https://ubudbamboo.com",
-    "booking_url": "https://ubudbamboo.com/retreats",
-    "rating_average": 4.7,
-    "rating_count": 124,
+    "contact_email": null,
+    "contact_phone": null,
+    "website": "https://www.gaiaretreatcenter.com",
+    "booking_url": "https://www.gaiaretreatcenter.com/private-rental-and-accommodation-villa-gaia-bali.php",
+    "rating_average": 4.87,
+    "rating_count": 103,
     "available_year_round": true,
     "min_stay_nights": 3,
     "lead_time_weeks": 8,
@@ -199,42 +337,82 @@
   },
   {
     "id": "tosc004",
-    "source": "retreat.guru",
-    "source_url": "https://example.com/podere-anima",
-    "name": "Podere dell'Anima",
-    "description": "Ferme toscane du XVIIe si\u00e8cle transform\u00e9e en centre de retraite haut de gamme. Piscine infinity avec vue sur les cypr\u00e8s, salle de yoga avec plancher chauffant, cuisine italienne gastronomique bio. Vin biodynamique du domaine.",
+    "source": "tripadvisor.com",
+    "source_url": "https://www.tripadvisor.com/Hotel_Review-g796973-d2320985-Reviews-La_Dogana-Tuoro_sul_Trasimeno_Province_of_Perugia_Umbria.html",
+    "name": "Agriturismo La Dogana",
+    "description": "Domaine familial de quatrième génération surplombant le lac Trasimène, à la frontière entre l'Ombrie et la Toscane. Villa du XIXe siècle entièrement décorée de fresques, entourée de 4 000 oliviers bio. 11 appartements dans la maison principale plus 2 maisons indépendantes. Piscine panoramique de 26 mètres, restaurant avec terrasse vue lac, école d'équitation. À proximité de Cortona et à 1h30 de Florence.",
     "country": "IT",
-    "region": "Toscane",
-    "city": "Cortona",
-    "latitude": 43.2745,
-    "longitude": 11.9854,
-    "nearest_airport": "Florence (FLR) - 120 km / Rome (FCO) - 200 km",
+    "region": "Ombrie / Toscane",
+    "city": "Tuoro sul Trasimeno",
+    "latitude": 43.1833,
+    "longitude": 12.0833,
+    "nearest_airport": "Florence (FLR) - 130 km / Rome (FCO) - 200 km",
     "transfer_available": true,
     "capacity_min": 10,
-    "capacity_max": 22,
-    "num_rooms": 11,
-    "num_beds": 22,
-    "accommodation_types": ["private_room", "suite"],
+    "capacity_max": 60,
+    "num_rooms": 13,
+    "num_beds": 40,
+    "accommodation_types": [
+      "private_room",
+      "suite",
+      "apartment"
+    ],
     "room_has_private_bathroom": true,
-    "activity_spaces": ["yoga_studio", "workshop_room", "outdoor_deck"],
-    "main_practice_space_capacity": 24,
-    "main_practice_space_m2": 110,
+    "activity_spaces": [
+      "yoga_studio",
+      "workshop_room",
+      "outdoor_deck"
+    ],
+    "main_practice_space_capacity": 40,
+    "main_practice_space_m2": 120,
     "num_practice_spaces": 2,
-    "outdoor_spaces": ["pool", "garden", "terrace", "hiking_trails"],
+    "outdoor_spaces": [
+      "pool",
+      "garden",
+      "terrace",
+      "hiking_trails"
+    ],
     "meal_service": "full_board",
-    "cuisine_options": ["vegetarian", "organic", "local_seasonal"],
+    "cuisine_options": [
+      "vegetarian",
+      "organic",
+      "local_seasonal"
+    ],
     "kitchen_access": false,
     "dietary_accommodations": true,
     "currency": "EUR",
-    "price_per_person_per_night": 95,
+    "price_per_person_per_night": 80,
     "price_per_person_per_night_max": 150,
     "price_full_venue_per_day": 1800,
-    "price_notes": "Tarifs incluent les repas gastronomiques. D\u00e9gustation de vins du domaine en suppl\u00e9ment.",
+    "price_notes": "Tarifs incluent les repas avec produits du domaine. Huile d'olive bio du domaine. École d'équitation disponible.",
     "meals_included_in_price": true,
-    "setting": ["countryside", "vineyard"],
-    "style": ["luxury", "traditional", "boutique"],
-    "services": ["airport_transfer", "yoga_mats", "sound_system", "massage", "excursions", "wifi", "laundry", "event_planning_support"],
-    "suitable_for": ["yoga", "pilates", "meditation", "writing", "art", "corporate_wellness"],
+    "setting": [
+      "countryside",
+      "lake"
+    ],
+    "style": [
+      "luxury",
+      "traditional",
+      "boutique"
+    ],
+    "services": [
+      "airport_transfer",
+      "yoga_mats",
+      "sound_system",
+      "massage",
+      "excursions",
+      "wifi",
+      "laundry",
+      "event_planning_support"
+    ],
+    "suitable_for": [
+      "yoga",
+      "pilates",
+      "meditation",
+      "writing",
+      "art",
+      "corporate_wellness"
+    ],
     "alcohol_policy": "allowed",
     "children_welcome": true,
     "accessible": true,
@@ -245,15 +423,23 @@
       "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=800"],
-      "practice_spaces": ["https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=800"
+      ],
+      "practice_spaces": [
+        "https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800"
+      ]
     },
-    "contact_email": "retreat@podereanima.it",
-    "contact_phone": "+39 0575 123 456",
-    "website": "https://podereanima.it",
-    "booking_url": null,
+    "contact_email": "retreats@agriturismodogana.it",
+    "contact_phone": null,
+    "website": "https://agriturismodogana.it",
+    "booking_url": "https://agriturismodogana.it/yoga-retreat-venue-in-italy-tuscany/",
     "rating_average": 4.9,
     "rating_count": 36,
     "available_year_round": false,
@@ -266,44 +452,86 @@
   {
     "id": "anda005",
     "source": "bookyogaretreats.com",
-    "source_url": "https://example.com/finca-alma",
-    "name": "Finca del Alma",
-    "description": "Finca andalouse authentique avec vue sur la Sierra Nevada. Grand shala de yoga en plein air, yourte de m\u00e9ditation, piscine et hamacs. Ambiance d\u00e9contract\u00e9e et conviviale. Cuisine v\u00e9g\u00e9tarienne espagnole g\u00e9n\u00e9reuse. Parfait pour les petits groupes intimes.",
+    "source_url": "https://www.bookyogaretreats.com/suryalila-yoga-retreat-centre",
+    "name": "Suryalila Yoga Retreat Centre",
+    "description": "Centre de retraite yoga primé dans les collines pittoresques de l'Andalousie. Élu Centre de Retraite Préféré d'Europe en 2023 et 2024 par Om Yoga Magazine. Dispose de 3 grandes salles de yoga, piscine d'eau salée, sauna, ferme biologique, boutique et café. Cuisine végétarienne biologique incluse (3 repas/jour). Propose des retraites signature, des formations de professeurs et des séjours personnalisés.",
     "country": "ES",
     "region": "Andalousie",
-    "city": "Orgiva",
-    "latitude": 36.8996,
-    "longitude": -3.4186,
-    "nearest_airport": "Malaga (AGP) - 140 km / Grenade (GRX) - 65 km",
-    "transfer_available": false,
-    "capacity_min": 6,
-    "capacity_max": 16,
-    "num_rooms": 8,
-    "num_beds": 16,
-    "accommodation_types": ["private_room", "shared_room", "tent", "glamping"],
-    "room_has_private_bathroom": false,
-    "activity_spaces": ["outdoor_deck", "ceremony_space", "meditation_hall"],
-    "main_practice_space_capacity": 18,
-    "main_practice_space_m2": 70,
-    "num_practice_spaces": 2,
-    "outdoor_spaces": ["pool", "garden", "hiking_trails", "fire_pit", "terrace"],
+    "city": "Villamartín",
+    "latitude": 36.86,
+    "longitude": -5.62,
+    "nearest_airport": "Jerez (XRY) - 30 km / Séville (SVQ) - 100 km",
+    "transfer_available": true,
+    "capacity_min": 10,
+    "capacity_max": 40,
+    "num_rooms": 20,
+    "num_beds": 40,
+    "accommodation_types": [
+      "private_room",
+      "shared_room",
+      "glamping"
+    ],
+    "room_has_private_bathroom": true,
+    "activity_spaces": [
+      "yoga_studio",
+      "outdoor_deck",
+      "meditation_hall"
+    ],
+    "main_practice_space_capacity": 40,
+    "main_practice_space_m2": 140,
+    "num_practice_spaces": 3,
+    "outdoor_spaces": [
+      "pool",
+      "garden",
+      "terrace",
+      "sauna",
+      "hiking_trails"
+    ],
     "meal_service": "full_board",
-    "cuisine_options": ["vegetarian", "vegan", "organic", "local_seasonal"],
-    "kitchen_access": true,
+    "cuisine_options": [
+      "vegetarian",
+      "vegan",
+      "organic",
+      "local_seasonal"
+    ],
+    "kitchen_access": false,
     "dietary_accommodations": true,
     "currency": "EUR",
-    "price_per_person_per_night": 45,
-    "price_per_person_per_night_max": 70,
-    "price_full_venue_per_day": 600,
-    "price_notes": "Location du lieu complet possible pour groupes de 12+. Camping gratuit en suppl\u00e9ment des chambres.",
+    "price_per_person_per_night": 55,
+    "price_per_person_per_night_max": 90,
+    "price_full_venue_per_day": 1600,
+    "price_notes": "Élu meilleur centre de retraite d'Europe 2023/2024. 3 repas bio inclus.",
     "meals_included_in_price": true,
-    "setting": ["mountain", "countryside"],
-    "style": ["rustic", "bohemian", "eco"],
-    "services": ["yoga_mats", "meditation_cushions", "sound_system", "wifi"],
-    "suitable_for": ["yoga", "meditation", "dance", "breathwork", "ecstatic_dance", "fasting", "detox"],
+    "setting": [
+      "countryside"
+    ],
+    "style": [
+      "eco",
+      "spiritual",
+      "bohemian"
+    ],
+    "services": [
+      "airport_transfer",
+      "yoga_mats",
+      "meditation_cushions",
+      "sound_system",
+      "massage",
+      "spa",
+      "wifi",
+      "event_planning_support"
+    ],
+    "suitable_for": [
+      "yoga",
+      "meditation",
+      "dance",
+      "breathwork",
+      "ecstatic_dance",
+      "teacher_training",
+      "detox"
+    ],
     "alcohol_policy": "limited",
     "children_welcome": true,
-    "accessible": false,
+    "accessible": true,
     "images": [
       "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800",
       "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800",
@@ -311,65 +539,116 @@
       "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800"],
-      "practice_spaces": ["https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800"
+      ],
+      "practice_spaces": [
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800"
+      ]
     },
-    "contact_email": "hola@fincadelalma.es",
-    "contact_phone": "+34 958 123 456",
-    "website": "https://fincadelalma.es",
-    "booking_url": null,
-    "rating_average": 4.6,
-    "rating_count": 58,
+    "contact_email": "info@suryalila.com",
+    "contact_phone": "+34 856 02 36 31",
+    "website": "https://www.suryalila.com",
+    "booking_url": "https://www.suryalila.com/book-yoga-retreat",
+    "rating_average": 4.8,
+    "rating_count": 158,
     "available_year_round": true,
     "min_stay_nights": 3,
-    "lead_time_weeks": 6,
-    "original_language": "es",
+    "lead_time_weeks": 8,
+    "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
     "is_claimed": false
   },
   {
     "id": "thai006",
     "source": "bookretreats.com",
-    "source_url": "https://example.com/koh-phangan-haven",
-    "name": "Koh Phangan Wellness Haven",
-    "description": "Centre de bien-\u00eatre sur l'\u00eele de Koh Phangan, \u00e0 500 m de la plage. Deux shalas de yoga spacieux, piscine, restaurant vegan, et spa complet. Programmes de d\u00e9tox, je\u00fbne et yoga intensif. \u00c9quipe de soutien exp\u00e9riment\u00e9e pour les organisateurs.",
+    "source_url": "https://bookretreats.com/organizers/o/orion-healing-centre",
+    "name": "Orion Healing Centre",
+    "description": "Centre de guérison et de yoga en bord de mer, fondé en 2005, situé dans la baie de Srithanu à Koh Phangan. Propose des retraites de yoga, programmes détox, formations de thérapies holistiques (Reiki, cranio-sacral, équilibrage des chakras). Dispose d'un hammam aux herbes thaïlandaises, sauna infrarouge, bain de glace, deux salles de yoga, et d'un café végétarien servant des fruits tropicaux frais quotidiennement.",
     "country": "TH",
     "region": "Koh Phangan",
-    "city": "Koh Phangan",
-    "latitude": 9.7489,
-    "longitude": 100.0295,
+    "city": "Srithanu",
+    "latitude": 9.7519,
+    "longitude": 99.9661,
     "nearest_airport": "Koh Samui (USM) - ferry 30 min",
     "transfer_available": true,
     "capacity_min": 10,
     "capacity_max": 35,
     "num_rooms": 18,
     "num_beds": 35,
-    "accommodation_types": ["private_room", "shared_room", "bungalow"],
+    "accommodation_types": [
+      "private_room",
+      "shared_room",
+      "bungalow"
+    ],
     "room_has_private_bathroom": true,
-    "activity_spaces": ["yoga_studio", "outdoor_deck", "meditation_hall", "movement_studio"],
+    "activity_spaces": [
+      "yoga_studio",
+      "outdoor_deck",
+      "meditation_hall",
+      "healing_room"
+    ],
     "main_practice_space_capacity": 40,
     "main_practice_space_m2": 160,
     "num_practice_spaces": 3,
-    "outdoor_spaces": ["pool", "beach_access", "garden", "terrace", "sauna"],
+    "outdoor_spaces": [
+      "beach_access",
+      "garden",
+      "terrace",
+      "sauna"
+    ],
     "meal_service": "flexible",
-    "cuisine_options": ["vegetarian", "vegan", "organic", "raw", "gluten_free"],
+    "cuisine_options": [
+      "vegetarian",
+      "vegan",
+      "organic",
+      "raw",
+      "gluten_free"
+    ],
     "kitchen_access": false,
     "dietary_accommodations": true,
     "currency": "EUR",
     "price_per_person_per_night": 30,
     "price_per_person_per_night_max": 55,
     "price_full_venue_per_day": null,
-    "price_notes": "Tarifs tr\u00e8s avantageux. Repas en suppl\u00e9ment (10-15 EUR/jour). Location partielle ou totale.",
+    "price_notes": "Tarifs très avantageux. Repas au café végétarien (10-15 EUR/jour). Fondé en 2005.",
     "meals_included_in_price": false,
-    "setting": ["beach", "island"],
-    "style": ["modern", "eco", "spiritual"],
-    "services": ["airport_transfer", "yoga_mats", "meditation_cushions", "sound_system", "massage", "spa", "excursions", "wifi", "laundry", "event_planning_support"],
-    "suitable_for": ["yoga", "meditation", "pilates", "dance", "breathwork", "detox", "fasting", "teacher_training", "sound_healing"],
+    "setting": [
+      "beach",
+      "island"
+    ],
+    "style": [
+      "spiritual",
+      "eco",
+      "traditional"
+    ],
+    "services": [
+      "airport_transfer",
+      "yoga_mats",
+      "meditation_cushions",
+      "sound_system",
+      "massage",
+      "spa",
+      "wifi"
+    ],
+    "suitable_for": [
+      "yoga",
+      "meditation",
+      "detox",
+      "fasting",
+      "teacher_training",
+      "sound_healing",
+      "breathwork"
+    ],
     "alcohol_policy": "not_allowed",
     "children_welcome": false,
-    "accessible": true,
+    "accessible": false,
     "images": [
       "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
@@ -377,19 +656,27 @@
       "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"],
-      "practice_spaces": ["https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"
+      ],
+      "practice_spaces": [
+        "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"
+      ]
     },
-    "contact_email": "retreats@kohphanganhaven.com",
-    "contact_phone": "+66 77 123 456",
-    "website": "https://kohphanganhaven.com",
-    "booking_url": "https://kohphanganhaven.com/host",
+    "contact_email": null,
+    "contact_phone": "+66 77 445 966",
+    "website": "https://www.orionhealing.com",
+    "booking_url": null,
     "rating_average": 4.5,
     "rating_count": 203,
     "available_year_round": true,
-    "min_stay_nights": 5,
+    "min_stay_nights": 3,
     "lead_time_weeks": 10,
     "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
@@ -397,61 +684,103 @@
   },
   {
     "id": "cret007",
-    "source": "retreat.guru",
-    "source_url": "https://example.com/olive-grove-crete",
-    "name": "The Olive Grove Retreat",
-    "description": "Refuge cr\u00e9tois au milieu d'une oliveraie centenaire, surplombant la mer de Libye. Architecture traditionnelle en pierre, grand espace yoga int\u00e9rieur/ext\u00e9rieur, cuisine cr\u00e9toise m\u00e9diterran\u00e9enne renomm\u00e9e. Exc. sentiers de randonn\u00e9e dans les gorges avoisinantes.",
+    "source": "bookyogaretreats.com",
+    "source_url": "https://www.bookyogaretreats.com/yoga-rocks-crete",
+    "name": "Yoga Rocks",
+    "description": "Retraite de yoga située sur une baie pittoresque de la côte sud de la Crète, à quelques pas de la plage et de la mer cristalline. Hébergement sur une petite falaise surplombant une plage de sable. Cuisine végétarienne exceptionnelle avec plus de 90% de fruits et légumes issus de producteurs crétois locaux (bio si possible). Retraites de 8 jours avec différents styles de yoga (Vinyasa, Iyengar, Prana Flow). Saisons : mai, juillet, août.",
     "country": "GR",
-    "region": "Cr\u00e8te",
-    "city": "Sfakia",
-    "latitude": 35.2051,
-    "longitude": 24.1363,
-    "nearest_airport": "La Can\u00e9e (CHQ) - 80 km",
+    "region": "Crète",
+    "city": "Agios Pavlos",
+    "latitude": 35.2,
+    "longitude": 24.55,
+    "nearest_airport": "La Canée (CHQ) - 80 km",
     "transfer_available": true,
     "capacity_min": 8,
     "capacity_max": 18,
     "num_rooms": 9,
     "num_beds": 18,
-    "accommodation_types": ["private_room"],
+    "accommodation_types": [
+      "private_room"
+    ],
     "room_has_private_bathroom": true,
-    "activity_spaces": ["yoga_studio", "outdoor_deck"],
+    "activity_spaces": [
+      "yoga_studio",
+      "outdoor_deck"
+    ],
     "main_practice_space_capacity": 20,
     "main_practice_space_m2": 85,
     "num_practice_spaces": 2,
-    "outdoor_spaces": ["pool", "garden", "hiking_trails", "terrace", "beach_access"],
+    "outdoor_spaces": [
+      "garden",
+      "hiking_trails",
+      "terrace",
+      "beach_access"
+    ],
     "meal_service": "full_board",
-    "cuisine_options": ["vegetarian", "organic", "local_seasonal"],
+    "cuisine_options": [
+      "vegetarian",
+      "organic",
+      "local_seasonal"
+    ],
     "kitchen_access": false,
     "dietary_accommodations": true,
     "currency": "EUR",
     "price_per_person_per_night": 70,
     "price_per_person_per_night_max": 100,
     "price_full_venue_per_day": 950,
-    "price_notes": "Saison : avril-octobre. Inclut tous les repas avec produits du jardin et huile d'olive du domaine.",
+    "price_notes": "Saison : mai, juillet, août. Inclut tous les repas avec 90% de produits crétois locaux.",
     "meals_included_in_price": true,
-    "setting": ["mountain", "beach", "countryside"],
-    "style": ["traditional", "rustic", "eco"],
-    "services": ["airport_transfer", "yoga_mats", "meditation_cushions", "excursions", "wifi"],
-    "suitable_for": ["yoga", "meditation", "pilates", "writing", "art", "silent_retreat"],
+    "setting": [
+      "beach",
+      "countryside"
+    ],
+    "style": [
+      "traditional",
+      "eco",
+      "bohemian"
+    ],
+    "suitable_for": [
+      "yoga",
+      "meditation",
+      "pilates",
+      "writing",
+      "art",
+      "silent_retreat"
+    ],
+    "services": [
+      "airport_transfer",
+      "yoga_mats",
+      "meditation_cushions",
+      "excursions",
+      "wifi"
+    ],
     "alcohol_policy": "allowed",
     "children_welcome": true,
     "accessible": false,
     "images": [
       "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800",
-      "https://images.unsplash.com/photo-1515861209648-94e4b4b2e120?w=800",
+      "https://images.unsplash.com/photo-1752253509873-86363f0188b0?w=800",
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800",
       "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1515861209648-94e4b4b2e120?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"],
-      "dining": ["https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1752253509873-86363f0188b0?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"
+      ],
+      "dining": [
+        "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800"
+      ]
     },
-    "contact_email": "hello@olivegrovecrete.gr",
-    "contact_phone": "+30 2825 012 345",
-    "website": "https://olivegrovecrete.gr",
-    "booking_url": null,
+    "contact_email": "info@yogaholidaysgreece.com",
+    "contact_phone": null,
+    "website": "https://www.yogaholidaysgreece.com",
+    "booking_url": "https://www.yogaholidaysgreece.com/contact/bookings/",
     "rating_average": 4.8,
     "rating_count": 29,
     "available_year_round": false,
@@ -463,10 +792,10 @@
   },
   {
     "id": "maro008",
-    "source": "bookretreats.com",
-    "source_url": "https://example.com/riad-lumiere",
-    "name": "Riad Lumi\u00e8re Int\u00e9rieure",
-    "description": "Riad r\u00e9nov\u00e9 avec go\u00fbt dans la m\u00e9dina de Marrakech, avec rooftop yoga et vue sur l'Atlas. Patio int\u00e9rieur avec fontaine, hammam traditionnel, et cuisine marocaine raffin\u00e9e. Ambiance intime et authentique pour des retraites immersives.",
+    "source": "retreat.guru",
+    "source_url": "https://retreat.guru/centers/3365-1/nosade",
+    "name": "NOSADE",
+    "description": "Riad intimiste de 3 chambres au coeur de la Médina historique de Marrakech, dans l'une des plus anciennes maisons de la ville datant du XIXe siècle. Spécialisé dans les retraites de yoga urbaines (5 jours) combinant yoga quotidien, exploration culturelle des souks et cuisine marocaine traditionnelle. Propose également des retraites yoga dans le désert du Sahara (Merzouga). Géré avec passion et souci du détail. Noté 5/5 sur TripAdvisor.",
     "country": "MA",
     "region": "Marrakech-Safi",
     "city": "Marrakech",
@@ -474,116 +803,204 @@
     "longitude": -7.9811,
     "nearest_airport": "Marrakech Menara (RAK) - 6 km",
     "transfer_available": true,
-    "capacity_min": 6,
-    "capacity_max": 14,
-    "num_rooms": 7,
-    "num_beds": 14,
-    "accommodation_types": ["private_room", "suite"],
+    "capacity_min": 4,
+    "capacity_max": 6,
+    "num_rooms": 3,
+    "num_beds": 6,
+    "accommodation_types": [
+      "private_room",
+      "suite"
+    ],
     "room_has_private_bathroom": true,
-    "activity_spaces": ["yoga_studio", "outdoor_deck"],
-    "main_practice_space_capacity": 16,
-    "main_practice_space_m2": 60,
+    "activity_spaces": [
+      "yoga_studio",
+      "outdoor_deck"
+    ],
+    "main_practice_space_capacity": 8,
+    "main_practice_space_m2": 40,
     "num_practice_spaces": 2,
-    "outdoor_spaces": ["terrace", "garden"],
+    "outdoor_spaces": [
+      "terrace",
+      "garden"
+    ],
     "meal_service": "full_board",
-    "cuisine_options": ["vegetarian", "vegan", "local_seasonal"],
+    "cuisine_options": [
+      "vegetarian",
+      "vegan",
+      "local_seasonal"
+    ],
     "kitchen_access": false,
     "dietary_accommodations": true,
     "currency": "EUR",
     "price_per_person_per_night": 55,
     "price_per_person_per_night_max": 85,
-    "price_full_venue_per_day": 650,
-    "price_notes": "Hammam inclus. Excursions dans l'Atlas en suppl\u00e9ment.",
+    "price_full_venue_per_day": 350,
+    "price_notes": "Retraites de 5 jours. Excursions dans le désert du Sahara en option. Noté 5/5 sur TripAdvisor.",
     "meals_included_in_price": true,
-    "setting": ["desert"],
-    "style": ["boutique", "traditional", "luxury"],
-    "services": ["airport_transfer", "yoga_mats", "meditation_cushions", "massage", "spa", "excursions", "wifi", "laundry"],
-    "suitable_for": ["yoga", "meditation", "breathwork", "writing", "art", "sound_healing"],
+    "setting": [
+      "desert"
+    ],
+    "style": [
+      "boutique",
+      "traditional",
+      "spiritual"
+    ],
+    "services": [
+      "airport_transfer",
+      "yoga_mats",
+      "meditation_cushions",
+      "massage",
+      "excursions",
+      "wifi"
+    ],
+    "suitable_for": [
+      "yoga",
+      "meditation",
+      "breathwork",
+      "writing"
+    ],
     "alcohol_policy": "not_allowed",
     "children_welcome": false,
     "accessible": false,
     "images": [
       "https://images.unsplash.com/photo-1539437829697-1b4ed5aebd19?w=800",
-      "https://images.unsplash.com/photo-1548018560-c7196e27c5fd?w=800",
-      "https://images.unsplash.com/photo-1590490360182-c33d6b3a3e1c?w=800",
+      "https://images.unsplash.com/photo-1531217543955-63c89bf9a1b9?w=800",
+      "https://images.unsplash.com/photo-1545389336-cf090694435e?w=800",
       "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1539437829697-1b4ed5aebd19?w=800"],
-      "practice_spaces": ["https://images.unsplash.com/photo-1548018560-c7196e27c5fd?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1590490360182-c33d6b3a3e1c?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1539437829697-1b4ed5aebd19?w=800"
+      ],
+      "practice_spaces": [
+        "https://images.unsplash.com/photo-1531217543955-63c89bf9a1b9?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1545389336-cf090694435e?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800"
+      ]
     },
-    "contact_email": "contact@riadlumiere.ma",
-    "contact_phone": "+212 524 123 456",
-    "website": "https://riadlumiere.ma",
-    "booking_url": null,
-    "rating_average": 4.7,
+    "contact_email": "info@nosade.com",
+    "contact_phone": "+49 176 21308602",
+    "website": "https://nosade.com",
+    "booking_url": "https://nosade.com/nosade-venue-marrakech/",
+    "rating_average": 5,
     "rating_count": 41,
     "available_year_round": true,
     "min_stay_nights": 3,
     "lead_time_weeks": 8,
-    "original_language": "fr",
+    "original_language": "en",
     "date_scraped": "2026-02-20T10:00:00Z",
     "is_claimed": false
   },
   {
     "id": "cost009",
-    "source": "retreat.guru",
-    "source_url": "https://example.com/pura-vida-lodge",
-    "name": "Pura Vida Jungle Lodge",
-    "description": "Lodge \u00e9cologique au coeur de la for\u00eat tropicale du Costa Rica, \u00e0 15 min de la plage. Grande plateforme de yoga avec vue canop\u00e9e, cabanes en bois sur pilotis, cuisine tropicale plant-based. Observation d'animaux (singes, toucans, paresseux).",
+    "source": "tripadvisor.com",
+    "source_url": "https://www.tripadvisor.com/Hotel_Review-g656474-d23319530-Reviews-Casas_Kismet-Nosara_Province_of_Guanacaste.html",
+    "name": "Casas Kismet",
+    "description": "Centre de retraite boutique situé sur une crête paisible à Nosara, au coeur de l'une des cinq zones bleues du monde (où les habitants vivent plus longtemps). Vue océan et jungle, shala de yoga en plein air, salle de sport, restaurant farm-to-table avec cuisine biologique. Accueille des retraites privées, mariages, réunions de famille. À 2h30 de l'aéroport de Liberia.",
     "country": "CR",
     "region": "Guanacaste",
     "city": "Nosara",
-    "latitude": 9.9769,
-    "longitude": -85.6529,
+    "latitude": 9.95,
+    "longitude": -85.65,
     "nearest_airport": "Liberia (LIR) - 130 km",
     "transfer_available": true,
     "capacity_min": 8,
     "capacity_max": 22,
     "num_rooms": 11,
     "num_beds": 22,
-    "accommodation_types": ["cabin", "bungalow", "glamping"],
+    "accommodation_types": [
+      "private_room",
+      "suite"
+    ],
     "room_has_private_bathroom": true,
-    "activity_spaces": ["outdoor_deck", "yoga_studio", "ceremony_space"],
+    "activity_spaces": [
+      "outdoor_deck",
+      "yoga_studio"
+    ],
     "main_practice_space_capacity": 25,
     "main_practice_space_m2": 100,
     "num_practice_spaces": 2,
-    "outdoor_spaces": ["pool", "garden", "beach_access", "hiking_trails", "fire_pit"],
+    "outdoor_spaces": [
+      "pool",
+      "garden",
+      "beach_access",
+      "terrace"
+    ],
     "meal_service": "full_board",
-    "cuisine_options": ["vegan", "vegetarian", "organic", "gluten_free", "local_seasonal", "raw"],
+    "cuisine_options": [
+      "vegan",
+      "vegetarian",
+      "organic",
+      "gluten_free",
+      "local_seasonal"
+    ],
     "kitchen_access": false,
     "dietary_accommodations": true,
     "currency": "USD",
     "price_per_person_per_night": 50,
     "price_per_person_per_night_max": 80,
     "price_full_venue_per_day": 900,
-    "price_notes": "Tarifs en USD. Saison s\u00e8che (d\u00e9c-avril) plus cher. Surfing et excursions en suppl\u00e9ment.",
+    "price_notes": "Tarifs en USD. Situé dans une zone bleue. Restaurant farm-to-table.",
     "meals_included_in_price": true,
-    "setting": ["jungle", "beach"],
-    "style": ["eco", "bohemian", "spiritual"],
-    "services": ["airport_transfer", "yoga_mats", "meditation_cushions", "sound_system", "massage", "excursions", "wifi", "event_planning_support"],
-    "suitable_for": ["yoga", "meditation", "dance", "breathwork", "detox", "teacher_training", "ecstatic_dance", "sound_healing"],
+    "setting": [
+      "jungle",
+      "beach"
+    ],
+    "style": [
+      "boutique",
+      "eco",
+      "spiritual"
+    ],
+    "services": [
+      "airport_transfer",
+      "yoga_mats",
+      "meditation_cushions",
+      "sound_system",
+      "massage",
+      "excursions",
+      "wifi",
+      "event_planning_support"
+    ],
+    "suitable_for": [
+      "yoga",
+      "meditation",
+      "dance",
+      "breathwork",
+      "detox",
+      "teacher_training",
+      "ecstatic_dance"
+    ],
     "alcohol_policy": "limited",
     "children_welcome": true,
     "accessible": false,
     "images": [
       "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800",
-      "https://images.unsplash.com/photo-1518699329-1fc207e8b12a?w=800",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
       "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800",
       "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1518699329-1fc207e8b12a?w=800"],
-      "practice_spaces": ["https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"
+      ],
+      "practice_spaces": [
+        "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+      ]
     },
-    "contact_email": "info@puravidajungle.cr",
-    "contact_phone": "+506 2682 1234",
-    "website": "https://puravidajungle.cr",
-    "booking_url": "https://puravidajungle.cr/host-retreat",
+    "contact_email": "retreats@casaskismet.com",
+    "contact_phone": "+1 865 386 8266",
+    "website": "https://www.casaskismet.com",
+    "booking_url": "https://www.casaskismet.com/retreat-leader-page",
     "rating_average": 4.6,
     "rating_count": 67,
     "available_year_round": true,
@@ -595,45 +1012,74 @@
   },
   {
     "id": "brit010",
-    "source": "direct",
-    "source_url": "https://example.com/cotswolds-manor",
-    "name": "Cotswolds Healing Manor",
-    "description": "Manoir g\u00e9orgien dans les Cotswolds avec 10 hectares de parc paysager. Grande salle de bal reconvertie en studio de yoga/danse, biblioth\u00e8que pour les ateliers, et orangerie. Cuisine britannique moderne avec potager bio. Proche de Londres (2h de train).",
+    "source": "cotswolds.com",
+    "source_url": "https://www.cotswolds.com/event/yoga-&-wellbeing-retreat/341307301/",
+    "name": "Notgrove Holidays",
+    "description": "Retraites de yoga et bien-être sur un domaine privé de 600 hectares au coeur des Cotswolds. Hébergement en 9 pods de glamping (1-2 personnes chacun) pour une expérience intime et personnalisée. Programme comprenant Hatha Yoga, Yin Yoga, Qigong, bain sonore aux bols de cristal, marches méditatives guidées et repas nourrissants issus de produits locaux. Retraites de 3 jours au printemps et en automne.",
     "country": "GB",
     "region": "Cotswolds",
-    "city": "Stow-on-the-Wold",
-    "latitude": 51.9277,
-    "longitude": -1.7244,
+    "city": "Notgrove",
+    "latitude": 51.87,
+    "longitude": -1.78,
     "nearest_airport": "Birmingham (BHX) - 70 km / London Heathrow (LHR) - 130 km",
     "transfer_available": false,
-    "capacity_min": 12,
-    "capacity_max": 28,
-    "num_rooms": 14,
-    "num_beds": 28,
-    "accommodation_types": ["private_room", "suite"],
-    "room_has_private_bathroom": true,
-    "activity_spaces": ["yoga_studio", "workshop_room", "movement_studio"],
-    "main_practice_space_capacity": 30,
-    "main_practice_space_m2": 130,
-    "num_practice_spaces": 3,
-    "outdoor_spaces": ["garden", "terrace", "hiking_trails", "labyrinth"],
-    "meal_service": "flexible",
-    "cuisine_options": ["vegetarian", "organic", "local_seasonal", "gluten_free"],
-    "kitchen_access": true,
+    "capacity_min": 6,
+    "capacity_max": 18,
+    "num_rooms": 9,
+    "num_beds": 18,
+    "accommodation_types": [
+      "glamping"
+    ],
+    "room_has_private_bathroom": false,
+    "activity_spaces": [
+      "yoga_studio",
+      "outdoor_deck"
+    ],
+    "main_practice_space_capacity": 20,
+    "main_practice_space_m2": 80,
+    "num_practice_spaces": 2,
+    "outdoor_spaces": [
+      "garden",
+      "terrace",
+      "hiking_trails"
+    ],
+    "meal_service": "full_board",
+    "cuisine_options": [
+      "vegetarian",
+      "organic",
+      "local_seasonal",
+      "gluten_free"
+    ],
+    "kitchen_access": false,
     "dietary_accommodations": true,
-    "currency": "EUR",
+    "currency": "GBP",
     "price_per_person_per_night": 85,
     "price_per_person_per_night_max": 120,
-    "price_full_venue_per_day": 2000,
-    "price_notes": "Prix en GBP convertis. Self-catering ou traiteur sur demande. Location exclusive uniquement.",
-    "meals_included_in_price": false,
-    "setting": ["countryside"],
-    "style": ["luxury", "traditional"],
-    "services": ["yoga_mats", "sound_system", "projector", "whiteboard", "wifi", "laundry", "event_planning_support"],
-    "suitable_for": ["yoga", "pilates", "meditation", "dance", "writing", "art", "corporate_wellness", "teacher_training"],
-    "alcohol_policy": "allowed",
-    "children_welcome": true,
-    "accessible": true,
+    "price_full_venue_per_day": 1500,
+    "price_notes": "Prix en GBP. Domaine privé de 600 hectares. Retraites de 3 jours au printemps et automne.",
+    "meals_included_in_price": true,
+    "setting": [
+      "countryside"
+    ],
+    "style": [
+      "eco",
+      "rustic"
+    ],
+    "services": [
+      "yoga_mats",
+      "meditation_cushions",
+      "sound_system",
+      "wifi"
+    ],
+    "suitable_for": [
+      "yoga",
+      "meditation",
+      "writing",
+      "silent_retreat"
+    ],
+    "alcohol_policy": "limited",
+    "children_welcome": false,
+    "accessible": false,
     "images": [
       "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800",
       "https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800",
@@ -641,18 +1087,26 @@
       "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800"
     ],
     "image_categories": {
-      "exterior": ["https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800"],
-      "practice_spaces": ["https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800"],
-      "rooms": ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"],
-      "surroundings": ["https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800"]
+      "exterior": [
+        "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800"
+      ],
+      "practice_spaces": [
+        "https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800"
+      ],
+      "rooms": [
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"
+      ],
+      "surroundings": [
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800"
+      ]
     },
-    "contact_email": "enquiries@cotswoldsmanor.co.uk",
-    "contact_phone": "+44 1451 123 456",
-    "website": "https://cotswoldsmanor.co.uk",
-    "booking_url": null,
+    "contact_email": "holiday@notgrove.com",
+    "contact_phone": "+44 7517 268225",
+    "website": "https://notgroveholidays.com",
+    "booking_url": "https://notgroveholidays.com/activities/yoga-retreat-2/",
     "rating_average": 4.4,
     "rating_count": 18,
-    "available_year_round": true,
+    "available_year_round": false,
     "min_stay_nights": 2,
     "lead_time_weeks": 16,
     "original_language": "en",

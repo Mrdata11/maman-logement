@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Profils communautaires - Cohabitat Europe",
+  title: "Profils communautaires",
   description:
-    "Decouvrez les personnes qui cherchent un habitat groupe en Europe. Parcourez les profils, filtrez par region, valeurs et preferences pour trouver des co-habitants compatibles.",
+    "D\u00e9couvrez les personnes qui cherchent un habitat group\u00e9 en Europe. Parcourez les profils, filtrez par r\u00e9gion, valeurs et pr\u00e9f\u00e9rences pour trouver des co-habitants compatibles.",
   openGraph: {
-    title: "Profils communautaires - Cohabitat Europe",
+    title: "Profils communautaires",
     description:
-      "Decouvrez les personnes qui cherchent un habitat groupe en Europe. Parcourez les profils et trouvez des co-habitants compatibles.",
-    type: "website",
-    locale: "fr_BE",
-    siteName: "Cohabitat Europe",
+      "D\u00e9couvrez les personnes qui cherchent un habitat group\u00e9 en Europe. Parcourez les profils et trouvez des co-habitants compatibles.",
   },
 };
 
