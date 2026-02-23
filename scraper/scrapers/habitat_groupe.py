@@ -17,10 +17,10 @@ class HabitatGroupeScraper(BaseScraper):
         listings = []
         seen_urls = set()
 
-        # The site has ~270 listings across 9 pages. Force pagination through all pages.
+        # The site uses ?p-page=N for pagination (~270 listings across 9 pages)
         max_pages = 10
         for page in range(1, max_pages + 1):
-            url = self.listings_url if page == 1 else f"{self.listings_url}page/{page}/"
+            url = self.listings_url if page == 1 else f"{self.listings_url}?p-page={page}"
             print(f"  [{self.name}] Scraping page {page}: {url}")
 
             try:
