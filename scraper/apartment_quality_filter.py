@@ -13,9 +13,10 @@ def pre_filter(listings: List[ApartmentListing]) -> Tuple[List[ApartmentListing]
     kept = []
     rejected = []
     seen_hashes = set()
+    seen_immoweb_ids = set()
 
     for listing in listings:
-        reason = _should_skip(listing, seen_hashes)
+        reason = _should_skip(listing, seen_hashes, seen_immoweb_ids)
         if reason:
             rejected.append({
                 "id": listing.id,
@@ -26,6 +27,8 @@ def pre_filter(listings: List[ApartmentListing]) -> Tuple[List[ApartmentListing]
             kept.append(listing)
             content_hash = _content_hash(listing)
             seen_hashes.add(content_hash)
+            if listing.immoweb_id:
+                seen_immoweb_ids.add(listing.immoweb_id)
 
     return kept, rejected
 
@@ -46,7 +49,7 @@ def post_filter_evaluations(listings, evaluations):
     return kept_listings, removed_count
 
 
-def _should_skip(listing: ApartmentListing, seen_hashes: set) -> Optional[str]:
+def _should_skip(listing: ApartmentListing, seen_hashes: set, seen_immoweb_ids: set) -> Optional[str]:
     """Returns rejection reason string, or None if listing should be kept."""
 
     # Skip listings without price
@@ -57,12 +60,11 @@ def _should_skip(listing: ApartmentListing, seen_hashes: set) -> Optional[str]:
     if listing.bedrooms is not None and listing.bedrooms < 2:
         return f"Seulement {listing.bedrooms} chambre(s)"
 
-    # Skip very short descriptions
-    desc = listing.description or ""
-    if len(desc.strip()) < 20:
-        return f"Description trop courte ({len(desc.strip())} caractères)"
+    # Exact duplicate by immoweb_id
+    if listing.immoweb_id and listing.immoweb_id in seen_immoweb_ids:
+        return f"Doublon immoweb_id={listing.immoweb_id}"
 
-    # Near-duplicate detection
+    # Near-duplicate detection (by content hash)
     content_hash = _content_hash(listing)
     if content_hash in seen_hashes:
         return "Quasi-doublon"
@@ -72,6 +74,14 @@ def _should_skip(listing: ApartmentListing, seen_hashes: set) -> Optional[str]:
 
 def _content_hash(listing: ApartmentListing) -> str:
     """Hash based on key fields for deduplication."""
+    # Use immoweb_id as primary dedup if available
+    if listing.immoweb_id:
+        return f"immoweb:{listing.immoweb_id}"
+
+    # Fallback: hash of key fields + description
     key = f"{listing.commune}|{listing.price_monthly}|{listing.bedrooms}|{listing.surface_m2}"
-    normalized = listing.description.lower().strip()[:300] if listing.description else key
+    if listing.description and len(listing.description.strip()) > 20:
+        normalized = listing.description.lower().strip()[:300]
+    else:
+        normalized = key
     return hashlib.md5(normalized.encode()).hexdigest()

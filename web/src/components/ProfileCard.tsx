@@ -15,6 +15,18 @@ export function ProfileCard({ profile }: ProfileCardProps) {
     .toUpperCase()
     .slice(0, 2);
 
+  const GENDER_LABELS: Record<string, string> = {
+    homme: "Homme",
+    femme: "Femme",
+    "non-binaire": "Non-binaire",
+    autre: "Autre",
+  };
+
+  const demographicParts: string[] = [];
+  if (profile.age) demographicParts.push(`${profile.age} ans`);
+  if (profile.gender) demographicParts.push(GENDER_LABELS[profile.gender] || profile.gender);
+  if (profile.sexuality) demographicParts.push(profile.sexuality);
+
   return (
     <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-5 hover:shadow-md transition-shadow">
       {/* Header: avatar + name */}
@@ -36,6 +48,11 @@ export function ProfileCard({ profile }: ProfileCardProps) {
           <h3 className="font-semibold text-[var(--foreground)] truncate">
             {profile.display_name}
           </h3>
+          {demographicParts.length > 0 && (
+            <p className="text-sm text-[var(--foreground)]/70">
+              {demographicParts.join(" · ")}
+            </p>
+          )}
           {profile.location && (
             <p className="text-sm text-[var(--muted)] flex items-center gap-1">
               <svg
@@ -63,8 +80,15 @@ export function ProfileCard({ profile }: ProfileCardProps) {
         </div>
       </div>
 
+      {/* Intro snippet - first person voice */}
+      {profile.intro_snippet && (
+        <p className="text-sm text-[var(--muted)] italic leading-relaxed mb-3 line-clamp-2">
+          &laquo; {profile.intro_snippet} &raquo;
+        </p>
+      )}
+
       {/* AI Summary */}
-      {profile.ai_summary && (
+      {profile.ai_summary && !profile.intro_snippet && (
         <p className="text-sm text-[var(--foreground)] leading-relaxed mb-3 line-clamp-3">
           {profile.ai_summary}
         </p>
@@ -112,9 +136,9 @@ export function ProfileCard({ profile }: ProfileCardProps) {
       {/* CTA */}
       <Link
         href={`/profils/${profile.id}`}
-        className="block w-full text-center px-4 py-2 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+        className="block w-full text-center px-4 py-2.5 border border-[var(--primary)] text-[var(--primary)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/5 transition-colors"
       >
-        Voir le profil
+        D&eacute;couvrir {profile.display_name} &rarr;
       </Link>
     </div>
   );

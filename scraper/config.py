@@ -47,6 +47,34 @@ CRITÈRES TERTIAIRES:
 À ÉVITER:
 - Lieux où les animaux (chiens/chats) ne sont pas limités en termes d'hygiène"""
 
+# Departments/provinces along the Chemin de Compostelle (Camino de Santiago)
+# French departments (codes used by basededonnees-habitatparticipatif-oasis.fr)
+CAMINO_DEPARTMENTS_FR = [
+    # Via Podiensis (Le Puy-en-Velay)
+    "43", "48", "12", "46", "32", "64",
+    # Via Turonensis (Tours)
+    "37", "86", "16", "33", "40",
+    # Via Lemovicensis (Vézelay)
+    "23", "87", "24",
+    # Via Tolosana (Arles)
+    "34", "11", "31", "65",
+]
+
+# Spanish provinces/regions along the Camino
+CAMINO_PROVINCES_ES = [
+    # Camino Francés
+    "Navarra", "La Rioja", "Burgos", "Palencia", "León",
+    "Lugo", "A Coruña",
+    # Camino del Norte
+    "País Vasco", "Guipúzcoa", "Vizcaya",
+    "Cantabria", "Asturias",
+    # Key cities (for text matching)
+    "Pamplona", "Logroño", "Santiago de Compostela",
+    "Bilbao", "Santander", "Oviedo",
+    # Other routes
+    "Huesca", "Salamanca", "Zamora", "Galicia",
+]
+
 # === Apartment search configuration ===
 
 APARTMENTS_DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "apartments")

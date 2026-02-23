@@ -116,13 +116,13 @@ export function VoiceQuestionnaire({ onClose, onComplete }: VoiceQuestionnairePr
 
     recognition.onerror = (event) => {
       if (event.error === "not-allowed") {
-        setError("L'accès au micro a été refusé. Tu peux taper ta description ci-dessous.");
         setSpeechFailed(true);
+        setError(null);
         stopRecording();
         setPhase("idle");
       } else if (event.error === "network") {
-        setError("La reconnaissance vocale n'est pas disponible. Tu peux taper ta description ci-dessous.");
         setSpeechFailed(true);
+        setError(null);
         stopRecording();
         setPhase("idle");
       } else if (event.error !== "no-speech" && event.error !== "aborted") {

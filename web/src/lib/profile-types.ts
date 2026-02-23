@@ -9,6 +9,8 @@ export interface ProfileIntroduction {
   additionalInfo: string;
 }
 
+export type Gender = "homme" | "femme" | "non-binaire" | "autre" | null;
+
 export interface Profile {
   id: string;
   user_id: string;
@@ -16,6 +18,9 @@ export interface Profile {
   avatar_url: string | null;
   location: string | null;
   contact_email: string;
+  age: number | null;
+  gender: Gender;
+  sexuality: string | null;
   questionnaire_answers: QuestionnaireAnswers;
   introduction: ProfileIntroduction;
   ai_summary: string | null;
@@ -30,12 +35,16 @@ export interface ProfileCard {
   display_name: string;
   avatar_url: string | null;
   location: string | null;
+  age: number | null;
+  gender: Gender;
+  sexuality: string | null;
   ai_summary: string | null;
   ai_tags: string[];
   budget_range: string | null;
   preferred_regions: string[];
   community_size: string | null;
   core_values: string[];
+  intro_snippet?: string;
   created_at: string;
 }
 

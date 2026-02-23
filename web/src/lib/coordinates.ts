@@ -97,10 +97,74 @@ export const LOCATION_COORDINATES: Record<string, Coordinates> = {
   // Localisations extraites des URLs (format URL: tirets, title case)
   "Brabant wallon": { lat: 50.6694, lng: 4.6154 },
   "Autres Pays Regions": { lat: 50.5039, lng: 4.4699 },
+
+  // France - Departements du Camino de Santiago
+  "Haute-Loire": { lat: 45.0427, lng: 3.8848 },
+  "Lozère": { lat: 44.5176, lng: 3.5003 },
+  "Aveyron": { lat: 44.2778, lng: 2.5736 },
+  "Lot": { lat: 44.6225, lng: 1.6800 },
+  "Gers": { lat: 43.6464, lng: 0.5861 },
+  "Pyrénées-Atlantiques": { lat: 43.2951, lng: -0.3708 },
+  "Indre-et-Loire": { lat: 47.2500, lng: 0.6833 },
+  "Vienne": { lat: 46.5806, lng: 0.3408 },
+  "Charente": { lat: 45.6500, lng: 0.1500 },
+  "Gironde": { lat: 44.8378, lng: -0.5792 },
+  "Landes": { lat: 43.8928, lng: -0.5017 },
+  "Creuse": { lat: 46.0833, lng: 2.0000 },
+  "Haute-Vienne": { lat: 45.8353, lng: 1.2622 },
+  "Dordogne": { lat: 45.1833, lng: 0.7167 },
+  "Hérault": { lat: 43.6000, lng: 3.8833 },
+  "Aude": { lat: 43.0667, lng: 2.4333 },
+  "Haute-Garonne": { lat: 43.6047, lng: 1.4442 },
+  "Hautes-Pyrénées": { lat: 43.0667, lng: 0.1500 },
+
+  // France - Villes du Camino
+  "Le Puy-en-Velay": { lat: 45.0427, lng: 3.8848 },
+  "Conques": { lat: 44.5989, lng: 2.3997 },
+  "Cahors": { lat: 44.4486, lng: 1.4406 },
+  "Moissac": { lat: 44.1047, lng: 1.0858 },
+  "Toulouse": { lat: 43.6047, lng: 1.4442 },
+  "Pau": { lat: 43.2951, lng: -0.3708 },
+  "Saint-Jean-Pied-de-Port": { lat: 43.1631, lng: -1.2369 },
+  "Bordeaux": { lat: 44.8378, lng: -0.5792 },
+  "Limoges": { lat: 45.8315, lng: 1.2578 },
+  "Tours": { lat: 47.3941, lng: 0.6848 },
+  "Poitiers": { lat: 46.5802, lng: 0.3404 },
+  "Montpellier": { lat: 43.6108, lng: 3.8767 },
+  "Arles": { lat: 43.6767, lng: 4.6278 },
+  "Périgueux": { lat: 45.1847, lng: 0.7214 },
+
+  // Espagne - Regions du Camino
+  "Navarra": { lat: 42.8125, lng: -1.6458 },
+  "La Rioja": { lat: 42.2871, lng: -2.5396 },
+  "Galicia": { lat: 42.8782, lng: -8.5448 },
+  "Asturias": { lat: 43.3614, lng: -5.8593 },
+  "Cantabria": { lat: 43.1828, lng: -3.9878 },
+  "País Vasco": { lat: 43.2630, lng: -2.9350 },
+
+  // Espagne - Villes du Camino
+  "Pamplona": { lat: 42.8125, lng: -1.6458 },
+  "Logroño": { lat: 42.4650, lng: -2.4500 },
+  "Burgos": { lat: 42.3439, lng: -3.6969 },
+  "León": { lat: 42.5987, lng: -5.5671 },
+  "Ponferrada": { lat: 42.5499, lng: -6.5897 },
+  "Sarria": { lat: 42.7811, lng: -7.4147 },
+  "Santiago de Compostela": { lat: 42.8782, lng: -8.5448 },
+  "Bilbao": { lat: 43.2630, lng: -2.9350 },
+  "San Sebastián": { lat: 43.3183, lng: -1.9812 },
+  "Santander": { lat: 43.4623, lng: -3.8100 },
+  "Oviedo": { lat: 43.3614, lng: -5.8593 },
+  "Salamanca": { lat: 40.9701, lng: -5.6635 },
+  "Jaca": { lat: 42.5697, lng: -0.5496 },
+  "Spain": { lat: 40.4168, lng: -3.7038 },
 };
 
 export const BELGIUM_CENTER: Coordinates = { lat: 50.5039, lng: 4.4699 };
 export const DEFAULT_ZOOM = 8;
+
+// Camino de Santiago map view (covers Belgium + France + Northern Spain)
+export const CAMINO_MAP_CENTER: Coordinates = { lat: 45.5, lng: 0.5 };
+export const CAMINO_DEFAULT_ZOOM = 6;
 
 // Brussels apartment search references
 export const IXELLES_CENTER: Coordinates = { lat: 50.8306, lng: 4.3722 };

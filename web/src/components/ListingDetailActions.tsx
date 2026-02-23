@@ -488,6 +488,22 @@ export function ListingDetailActions({
           </button>
         )}
 
+        {/* Archive toggle */}
+        <button
+          onClick={() => handleStatusChange(status === "archived" ? "new" : "archived")}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+            status === "archived"
+              ? "bg-stone-100 text-stone-600 ring-1 ring-stone-300"
+              : "bg-[var(--surface)] text-[var(--muted)] hover:bg-stone-100 hover:text-stone-600"
+          }`}
+          title="Archiver"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          </svg>
+          {status === "archived" ? "Archivé" : "Archiver"}
+        </button>
+
         {/* Notes toggle */}
         <button
           onClick={() => {
@@ -640,7 +656,7 @@ export function ListingDetailActions({
               />
               <div className="absolute right-0 z-20 mt-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg py-1 min-w-[180px]">
                 {(Object.keys(STATUS_CONFIG) as ListingStatus[])
-                  .filter((s) => s !== status)
+                  .filter((s) => s !== status && s !== "archived" && s !== "rejected")
                   .map((s) => (
                     <button
                       key={s}

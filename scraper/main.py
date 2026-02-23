@@ -16,11 +16,16 @@ from scraper.scrapers.ic_org import ICOrgScraper
 from scraper.scrapers.ecovillage import EcovillageScraper
 from scraper.scrapers.samenhuizen import SamenhuizenScraper
 from scraper.scrapers.findacohouse import FindACoHouseScraper
+from scraper.scrapers.habitat_participatif_fr import HabitatParticipatifFRScraper
+from scraper.scrapers.ecovillage_fr import EcovillageFRScraper
+from scraper.scrapers.cohousing_spain import CohousingSpainScraper
+from scraper.scrapers.ecovillage_spain import EcovillageSpainScraper
 from scraper.evaluator import evaluate_all
 from scraper.tag_extractor import extract_all_tags
 from scraper.content_generator import generate_all_content
 from scraper.quality_filter import pre_filter, post_filter_evaluations
 from scraper.description_cleaner import clean_all_descriptions
+from scraper.translator import translate_listings
 
 
 def load_existing_listings() -> Dict[str, Listing]:
@@ -93,6 +98,11 @@ def main():
         FindACoHouseScraper(),
         ICOrgScraper(),
         EcovillageScraper(),
+        # France & Spain (Camino de Santiago)
+        HabitatParticipatifFRScraper(),
+        EcovillageFRScraper(),
+        CohousingSpainScraper(),
+        EcovillageSpainScraper(),
     ]
 
     all_new_listings = []
@@ -120,6 +130,16 @@ def main():
         print(f"    - {r['title'][:60]} | {r['reason']}")
     if len(rejection_log) > 10:
         print(f"    ... and {len(rejection_log) - 10} more")
+
+    # Translate non-French listings (Spanish/English -> French)
+    print(f"\n--- Translation ---")
+    to_translate = [l for l in existing_listings.values()
+                    if l.original_language and l.original_language != "fr"]
+    translations = translate_listings(to_translate)
+    for listing_id, content in translations.items():
+        if listing_id in existing_listings:
+            existing_listings[listing_id].title = content["title"]
+            existing_listings[listing_id].description = content["description"]
 
     # Clean descriptions (remove web page garbage via LLM)
     print(f"\n--- Description Cleaning ---")

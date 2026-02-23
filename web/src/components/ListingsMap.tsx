@@ -83,7 +83,7 @@ function createPopupContent(item: ListingWithEval): string {
   const highlightsHtml =
     evaluation && evaluation.highlights.length > 0
       ? `<div class="map-popup-tags">${evaluation.highlights
-          .slice(0, 2)
+          .slice(0, 3)
           .map(
             (h) =>
               `<span class="map-popup-tag map-popup-tag-green">${escapeHtml(h)}</span>`,
@@ -94,7 +94,7 @@ function createPopupContent(item: ListingWithEval): string {
   const concernsHtml =
     evaluation && evaluation.concerns.length > 0
       ? `<div class="map-popup-tags">${evaluation.concerns
-          .slice(0, 1)
+          .slice(0, 2)
           .map(
             (c) =>
               `<span class="map-popup-tag map-popup-tag-red">${escapeHtml(c)}</span>`,
@@ -239,7 +239,7 @@ export default function ListingsMap({
                   mouseout: handleMouseOut,
                 }}
               >
-                <Popup maxWidth={300} closeButton={true}>
+                <Popup maxWidth={360} closeButton={true}>
                   <div
                     dangerouslySetInnerHTML={{
                       __html: createPopupContent(item),

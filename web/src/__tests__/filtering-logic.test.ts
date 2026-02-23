@@ -91,6 +91,8 @@ function makeListing(overrides: Partial<Listing> = {}): Listing {
     price: "600€/mois",
     price_amount: 600,
     listing_type: "offre-location",
+    country: null,
+    original_language: null,
     contact: null,
     images: [],
     date_published: null,

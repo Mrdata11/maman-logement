@@ -27,6 +27,8 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
   const [localNotes, setLocalNotes] = useState("");
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [searchText, setSearchText] = useState("");
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
 
   // Load favorites from localStorage
   useEffect(() => {
@@ -46,6 +48,17 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
       // Ignore
     }
   }, [allItems]);
+
+  // Click outside to close sort dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
+        setSortOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Distances
   const distances = useMemo(() => {
@@ -231,17 +244,56 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
           </div>
 
           {/* Sort */}
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortType)}
-            className="px-3 py-2 border border-[var(--border-color)] rounded-lg text-sm bg-[var(--input-bg)] shrink-0"
-          >
-            <option value="score">Meilleur score</option>
-            <option value="price">Prix croissant</option>
-            <option value="distance">Plus proche</option>
-            <option value="name">Alphabétique</option>
-            <option value="date_added">Plus récent</option>
-          </select>
+          <div ref={sortRef} className="relative shrink-0">
+            <button
+              onClick={() => setSortOpen(!sortOpen)}
+              className={`flex items-center gap-2 px-3 py-2 border rounded-xl text-sm transition-colors ${
+                sortOpen
+                  ? "border-[var(--primary)] bg-[var(--primary)]/5"
+                  : "border-[var(--input-border)] bg-[var(--input-bg)] hover:border-[var(--primary)]/50"
+              }`}
+            >
+              <svg className="w-3.5 h-3.5 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+              </svg>
+              <span className="text-[var(--muted)]">Trier</span>
+              <span className="font-medium text-[var(--foreground)]">
+                {{ score: "Score", price: "Prix", distance: "Distance", name: "A-Z", date_added: "Récent" }[sort]}
+              </span>
+              <svg className={`w-3 h-3 text-[var(--muted)] transition-transform ${sortOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {sortOpen && (
+              <div className="absolute top-full mt-1.5 right-0 min-w-[220px] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden z-40 animate-fadeIn">
+                {([
+                  ["score", "Meilleur score", "⭐"],
+                  ["price", "Prix croissant", "💰"],
+                  ["distance", "Plus proche", "📍"],
+                  ["name", "Alphabétique", "🔤"],
+                  ["date_added", "Plus récent", "🕐"],
+                ] as [SortType, string, string][]).map(([value, label, icon]) => (
+                  <button
+                    key={value}
+                    onClick={() => { setSort(value); setSortOpen(false); }}
+                    className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
+                      sort === value
+                        ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
+                        : "text-[var(--foreground)] hover:bg-[var(--surface)]"
+                    }`}
+                  >
+                    <span className="text-base">{icon}</span>
+                    <span className="flex-1">{label}</span>
+                    {sort === value && (
+                      <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Print */}
           <button

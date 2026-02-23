@@ -9,6 +9,8 @@ export interface Listing {
   price: string | null;
   price_amount: number | null;
   listing_type: string | null;
+  country: string | null;
+  original_language: string | null;
   contact: string | null;
   images: string[];
   date_published: string | null;
@@ -150,7 +152,6 @@ export type ListingStatus =
   | "favorite"
   | "contacted"
   | "visit_planned"
-  | "visited"
   | "in_discussion"
   | "rejected"
   | "archived";
@@ -180,11 +181,6 @@ export const STATUS_CONFIG: Record<
     color:
       "bg-orange-100 text-orange-800",
     icon: "calendar",
-  },
-  visited: {
-    label: "Visité",
-    color: "bg-emerald-100 text-emerald-800",
-    icon: "check",
   },
   in_discussion: {
     label: "En discussion",
@@ -504,6 +500,7 @@ export interface ApartmentListing {
   agency_name: string | null;
   agency_phone: string | null;
   immoweb_id: number | null;
+  tags: string[];
 }
 
 export interface ApartmentCriteriaScores {

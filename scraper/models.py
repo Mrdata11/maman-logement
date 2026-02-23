@@ -15,6 +15,8 @@ class Listing(BaseModel):
     price: Optional[str] = None
     price_amount: Optional[float] = None
     listing_type: Optional[str] = None  # "offre-location", "offre-vente", "creation-groupe", etc.
+    country: Optional[str] = None  # "BE", "FR", "ES"
+    original_language: Optional[str] = None  # "fr", "nl", "es", "en"
     contact: Optional[str] = None
     images: List[str] = Field(default_factory=list)
     date_published: Optional[str] = None

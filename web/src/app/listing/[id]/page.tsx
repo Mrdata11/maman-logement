@@ -76,6 +76,21 @@ export default async function ListingPage({
             <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
               {listing.source}
             </span>
+            {listing.country && listing.country !== "BE" && (
+              <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
+                {listing.country === "FR" ? "🇫🇷 France" : listing.country === "ES" ? "🇪🇸 Espagne" : listing.country}
+              </span>
+            )}
+            {listing.original_language === "es" && (
+              <span className="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                🇪🇸 Traduit de l&apos;espagnol
+              </span>
+            )}
+            {listing.original_language === "en" && listing.country === "ES" && (
+              <span className="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                🇬🇧 Traduit de l&apos;anglais
+              </span>
+            )}
             {listing.date_published && (
               <span className="flex items-center gap-1">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

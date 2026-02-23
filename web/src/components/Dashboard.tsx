@@ -34,7 +34,7 @@ import {
 } from "@/lib/questionnaire-types";
 import { mapQuestionnaireToFilters } from "@/lib/questionnaire-mapping";
 
-type FilterType = "all" | "new" | "favorite" | "active" | "in_discussion" | "archived";
+type FilterType = "all" | "new" | "favorite" | "active" | "archived";
 type SortType = "score" | "price" | "distance";
 
 const SORT_OPTIONS: { value: SortType; label: string; icon: string }[] = [
@@ -69,7 +69,6 @@ export function Dashboard({
   const [tagFilters, setTagFilters] = useState<UITagFilters>({ ...DEFAULT_TAG_FILTERS });
   const [showFilters, setShowFilters] = useState(false);
   const [previewItem, setPreviewItem] = useState<ListingWithEval | null>(null);
-  const [searchText, setSearchText] = useState("");
 
   // Custom dropdown states
   const [sortOpen, setSortOpen] = useState(false);
@@ -232,8 +231,7 @@ export function Dashboard({
       all: qualityFiltered.filter((i) => i.status !== "archived" && i.status !== "rejected").length,
       new: qualityFiltered.filter((i) => i.status === "new").length,
       favorite: qualityFiltered.filter((i) => i.status === "favorite").length,
-      active: qualityFiltered.filter((i) => ["contacted", "visit_planned", "visited"].includes(i.status)).length,
-      in_discussion: qualityFiltered.filter((i) => i.status === "in_discussion").length,
+      active: qualityFiltered.filter((i) => ["contacted", "visit_planned", "in_discussion"].includes(i.status)).length,
       archived: qualityFiltered.filter((i) => i.status === "archived" || i.status === "rejected").length,
     };
   }, [qualityFiltered]);
@@ -399,7 +397,7 @@ export function Dashboard({
         result = result.filter((i) => i.status !== "archived" && i.status !== "rejected");
         break;
       case "active":
-        result = result.filter((i) => ["contacted", "visit_planned", "visited"].includes(i.status));
+        result = result.filter((i) => ["contacted", "visit_planned", "in_discussion"].includes(i.status));
         break;
       default:
         result = result.filter((i) => i.status === filter);
@@ -424,19 +422,6 @@ export function Dashboard({
     if (isRefined) {
       result = result.filter((item) =>
         applyRefinementFilters(item, filters, adjustedScores.get(item.listing.id))
-      );
-    }
-
-    // Inline search
-    if (searchText.trim()) {
-      const query = searchText.toLowerCase().trim();
-      result = result.filter(
-        (i) =>
-          i.listing.title.toLowerCase().includes(query) ||
-          (i.evaluation?.ai_title && i.evaluation.ai_title.toLowerCase().includes(query)) ||
-          i.listing.description.toLowerCase().includes(query) ||
-          (i.listing.location && i.listing.location.toLowerCase().includes(query)) ||
-          (i.listing.province && i.listing.province.toLowerCase().includes(query))
       );
     }
 
@@ -611,7 +596,7 @@ export function Dashboard({
     });
 
     return result;
-  }, [items, filter, sort, sourceFilter, RELEVANT_TYPES, isRefined, adjustedScores, filters, uiFilters, tagFilters, searchText, distances]);
+  }, [items, filter, sort, sourceFilter, RELEVANT_TYPES, isRefined, adjustedScores, filters, uiFilters, tagFilters, distances]);
 
   const handleStatusChange = (id: string, newStatus: ListingStatus) => {
     const prevStatus = items.find((i) => i.listing.id === id)?.status;
@@ -748,31 +733,168 @@ export function Dashboard({
         </div>
       )}
 
+      {/* Spacer before toolbar */}
+      <div className="mb-4" />
+
       {/* Sticky toolbar */}
       <div className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 print:hidden">
-        {/* Row 1: Search + View toggle */}
-        <div className="flex items-center gap-3 mb-2.5">
-          <div className="relative flex-1">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Rechercher par titre, description, lieu..."
-              className="w-full pl-10 pr-8 py-2.5 border border-[var(--input-border)] rounded-xl text-base bg-[var(--input-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
-            />
-            {searchText && (
+        {/* Single row: Status tabs + Sort/Source/Filters + View toggle */}
+        <div className="flex items-center gap-2">
+          {/* Scrollable status tabs */}
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0">
+            {([
+              ["all", "Actifs", counts.all],
+              ["new", "Nouveaux", counts.new],
+              ["favorite", "Favoris", counts.favorite],
+              ["active", "En cours", counts.active],
+              ["archived", "Archives", counts.archived],
+            ] as [FilterType, string, number][]).map(([key, label, count]) => (
               <button
-                onClick={() => setSearchText("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--foreground)]"
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap ${
+                  filter === key
+                    ? key === "favorite"
+                      ? "bg-rose-600 text-white shadow-sm"
+                      : "bg-[var(--primary)] text-white shadow-sm"
+                    : "bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--foreground)] border border-[var(--border-color)]"
+                }`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                {label}
+                {count > 0 && (
+                  <span className={`ml-1.5 ${filter === key ? "opacity-80" : "text-[var(--muted-light)]"}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-7 bg-[var(--border-color)] shrink-0" />
+
+          {/* Sort + Source + Filters (outside overflow so dropdowns work) */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Sort dropdown */}
+            <div ref={sortRef} className="relative">
+              <button
+                onClick={() => { setSortOpen(!sortOpen); setSourceOpen(false); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+                  sortOpen
+                    ? "border-[var(--primary)] bg-[var(--primary)]/5"
+                    : "border-[var(--input-border)] bg-[var(--input-bg)] hover:border-[var(--primary)]/50"
+                }`}
+              >
+                <svg className="w-3.5 h-3.5 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                </svg>
+                <span className="font-medium text-[var(--foreground)]">{SORT_LABELS[sort]}</span>
+                <svg className={`w-3 h-3 text-[var(--muted)] transition-transform ${sortOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
+              {sortOpen && (
+                <div className="absolute top-full mt-1.5 right-0 min-w-[220px] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden z-50 animate-fadeIn">
+                  {SORT_OPTIONS.map(({ value, label, icon }) => (
+                    <button
+                      key={value}
+                      onClick={() => { setSort(value); setSortOpen(false); }}
+                      className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
+                        sort === value
+                          ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
+                          : "text-[var(--foreground)] hover:bg-[var(--surface)]"
+                      }`}
+                    >
+                      <span className="text-base">{icon}</span>
+                      <span className="flex-1">{label}</span>
+                      {sort === value && (
+                        <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Source dropdown */}
+            {sources.length > 1 && (
+              <div ref={sourceRef} className="relative">
+                <button
+                  onClick={() => { setSourceOpen(!sourceOpen); setSortOpen(false); }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+                    sourceOpen
+                      ? "border-[var(--primary)] bg-[var(--primary)]/5"
+                      : "border-[var(--input-border)] bg-[var(--input-bg)] hover:border-[var(--primary)]/50"
+                  }`}
+                >
+                  <span className="font-medium text-[var(--foreground)]">
+                    {sourceFilter === "all" ? "Sources" : sourceFilter}
+                  </span>
+                  <svg className={`w-3 h-3 text-[var(--muted)] transition-transform ${sourceOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {sourceOpen && (
+                  <div className="absolute top-full mt-1.5 right-0 min-w-[200px] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden z-50 animate-fadeIn">
+                    <button
+                      onClick={() => { setSourceFilter("all"); setSourceOpen(false); }}
+                      className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
+                        sourceFilter === "all"
+                          ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
+                          : "text-[var(--foreground)] hover:bg-[var(--surface)]"
+                      }`}
+                    >
+                      <span className="flex-1">Toutes sources</span>
+                      {sourceFilter === "all" && (
+                        <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                    {sources.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => { setSourceFilter(s); setSourceOpen(false); }}
+                        className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
+                          sourceFilter === s
+                            ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
+                            : "text-[var(--foreground)] hover:bg-[var(--surface)]"
+                        }`}
+                      >
+                        <span className="flex-1">{s}</span>
+                        {sourceFilter === s && (
+                          <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
+
+            {/* Filter toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
+                showFilters || activeFilterCount > 0
+                  ? "border-[var(--primary)] text-[var(--primary)] bg-[var(--primary)]/5"
+                  : "border-[var(--input-border)] text-[var(--muted)] hover:border-[var(--primary)]/50 bg-[var(--input-bg)]"
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              Filtres
+              {activeFilterCount > 0 && (
+                <span className="bg-[var(--primary)] text-white text-[11px] px-1.5 py-0.5 rounded-full min-w-[16px] text-center leading-none">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* View mode toggle */}
@@ -800,168 +922,10 @@ export function Dashboard({
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Row 2: Status tabs + controls */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-1 shrink-0">
-            {([
-              ["all", "Actifs", counts.all],
-              ["new", "Nouveaux", counts.new],
-              ["favorite", "Favoris", counts.favorite],
-              ["active", "En cours", counts.active],
-              ["in_discussion", "Discussion", counts.in_discussion],
-              ["archived", "Archives", counts.archived],
-            ] as [FilterType, string, number][]).map(([key, label, count]) => (
-              <button
-                key={key}
-                onClick={() => setFilter(key)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                  filter === key
-                    ? key === "favorite"
-                      ? "bg-rose-600 text-white"
-                      : "bg-[var(--primary)] text-white"
-                    : "text-[var(--muted)] hover:bg-[var(--surface)]"
-                }`}
-              >
-                {label}
-                {count > 0 && (
-                  <span className={`ml-1 ${filter === key ? "opacity-70" : "text-[var(--muted-light)]"}`}>
-                    {count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          <div className="w-px h-5 bg-[var(--border-color)] shrink-0" />
-
-          {/* Sort dropdown */}
-          <div ref={sortRef} className="relative shrink-0">
-            <button
-              onClick={() => { setSortOpen(!sortOpen); setSourceOpen(false); }}
-              className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
-                sortOpen
-                  ? "border-[var(--primary)] bg-[var(--primary)]/5"
-                  : "border-[var(--input-border)] bg-[var(--input-bg)] hover:border-[var(--primary)]/50"
-              }`}
-            >
-              <svg className="w-3.5 h-3.5 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-              </svg>
-              <span className="text-[var(--muted)]">Trier</span>
-              <span className="font-medium text-[var(--foreground)]">{SORT_LABELS[sort]}</span>
-              <svg className={`w-3 h-3 text-[var(--muted)] transition-transform ${sortOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {sortOpen && (
-              <div className="absolute top-full mt-1.5 left-0 min-w-[220px] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden z-40 animate-fadeIn">
-                {SORT_OPTIONS.map(({ value, label, icon }) => (
-                  <button
-                    key={value}
-                    onClick={() => { setSort(value); setSortOpen(false); }}
-                    className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
-                      sort === value
-                        ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
-                        : "text-[var(--foreground)] hover:bg-[var(--surface)]"
-                    }`}
-                  >
-                    <span className="text-base">{icon}</span>
-                    <span className="flex-1">{label}</span>
-                    {sort === value && (
-                      <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Source dropdown */}
-          {sources.length > 1 && (
-            <div ref={sourceRef} className="relative shrink-0">
-              <button
-                onClick={() => { setSourceOpen(!sourceOpen); setSortOpen(false); }}
-                className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-sm transition-colors ${
-                  sourceOpen
-                    ? "border-[var(--primary)] bg-[var(--primary)]/5"
-                    : "border-[var(--input-border)] bg-[var(--input-bg)] hover:border-[var(--primary)]/50"
-                }`}
-              >
-                <span className="text-[var(--muted)]">Source</span>
-                <span className="font-medium text-[var(--foreground)]">
-                  {sourceFilter === "all" ? "Toutes" : sourceFilter}
-                </span>
-                <svg className={`w-3 h-3 text-[var(--muted)] transition-transform ${sourceOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {sourceOpen && (
-                <div className="absolute top-full mt-1.5 left-0 min-w-[200px] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden z-40 animate-fadeIn">
-                  <button
-                    onClick={() => { setSourceFilter("all"); setSourceOpen(false); }}
-                    className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
-                      sourceFilter === "all"
-                        ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
-                        : "text-[var(--foreground)] hover:bg-[var(--surface)]"
-                    }`}
-                  >
-                    <span className="flex-1">Toutes sources</span>
-                    {sourceFilter === "all" && (
-                      <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </button>
-                  {sources.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => { setSourceFilter(s); setSourceOpen(false); }}
-                      className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-colors ${
-                        sourceFilter === s
-                          ? "text-[var(--primary)] font-medium bg-[var(--primary)]/5"
-                          : "text-[var(--foreground)] hover:bg-[var(--surface)]"
-                      }`}
-                    >
-                      <span className="flex-1">{s}</span>
-                      {sourceFilter === s && (
-                        <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Filter toggle */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-sm transition-colors shrink-0 ${
-              showFilters || activeFilterCount > 0
-                ? "border-[var(--primary)] text-[var(--primary)] bg-[var(--primary)]/5"
-                : "border-[var(--input-border)] text-[var(--muted)] hover:border-[var(--primary)]/50 bg-[var(--input-bg)]"
-            }`}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            Filtres
-            {activeFilterCount > 0 && (
-              <span className="bg-[var(--primary)] text-white text-[11px] px-1.5 py-0.5 rounded-full min-w-[16px] text-center leading-none">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
 
           {/* Result count */}
-          <span className="text-sm text-[var(--muted-light)] ml-auto shrink-0">
-            {filtered.length} resultat{filtered.length !== 1 ? "s" : ""}
+          <span className="text-sm text-[var(--muted-light)] shrink-0">
+            {filtered.length}
           </span>
         </div>
       </div>

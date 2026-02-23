@@ -131,6 +131,16 @@ export function ListingCard({
                     {STATUS_CONFIG[status].label}
                   </span>
                 )}
+                {listing.country && listing.country !== "BE" && (
+                  <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
+                    {listing.country === "FR" ? "🇫🇷 France" : listing.country === "ES" ? "🇪🇸 Espagne" : listing.country}
+                  </span>
+                )}
+                {listing.original_language === "es" && (
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                    🇪🇸 Traduit
+                  </span>
+                )}
                 {distance !== null && distance !== undefined && (
                   <span className="text-xs px-2 py-0.5 rounded bg-sky-50 text-sky-700">
                     ~{Math.round(distance)} km
@@ -216,6 +226,25 @@ export function ListingCard({
                   </span>
                 </div>
               )}
+              {/* Archive toggle */}
+              <button
+                onClick={() =>
+                  onStatusChange(
+                    listing.id,
+                    isFaded ? "new" : "archived"
+                  )
+                }
+                className={`p-1.5 rounded-full transition-colors ${
+                  isFaded
+                    ? "text-stone-500 hover:text-stone-600"
+                    : "text-[var(--muted-light)] hover:text-stone-500"
+                }`}
+                title={isFaded ? "Désarchiver" : "Archiver"}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -294,7 +323,7 @@ export function ListingCard({
               {showStatusMenu && (
                 <div className="absolute z-10 mt-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg py-1 min-w-[180px]">
                   {(Object.keys(STATUS_CONFIG) as ListingStatus[])
-                    .filter((s) => s !== status)
+                    .filter((s) => s !== status && s !== "archived" && s !== "rejected")
                     .map((s) => (
                       <button
                         key={s}

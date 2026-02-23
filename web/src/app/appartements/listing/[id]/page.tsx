@@ -33,6 +33,23 @@ export default async function ApartmentDetailPage({
         ) / 10
       : null;
 
+  // Publication date freshness
+  const pubDate = listing.date_published ? new Date(listing.date_published) : null;
+  const daysAgo = pubDate ? Math.floor((Date.now() - pubDate.getTime()) / (1000 * 60 * 60 * 24)) : null;
+  const freshnessLabel =
+    daysAgo === null ? null
+    : daysAgo <= 0 ? "Aujourd'hui"
+    : daysAgo === 1 ? "Hier"
+    : daysAgo <= 7 ? `Il y a ${daysAgo} jours`
+    : daysAgo <= 30 ? `Il y a ${Math.floor(daysAgo / 7)} semaine${Math.floor(daysAgo / 7) > 1 ? "s" : ""}`
+    : `Il y a ${Math.floor(daysAgo / 30)} mois`;
+  const freshnessColor =
+    daysAgo === null ? ""
+    : daysAgo <= 3 ? "bg-emerald-100 text-emerald-800"
+    : daysAgo <= 7 ? "bg-amber-100 text-amber-800"
+    : daysAgo <= 14 ? "bg-orange-100 text-orange-700"
+    : "bg-stone-100 text-stone-600";
+
   return (
     <div>
       <Link
@@ -93,12 +110,41 @@ export default async function ApartmentDetailPage({
               <span className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted)]">
                 {listing.source}
               </span>
+              {pubDate && freshnessLabel && (
+                <span className={`text-xs px-2 py-0.5 rounded font-medium ${freshnessColor}`}>
+                  {freshnessLabel}
+                </span>
+              )}
+              {pubDate && (
+                <span className="text-xs text-[var(--muted-light)]">
+                  Publi&eacute; le{" "}
+                  {pubDate.toLocaleDateString("fr-BE", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {evaluation && <ScoreBadge score={evaluation.overall_score} />}
           </div>
         </div>
+
+        {/* Tags */}
+        {listing.tags && listing.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {listing.tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-xs px-2 py-0.5 bg-[var(--surface)] text-[var(--muted)] rounded-full"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Key metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
@@ -172,7 +218,6 @@ export default async function ApartmentDetailPage({
         {/* Amenities grid */}
         <div className="flex flex-wrap gap-2 mb-6">
           {[
-            [listing.has_balcony, "Balcon"],
             [listing.has_terrace, "Terrasse"],
             [listing.has_garden, "Jardin"],
             [listing.has_parking, `Parking${listing.parking_count && listing.parking_count > 1 ? ` (${listing.parking_count})` : ""}`],
@@ -191,7 +236,6 @@ export default async function ApartmentDetailPage({
               </span>
             ))}
           {[
-            [listing.has_balcony === false, "Pas de balcon"],
             [listing.has_parking === false, "Pas de parking"],
             [listing.has_elevator === false, "Pas d'ascenseur"],
           ]
@@ -333,7 +377,11 @@ export default async function ApartmentDetailPage({
             Voir sur Immoweb
           </a>
           <span className="text-xs text-[var(--muted-light)]">
-            ID: {listing.id} | Scrap&eacute;:{" "}
+            ID: {listing.id}
+            {pubDate && (
+              <> | Publi&eacute;: {pubDate.toLocaleDateString("fr-BE")}</>
+            )}
+            {" "}| Scrap&eacute;:{" "}
             {new Date(listing.date_scraped).toLocaleDateString("fr-BE")}
           </span>
         </div>

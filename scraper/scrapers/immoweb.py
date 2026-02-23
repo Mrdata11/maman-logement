@@ -152,6 +152,72 @@ class ImmowebScraper:
 
         return self._parse_classified(url, classified_data)
 
+    # Map of known Immoweb commune name variants → canonical French name
+    COMMUNE_NORMALIZE = {
+        # Dutch names → French
+        "elsene": "Ixelles",
+        "etterbeek": "Etterbeek",
+        "schaarbeek": "Schaerbeek",
+        "sint-gillis": "Saint-Gilles",
+        "sint-jans-molenbeek": "Molenbeek-Saint-Jean",
+        "sint-joost-ten-node": "Saint-Josse-ten-Noode",
+        "sint-lambrechts-woluwe": "Woluwe-Saint-Lambert",
+        "sint-pieters-woluwe": "Woluwe-Saint-Pierre",
+        "oudergem": "Auderghem",
+        "watermaal-bosvoorde": "Watermael-Boitsfort",
+        "sint-agatha-berchem": "Berchem-Sainte-Agathe",
+        "vorst": "Forest",
+        "ukkel": "Uccle",
+        "brussel": "Bruxelles",
+        "brussels": "Bruxelles",
+        "anderlecht": "Anderlecht",
+        "evere": "Evere",
+        "ganshoren": "Ganshoren",
+        "jette": "Jette",
+        "koekelberg": "Koekelberg",
+        # Uppercase French → Proper case
+        "bruxelles": "Bruxelles",
+        "ixelles": "Ixelles",
+        "schaerbeek": "Schaerbeek",
+        "saint-gilles": "Saint-Gilles",
+        "saint-josse-ten-noode": "Saint-Josse-ten-Noode",
+        "molenbeek-saint-jean": "Molenbeek-Saint-Jean",
+        "woluwe-saint-lambert": "Woluwe-Saint-Lambert",
+        "woluwe-saint-pierre": "Woluwe-Saint-Pierre",
+        "woluwé-saint-lambert": "Woluwe-Saint-Lambert",
+        "woluwé-saint-pierre": "Woluwe-Saint-Pierre",
+        "auderghem": "Auderghem",
+        "watermael-boitsfort": "Watermael-Boitsfort",
+        "berchem-sainte-agathe": "Berchem-Sainte-Agathe",
+        "forest": "Forest",
+        "uccle": "Uccle",
+    }
+
+    # Brussels-Capital Region postal codes: 1000-1210
+    BRUSSELS_POSTAL_CODES = set(range(1000, 1211))
+
+    def _normalize_commune(self, raw: Optional[str]) -> Optional[str]:
+        """Normalize commune name to canonical French form."""
+        if not raw:
+            return raw
+        lookup = raw.strip().lower()
+        return self.COMMUNE_NORMALIZE.get(lookup, raw.strip().title())
+
+    def _is_brussels(self, postal_code: Optional[str], commune: Optional[str]) -> bool:
+        """Check if listing is in Brussels-Capital Region."""
+        if postal_code:
+            try:
+                code = int(postal_code)
+                return code in self.BRUSSELS_POSTAL_CODES
+            except ValueError:
+                pass
+        # Fallback: check commune name
+        if commune:
+            normalized = self._normalize_commune(commune)
+            known_communes = set(self.COMMUNE_NORMALIZE.values())
+            return normalized in known_communes
+        return False
+
     def _parse_classified(self, url: str, data: dict) -> Optional[ApartmentListing]:
         """Parse the window.classified JSON into an ApartmentListing."""
         prop = data.get("property", {})
@@ -161,10 +227,34 @@ class ImmowebScraper:
         energy = prop.get("energy", {})
         media = data.get("media", {})
         building = prop.get("building", {})
+        # PEB/EPC certificates are under transaction.certificates (NOT property.energy)
+        certificates = trans.get("certificates", {}) or {}
+        flags = data.get("flags", {})
+
+        # Extract and normalize commune
+        raw_commune = location.get("locality")
+        commune = self._normalize_commune(raw_commune)
+        postal_code = str(location.get("postalCode", "")) if location.get("postalCode") else None
+
+        # Filter out non-Brussels listings immediately
+        if not self._is_brussels(postal_code, commune):
+            return None
 
         # Extract price
-        price_monthly = rental.get("monthlyRentalPrice")
+        price_monthly = rental.get("monthlyRentalPrice") or rental.get("price")
         charges_monthly = rental.get("monthlyRentalCosts")
+
+        # Infer charges_included
+        charges_included = None
+        if charges_monthly is not None and charges_monthly > 0:
+            charges_included = False
+        elif charges_monthly == 0:
+            charges_included = True
+
+        # Filter < 2 bedrooms
+        bedrooms = prop.get("bedroomCount")
+        if bedrooms is not None and bedrooms < 2:
+            return None
 
         # Extract images
         images = []
@@ -176,22 +266,23 @@ class ImmowebScraper:
         # Extract parking count
         parking_indoor = prop.get("parkingCountIndoor") or 0
         parking_outdoor = prop.get("parkingCountOutdoor") or 0
-        # Also check sharedParking
         parking_shared = 1 if prop.get("hasSharedParking") else 0
         parking_total = parking_indoor + parking_outdoor + parking_shared
 
-        # Extract description
-        description = data.get("description", "")
-        if isinstance(description, dict):
-            # Sometimes description is a dict with language keys
-            description = description.get("fr") or description.get("en") or description.get("nl") or ""
+        # Extract description — try multiple paths
+        description = ""
+        raw_desc = data.get("description")
+        if raw_desc:
+            if isinstance(raw_desc, dict):
+                description = raw_desc.get("fr") or raw_desc.get("en") or raw_desc.get("nl") or ""
+            elif isinstance(raw_desc, str):
+                description = raw_desc
 
         # Extract title
         title = data.get("title") or ""
         if not title:
-            commune = location.get("locality", "")
-            bedrooms = prop.get("bedroomCount", "?")
-            title = f"Appartement {bedrooms} ch. - {commune}"
+            bedrooms_label = bedrooms if bedrooms else "?"
+            title = f"Appartement {bedrooms_label} ch. - {commune or raw_commune or 'Bruxelles'}"
 
         # Agency info
         customers = data.get("customers", [])
@@ -204,29 +295,56 @@ class ImmowebScraper:
         # Immoweb ID
         immoweb_id = data.get("id")
 
+        # Floor — it's under location.floor, NOT property.floor
+        floor_raw = location.get("floor")
+
+        # Surface
+        surface = prop.get("netHabitableSurface")
+
+        # Terrace surface (useful as tag)
+        terrace_surface = prop.get("terraceSurface")
+        garden_surface = prop.get("gardenSurface")
+
+        # Furnished — can be under transaction.sale.isFurnished OR transaction.rental
+        furnished = rental.get("isFurnished")
+        if furnished is None:
+            furnished = prop.get("isFurnished")
+        if furnished is None:
+            furnished = flags.get("isFurnished")
+
+        # Building condition
+        building_condition = building.get("condition")
+
+        # Kitchen type
+        kitchen_type = prop.get("kitchen", {}).get("type") if isinstance(prop.get("kitchen"), dict) else None
+
+        # Extract PEB from transaction.certificates (correct Immoweb path)
+        peb_rating = self._extract_peb_rating(certificates, energy)
+        peb_value = self._extract_peb_value(certificates, energy)
+
         return ApartmentListing(
             source=self.name,
             source_url=url,
             title=title,
             description=description[:5000] if description else "",
-            commune=location.get("locality"),
-            postal_code=str(location.get("postalCode", "")) if location.get("postalCode") else None,
+            commune=commune,
+            postal_code=postal_code,
             address=location.get("street"),
             latitude=location.get("latitude"),
             longitude=location.get("longitude"),
             price_monthly=float(price_monthly) if price_monthly else None,
             charges_monthly=float(charges_monthly) if charges_monthly else None,
-            charges_included=None,
-            bedrooms=prop.get("bedroomCount"),
+            charges_included=charges_included,
+            bedrooms=bedrooms,
             bathrooms=prop.get("bathroomCount"),
-            surface_m2=prop.get("netHabitableSurface"),
-            floor=self._extract_floor(prop),
+            surface_m2=float(surface) if surface else None,
+            floor=self._extract_floor_value(floor_raw),
             total_floors=building.get("floorCount"),
             has_elevator=prop.get("hasLift"),
-            peb_rating=energy.get("primaryEnergyConsumptionLevel"),
-            peb_value=energy.get("primaryEnergyConsumptionPerSqm"),
-            furnished=prop.get("isFurnished"),
-            has_balcony=prop.get("hasBalcony"),
+            peb_rating=peb_rating,
+            peb_value=peb_value,
+            furnished=furnished,
+            has_balcony=None,  # Immoweb doesn't have a hasBalcony field
             has_terrace=prop.get("hasTerrace"),
             has_garden=prop.get("hasGarden"),
             has_parking=parking_total > 0 if parking_total else None,
@@ -242,14 +360,48 @@ class ImmowebScraper:
         )
 
     @staticmethod
-    def _extract_floor(prop: dict) -> Optional[int]:
-        floor = prop.get("floor")
-        if floor is None:
+    def _extract_peb_rating(certificates: dict, energy: dict) -> Optional[str]:
+        """Extract PEB/EPC rating from transaction.certificates (primary) or property.energy (fallback)."""
+        # Primary: transaction.certificates.epcScore
+        for source in [certificates, energy]:
+            if not isinstance(source, dict):
+                continue
+            for key in ["epcScore", "primaryEnergyConsumptionLevel", "epbLevel", "energyClass"]:
+                val = source.get(key)
+                if val and isinstance(val, str) and len(val) <= 3:
+                    return val.upper()
+        return None
+
+    @staticmethod
+    def _extract_peb_value(certificates: dict, energy: dict) -> Optional[float]:
+        """Extract PEB/EPC kWh/m2 from transaction.certificates or property.energy."""
+        for source in [certificates, energy]:
+            if not isinstance(source, dict):
+                continue
+            for key in ["primaryEnergyConsumptionPerSqm", "primaryEnergyConsumptionYearly"]:
+                val = source.get(key)
+                if val is not None:
+                    try:
+                        return float(val)
+                    except (ValueError, TypeError):
+                        pass
+        return None
+
+    @staticmethod
+    def _extract_floor_value(floor_raw) -> Optional[int]:
+        """Extract floor from various formats (int, str, dict)."""
+        if floor_raw is None:
             return None
-        if isinstance(floor, int):
-            return floor
-        if isinstance(floor, dict):
-            return floor.get("value")
-        if isinstance(floor, str) and floor.isdigit():
-            return int(floor)
+        if isinstance(floor_raw, int):
+            return floor_raw
+        if isinstance(floor_raw, dict):
+            return floor_raw.get("value")
+        if isinstance(floor_raw, str):
+            if floor_raw.isdigit():
+                return int(floor_raw)
+            # Handle "0" etc
+            try:
+                return int(floor_raw)
+            except ValueError:
+                pass
         return None

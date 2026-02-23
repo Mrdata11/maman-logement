@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ApartmentWithEval, ListingStatus, PEB_RATING_COLORS } from "@/lib/types";
 import { haversineDistance, IXELLES_CENTER } from "@/lib/coordinates";
@@ -11,8 +11,7 @@ const APT_NOTES_KEY = "apartment_listing_notes";
 export function ApartmentFavoritesClient({ allItems }: { allItems: ApartmentWithEval[] }) {
   const [items, setItems] = useState(allItems);
 
-  // Load states from localStorage
-  useEffect(() => {
+  const loadFromLocalStorage = useCallback(() => {
     const savedStates = JSON.parse(localStorage.getItem(APT_STATES_KEY) || "{}");
     const savedNotes = JSON.parse(localStorage.getItem(APT_NOTES_KEY) || "{}");
     setItems(
@@ -23,6 +22,20 @@ export function ApartmentFavoritesClient({ allItems }: { allItems: ApartmentWith
       }))
     );
   }, [allItems]);
+
+  // Load states from localStorage and listen for changes
+  useEffect(() => {
+    loadFromLocalStorage();
+
+    window.addEventListener("favorite-added", loadFromLocalStorage);
+    window.addEventListener("favorite-removed", loadFromLocalStorage);
+    window.addEventListener("storage", loadFromLocalStorage);
+    return () => {
+      window.removeEventListener("favorite-added", loadFromLocalStorage);
+      window.removeEventListener("favorite-removed", loadFromLocalStorage);
+      window.removeEventListener("storage", loadFromLocalStorage);
+    };
+  }, [loadFromLocalStorage]);
 
   const favorites = useMemo(
     () => items.filter((i) => i.status === "favorite"),

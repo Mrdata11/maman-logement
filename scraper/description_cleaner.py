@@ -1,5 +1,6 @@
 """Clean listing descriptions using Claude LLM to remove web page garbage."""
 
+import asyncio
 import json
 import time
 from typing import Optional, List, Dict
@@ -64,7 +65,7 @@ Retourne UNIQUEMENT le texte nettoyé, sans aucune explication ni commentaire.""
 
 
 def clean_description(listing: Listing) -> Optional[str]:
-    """Clean a single listing description using Claude."""
+    """Clean a single listing description using Claude (sync)."""
     if not anthropic or not ANTHROPIC_API_KEY:
         print("  [description_cleaner] Anthropic API not available, skipping")
         return None
@@ -89,8 +90,6 @@ def clean_description(listing: Listing) -> Optional[str]:
 
         cleaned = response.content[0].text.strip()
 
-        # Sanity check: cleaned text shouldn't be drastically shorter
-        # (less than 30% of original might mean content was lost)
         if len(cleaned) < len(listing.description) * 0.2:
             print(f"  [description_cleaner] WARNING: cleaned text suspiciously short for {listing.id} "
                   f"({len(cleaned)} vs {len(listing.description)} chars), keeping original")
@@ -101,6 +100,61 @@ def clean_description(listing: Listing) -> Optional[str]:
     except Exception as e:
         print(f"  [description_cleaner] Error for {listing.id}: {e}")
         return None
+
+
+async def _clean_one_async(client, listing: Listing) -> tuple:
+    """Clean one listing asynchronously. Returns (listing_id, cleaned_text or None)."""
+    if not listing.description or len(listing.description.strip()) < 50:
+        return (listing.id, listing.description)
+
+    prompt = CLEANING_PROMPT.format(
+        title=listing.title,
+        description=listing.description,
+    )
+
+    try:
+        response = await client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=4096,
+            system=CLEANING_SYSTEM,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        cleaned = response.content[0].text.strip()
+
+        if len(cleaned) < len(listing.description) * 0.2:
+            print(f"  [description_cleaner] WARNING: suspiciously short for {listing.id}, keeping original")
+            return (listing.id, None)
+
+        removed = len(listing.description) - len(cleaned)
+        pct = (removed / len(listing.description)) * 100
+        print(f"    {listing.id}: removed {removed} chars ({pct:.0f}%)")
+        return (listing.id, cleaned)
+
+    except Exception as e:
+        print(f"  [description_cleaner] Error for {listing.id}: {e}")
+        return (listing.id, None)
+
+
+async def _clean_batch_async(listings: List[Listing], batch_size: int = 10) -> Dict[str, str]:
+    """Clean listings in concurrent batches using async API."""
+    client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+    results = {}
+    total = len(listings)
+
+    for batch_start in range(0, total, batch_size):
+        batch = listings[batch_start:batch_start + batch_size]
+        batch_end = min(batch_start + batch_size, total)
+        print(f"  [description_cleaner] Batch {batch_start+1}-{batch_end}/{total}...")
+
+        tasks = [_clean_one_async(client, listing) for listing in batch]
+        batch_results = await asyncio.gather(*tasks)
+
+        for listing_id, cleaned in batch_results:
+            if cleaned:
+                results[listing_id] = cleaned
+
+    return results
 
 
 def clean_all_descriptions(
@@ -117,11 +171,9 @@ def clean_all_descriptions(
     Returns:
         Dict mapping listing_id -> cleaned_description
     """
-    results = {}
-
     if not anthropic or not ANTHROPIC_API_KEY:
         print("  [description_cleaner] Anthropic API not available, skipping all")
-        return results
+        return {}
 
     to_clean = []
     for listing in listings:
@@ -130,24 +182,11 @@ def clean_all_descriptions(
 
     if not to_clean:
         print("  [description_cleaner] No descriptions need cleaning")
-        return results
+        return {}
 
-    print(f"  [description_cleaner] Cleaning {len(to_clean)} descriptions...")
+    print(f"  [description_cleaner] Cleaning {len(to_clean)} descriptions (async batches of 10)...")
 
-    for i, listing in enumerate(to_clean):
-        print(f"  [description_cleaner] {i+1}/{len(to_clean)}: {listing.title[:60]}...")
-        cleaned = clean_description(listing)
-        if cleaned:
-            removed = len(listing.description) - len(cleaned)
-            pct = (removed / len(listing.description)) * 100 if listing.description else 0
-            results[listing.id] = cleaned
-            print(f"    Cleaned: removed {removed} chars ({pct:.0f}%)")
-        else:
-            print(f"    Skipped (no change needed or error)")
-
-        # Small rate limiting to avoid bursts
-        if i < len(to_clean) - 1:
-            time.sleep(0.1)
+    results = asyncio.run(_clean_batch_async(to_clean, batch_size=10))
 
     print(f"  [description_cleaner] Completed: {len(results)} descriptions cleaned")
     return results

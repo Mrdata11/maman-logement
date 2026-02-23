@@ -58,6 +58,22 @@ function createPopupContent(item: ApartmentWithEval): string {
     listing.peb_rating ? `PEB ${listing.peb_rating}` : null,
   ].filter(Boolean).join(" \u00b7 ");
 
+  const highlightsHtml =
+    evaluation && evaluation.highlights.length > 0
+      ? `<div class="map-popup-tags">${evaluation.highlights
+          .slice(0, 3)
+          .map((h) => `<span class="map-popup-tag map-popup-tag-green">${escapeHtml(h)}</span>`)
+          .join("")}</div>`
+      : "";
+
+  const concernsHtml =
+    evaluation && evaluation.concerns.length > 0
+      ? `<div class="map-popup-tags">${evaluation.concerns
+          .slice(0, 2)
+          .map((c) => `<span class="map-popup-tag map-popup-tag-red">${escapeHtml(c)}</span>`)
+          .join("")}</div>`
+      : "";
+
   return `<div class="map-popup-content">
     ${imageUrl ? `<img src="${imageUrl}" alt="" class="map-popup-img" onerror="this.style.display='none'" />` : ""}
     <div class="map-popup-body">
@@ -71,6 +87,8 @@ function createPopupContent(item: ApartmentWithEval): string {
         <span class="map-popup-location-text">${details}</span>
       </div>
       ${evaluation?.match_summary ? `<div class="map-popup-summary">${escapeHtml(evaluation.match_summary)}</div>` : ""}
+      ${highlightsHtml}
+      ${concernsHtml}
       <div class="map-popup-actions">
         <a href="/appartements/listing/${listing.id}" class="map-popup-link">Voir d\u00e9tail</a>
         <a href="${listing.source_url}" target="_blank" rel="noopener noreferrer" class="map-popup-link-secondary">Immoweb</a>
@@ -168,7 +186,7 @@ export default function ApartmentListingsMap({
                   mouseout: handleMouseOut,
                 }}
               >
-                <Popup maxWidth={300} closeButton={true}>
+                <Popup maxWidth={360} closeButton={true}>
                   <div
                     dangerouslySetInnerHTML={{
                       __html: createPopupContent(item),
