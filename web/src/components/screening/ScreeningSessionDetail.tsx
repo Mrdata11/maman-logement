@@ -9,6 +9,8 @@ import {
   Mail,
   Calendar,
   RefreshCw,
+  Play,
+  Download,
 } from "lucide-react";
 import type { ScreeningSession, TranscriptEntry } from "@/lib/screening/types";
 import { SESSION_STATUS_CONFIG } from "@/lib/screening/types";
@@ -24,6 +26,8 @@ export function ScreeningSessionDetail({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [loadingAudio, setLoadingAudio] = useState(false);
 
   const fetchSession = useCallback(async () => {
     try {
@@ -89,6 +93,24 @@ export function ScreeningSessionDetail({
       </div>
     );
   }
+
+  const loadAudio = async () => {
+    if (!session.audio_url || audioUrl) return;
+    setLoadingAudio(true);
+    try {
+      const res = await fetch(
+        `/api/screening/audio?path=${encodeURIComponent(session.audio_url)}`
+      );
+      if (res.ok) {
+        const blob = await res.blob();
+        setAudioUrl(URL.createObjectURL(blob));
+      }
+    } catch {
+      console.error("Error loading audio");
+    } finally {
+      setLoadingAudio(false);
+    }
+  };
 
   const statusConfig = SESSION_STATUS_CONFIG[session.status];
 
@@ -166,6 +188,47 @@ export function ScreeningSessionDetail({
           <div className="text-sm text-emerald-800 whitespace-pre-line leading-relaxed">
             {session.ai_summary}
           </div>
+        </div>
+      )}
+
+      {/* Enregistrement audio */}
+      {session.audio_url && (
+        <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-6 mb-6" style={{ boxShadow: "var(--card-shadow)" }}>
+          <h2 className="font-medium text-[var(--foreground)] mb-3 flex items-center gap-2">
+            <Play size={18} />
+            Enregistrement audio
+          </h2>
+          {audioUrl ? (
+            <div className="space-y-3">
+              <audio controls className="w-full" src={audioUrl} />
+              <a
+                href={audioUrl}
+                download={`entretien_${session.candidate_name.replace(/\s+/g, "_")}.webm`}
+                className="inline-flex items-center gap-1.5 text-sm text-[var(--primary)] hover:underline"
+              >
+                <Download size={14} />
+                Télécharger
+              </a>
+            </div>
+          ) : (
+            <button
+              onClick={loadAudio}
+              disabled={loadingAudio}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--surface)] text-[var(--foreground)] rounded-lg text-sm hover:bg-[var(--border-color)] transition-colors disabled:opacity-50"
+            >
+              {loadingAudio ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-[var(--primary)] border-t-transparent" />
+                  Chargement...
+                </>
+              ) : (
+                <>
+                  <Play size={16} />
+                  Charger l&apos;enregistrement
+                </>
+              )}
+            </button>
+          )}
         </div>
       )}
 

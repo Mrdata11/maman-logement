@@ -130,8 +130,13 @@ export function HomepageProfiles() {
           const derived = deriveProfileCardData(
             row.questionnaire_answers || {}
           );
+          const rawIntro = (row.introduction as Record<string, unknown>)?.whoAreYou;
           const introText =
-            (row.introduction as Record<string, string>)?.whoAreYou || "";
+            typeof rawIntro === "string"
+              ? rawIntro
+              : rawIntro && typeof rawIntro === "object" && "transcript" in rawIntro
+                ? (rawIntro as { transcript: string }).transcript || ""
+                : "";
           const intro_snippet =
             introText.length > 150
               ? introText.slice(0, 147) + "..."

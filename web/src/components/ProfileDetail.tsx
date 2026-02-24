@@ -6,12 +6,17 @@ import {
   PROFILE_VOICE_QUESTIONS,
   INTRO_DISPLAY_TITLES,
   deriveProfileCardData,
+  getIntroAudioUrl,
+  getIntroText,
+  isIntroAnswer,
 } from "@/lib/profile-types";
 import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
 import { createClient } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import { AuthButton } from "./AuthButton";
 import { ProfilePhotoGallery } from "./ProfilePhotoGallery";
+import { VerificationBadge } from "./screening/VerificationBadge";
+import { VerificationCTA } from "./screening/VerificationCTA";
 
 interface ProfileDetailProps {
   profile: Profile;
@@ -115,12 +120,16 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
   }
 
   // Sections to display from introduction
-  const introSections = PROFILE_VOICE_QUESTIONS.filter(
-    (q) => intro[q.id]?.trim()
-  ).map((q) => ({
+  const introSections = PROFILE_VOICE_QUESTIONS.filter((q) => {
+    const val = intro[q.id];
+    if (!val) return false;
+    if (typeof val === "string") return val.trim().length > 0;
+    return isIntroAnswer(val);
+  }).map((q) => ({
     id: q.id,
     ...INTRO_DISPLAY_TITLES[q.id],
-    content: intro[q.id],
+    content: getIntroText(intro[q.id]),
+    audioUrl: getIntroAudioUrl(intro[q.id]),
   }));
 
   return (
@@ -171,8 +180,9 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
                 </div>
               )}
               <div className="min-w-0 pt-0.5">
-                <h1 className="text-2xl font-bold text-[var(--foreground)] leading-tight">
+                <h1 className="text-2xl font-bold text-[var(--foreground)] leading-tight flex items-center gap-2">
                   {profile.display_name}
+                  {profile.is_verified && <VerificationBadge size="sm" />}
                 </h1>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
                   {demographicParts.length > 0 && (
@@ -227,9 +237,18 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
                     <span className="text-base">{section.icon}</span>
                     {section.title}
                   </h3>
-                  <p className="text-[var(--foreground)]/90 leading-relaxed">
-                    {section.content}
-                  </p>
+                  {section.audioUrl ? (
+                    <audio
+                      src={section.audioUrl}
+                      controls
+                      preload="metadata"
+                      className="w-full"
+                    />
+                  ) : (
+                    <p className="text-[var(--foreground)]/90 leading-relaxed">
+                      {section.content}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -332,7 +351,16 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
         </div>
 
         {/* Right column: sticky contact card */}
-        <div className="lg:sticky lg:top-6">
+        <div className="lg:sticky lg:top-6 space-y-4">
+          {/* Verification CTA - only for own profile */}
+          {user && user.id === profile.user_id && !profile.is_verified && (
+            <VerificationCTA
+              type="profile"
+              targetId={profile.id}
+              isVerified={profile.is_verified}
+            />
+          )}
+
           <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-5 sm:p-6 shadow-[var(--card-shadow)] space-y-4">
             <h3 className="font-semibold text-[var(--foreground)]">
               Contacter {profile.display_name}

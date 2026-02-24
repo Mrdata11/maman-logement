@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   QuestionDefinition,
   QuestionnaireAnswers,
@@ -229,6 +229,8 @@ function ProgressBar({
 
 export function Questionnaire() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const [answers, setAnswers] = useState<QuestionnaireAnswers>({});
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
@@ -309,7 +311,7 @@ export function Questionnaire() {
     saveState(answers, currentStep, true);
     setShowComplete(true);
     setTimeout(() => {
-      router.push("/");
+      router.push(returnTo || "/");
     }, 2000);
   };
 
@@ -333,7 +335,9 @@ export function Questionnaire() {
           Merci !
         </h2>
         <p className="text-sm text-[var(--muted)] leading-relaxed">
-          Ton profil de recherche est enregistré. Tu vas être redirigée vers les annonces.
+          {returnTo
+            ? "Ton questionnaire est enregistré. Tu vas être redirigée vers la création de ton profil."
+            : "Ton profil de recherche est enregistré. Tu vas être redirigée vers les annonces."}
         </p>
       </div>
     );

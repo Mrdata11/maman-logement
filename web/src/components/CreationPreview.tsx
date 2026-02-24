@@ -51,6 +51,10 @@ export function CreationPreview() {
   const [user, setUser] = useState<User | null>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+  const [generatingInvite, setGeneratingInvite] = useState(false);
+  const [copied, setCopied] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -89,19 +93,41 @@ export function CreationPreview() {
       const projectName = answers?.project_name as string | undefined;
       const projectVision = answers?.project_vision as string | undefined;
 
-      const { error } = await supabase.from("projects").upsert({
+      const { data: projectData, error } = await supabase.from("projects").upsert({
         user_id: user.id,
         name: projectName || "Projet sans nom",
         vision: projectVision || null,
         answers: answers,
         is_published: true,
-      }, { onConflict: "user_id" });
+      }, { onConflict: "user_id" }).select("id").single();
 
       if (error) {
         console.error("Error saving project:", error);
         setSaveError("Erreur lors de la sauvegarde. Veuillez réessayer.");
         setSaving(false);
         return;
+      }
+
+      if (projectData) {
+        setProjectId(projectData.id);
+
+        // Auto-lier le créateur comme membre (s'il a un profil)
+        const { data: creatorProfile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+
+        if (creatorProfile) {
+          await supabase.from("project_members").upsert(
+            {
+              project_id: projectData.id,
+              profile_id: creatorProfile.id,
+              role: "creator",
+            },
+            { onConflict: "project_id,profile_id" }
+          );
+        }
       }
 
       localStorage.removeItem(CREATION_STORAGE_KEY);
@@ -125,6 +151,32 @@ export function CreationPreview() {
     );
   }
 
+  const handleGenerateInvite = async () => {
+    if (!projectId) return;
+    setGeneratingInvite(true);
+    try {
+      const res = await fetch("/api/projects/generate-invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: projectId }),
+      });
+      const data = await res.json();
+      if (data.invite_url) {
+        setInviteUrl(data.invite_url);
+      }
+    } catch (err) {
+      console.error("Error generating invite:", err);
+    }
+    setGeneratingInvite(false);
+  };
+
+  const handleCopyInvite = async () => {
+    if (!inviteUrl) return;
+    await navigator.clipboard.writeText(inviteUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (saved) {
     return (
       <div className="max-w-md mx-auto py-16 text-center animate-fadeIn">
@@ -136,25 +188,69 @@ export function CreationPreview() {
         <h2 className="text-2xl font-bold text-[var(--foreground)] mb-3">
           Votre projet est enregistr&eacute; !
         </h2>
-        <p className="text-[var(--muted)] mb-8 leading-relaxed">
+        <p className="text-[var(--muted)] mb-6 leading-relaxed">
           Votre projet d&apos;habitat group&eacute; a &eacute;t&eacute; sauvegard&eacute;.
-          Bient&ocirc;t, les personnes int&eacute;ress&eacute;es pourront le d&eacute;couvrir et vous contacter.
         </p>
+
+        {/* Étape optionnelle : inviter des membres */}
+        <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-5 mb-6 text-left">
+          <h3 className="text-base font-semibold text-[var(--foreground)] mb-2 flex items-center gap-2">
+            <svg className="w-5 h-5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Inviter des membres
+          </h3>
+          <p className="text-sm text-[var(--muted)] mb-4">
+            G&eacute;n&eacute;rez un lien d&apos;invitation &agrave; partager avec les personnes
+            de votre habitat group&eacute;.
+          </p>
+
+          {inviteUrl ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={inviteUrl}
+                  className="flex-1 px-3 py-2 bg-[var(--surface)] border border-[var(--border-color)] rounded-lg text-sm text-[var(--foreground)] select-all"
+                />
+                <button
+                  onClick={handleCopyInvite}
+                  className="shrink-0 px-4 py-2 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+                >
+                  {copied ? "Copi\u00e9 !" : "Copier"}
+                </button>
+              </div>
+              <p className="text-xs text-[var(--muted)]">
+                Envoyez ce lien par email, WhatsApp ou tout autre moyen.
+              </p>
+            </div>
+          ) : (
+            <button
+              onClick={handleGenerateInvite}
+              disabled={generatingInvite || !projectId}
+              className="w-full px-4 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
+            >
+              {generatingInvite ? "G\u00e9n\u00e9ration..." : "G\u00e9n\u00e9rer un lien d\u2019invitation"}
+            </button>
+          )}
+        </div>
+
         <div className="flex justify-center gap-3">
+          {projectId && (
+            <a
+              href={`/projets/${projectId}`}
+              className="px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+            >
+              Voir le projet
+            </a>
+          )}
           <a
             href="/"
-            className="px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+            className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--surface)] transition-colors"
           >
             Retour &agrave; l&apos;accueil
           </a>
-          <button
-            onClick={() => {
-              setSaved(false);
-            }}
-            className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--surface)] transition-colors"
-          >
-            Revoir le projet
-          </button>
         </div>
       </div>
     );

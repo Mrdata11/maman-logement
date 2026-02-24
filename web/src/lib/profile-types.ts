@@ -1,12 +1,37 @@
 import { QuestionnaireAnswers } from "./questionnaire-types";
 
+export interface IntroAnswer {
+  audio_url: string;
+  audio_path: string;
+  transcript: string;
+  duration_seconds: number;
+}
+
+export type IntroValue = IntroAnswer | string | null;
+
+export function isIntroAnswer(val: unknown): val is IntroAnswer {
+  return typeof val === "object" && val !== null && "audio_url" in val;
+}
+
+export function getIntroText(val: IntroValue): string {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  return val.transcript || "";
+}
+
+export function getIntroAudioUrl(val: IntroValue): string | null {
+  if (!val) return null;
+  if (typeof val === "string") return null;
+  return val.audio_url || null;
+}
+
 export interface ProfileIntroduction {
-  whoAreYou: string;
-  whyGroupHousing: string;
-  communityValues: string;
-  whatYouBring: string;
-  idealDay: string;
-  additionalInfo: string;
+  whoAreYou: IntroValue;
+  whyGroupHousing: IntroValue;
+  communityValues: IntroValue;
+  whatYouBring: IntroValue;
+  idealDay: IntroValue;
+  additionalInfo: IntroValue;
 }
 
 export type Gender = "homme" | "femme" | "non-binaire" | "autre" | null;
@@ -27,6 +52,9 @@ export interface Profile {
   ai_summary: string | null;
   ai_tags: string[];
   is_published: boolean;
+  is_verified: boolean;
+  verified_at: string | null;
+  verification_session_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -56,17 +84,18 @@ export interface ProfileCard {
   community_size: string | null;
   core_values: string[];
   intro_snippet?: string;
+  is_verified?: boolean;
   created_at: string;
   questionnaire_answers?: Record<string, string | string[] | number>;
 }
 
 export const EMPTY_INTRODUCTION: ProfileIntroduction = {
-  whoAreYou: "",
-  whyGroupHousing: "",
-  communityValues: "",
-  whatYouBring: "",
-  idealDay: "",
-  additionalInfo: "",
+  whoAreYou: null,
+  whyGroupHousing: null,
+  communityValues: null,
+  whatYouBring: null,
+  idealDay: null,
+  additionalInfo: null,
 };
 
 export const PROFILE_VOICE_QUESTIONS: {
@@ -91,26 +120,11 @@ export const PROFILE_VOICE_QUESTIONS: {
       "Qu'est-ce qui t'a amen\u00e9(e) \u00e0 chercher un habitat group\u00e9 ? Un \u00e9v\u00e9nement, un d\u00e9sir de longue date ?",
   },
   {
-    id: "communityValues",
-    question:
-      "Qu'est-ce qui est important pour toi dans une communaut\u00e9 ?",
-    placeholder: "L'entraide, le respect, la convivialit\u00e9...",
-    helpText:
-      "Les valeurs, les qualit\u00e9s humaines, l'ambiance que tu recherches.",
-  },
-  {
     id: "whatYouBring",
     question: "Qu'est-ce que tu apportes \u00e0 une communaut\u00e9 ?",
     placeholder:
       "Je suis bon(ne) cuisinier(\u00e8re), j'adore jardiner, je suis \u00e0 l'\u00e9coute...",
     helpText: "Tes talents, tes passions, ce que tu aimes partager.",
-  },
-  {
-    id: "idealDay",
-    question: "D\u00e9cris ta journ\u00e9e id\u00e9ale en habitat group\u00e9.",
-    placeholder:
-      "Le matin, je prends mon caf\u00e9 dans le jardin commun...",
-    helpText: "Imagine une journ\u00e9e typique dans ton futur lieu de vie.",
   },
   {
     id: "additionalInfo",

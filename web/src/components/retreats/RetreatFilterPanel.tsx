@@ -18,6 +18,10 @@ import {
   LANGUAGE_LABELS,
   LANGUAGE_FLAGS,
   SPECIALIZED_EQUIPMENT_LABELS,
+  BED_CONFIGURATION_LABELS,
+  KITCHEN_EQUIPMENT_LABELS,
+  SUSTAINABILITY_LABELS,
+  NEARBY_ACTIVITY_LABELS,
 } from "@/lib/retreats/types";
 import { countActiveFilters } from "@/lib/retreats/filters";
 
@@ -267,6 +271,65 @@ export function RetreatFilterPanel({
         selected={filters.specializedEquipment}
         onChange={(v) => updateFilter("specializedEquipment", v)}
       />
+
+      {/* Bed configurations */}
+      <CheckboxGroup
+        label="Types de lits"
+        options={BED_CONFIGURATION_LABELS}
+        selected={filters.bedConfigurations}
+        onChange={(v) => updateFilter("bedConfigurations", v)}
+      />
+
+      {/* Kitchen equipment */}
+      <CheckboxGroup
+        label="Équipement cuisine"
+        options={KITCHEN_EQUIPMENT_LABELS}
+        selected={filters.kitchenEquipment}
+        onChange={(v) => updateFilter("kitchenEquipment", v)}
+      />
+
+      {/* Nearby activities */}
+      <CheckboxGroup
+        label="Activités à proximité"
+        options={NEARBY_ACTIVITY_LABELS}
+        selected={filters.nearbyActivities}
+        onChange={(v) => updateFilter("nearbyActivities", v)}
+      />
+
+      {/* Sustainability */}
+      <CheckboxGroup
+        label="Éco-responsabilité"
+        options={SUSTAINABILITY_LABELS}
+        selected={filters.sustainabilityFeatures}
+        onChange={(v) => updateFilter("sustainabilityFeatures", v)}
+      />
+
+      {/* Boolean filters: practical needs */}
+      <div className="mb-4">
+        <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Besoins pratiques</h4>
+        <div className="space-y-1.5">
+          {([
+            { key: "bedLinenProvided" as const, label: "Draps fournis" },
+            { key: "towelsProvided" as const, label: "Serviettes fournies" },
+            { key: "cleaningIncluded" as const, label: "Ménage inclus" },
+            { key: "staffOnSite" as const, label: "Personnel sur place" },
+            { key: "hasParking" as const, label: "Parking" },
+            { key: "drinkingWaterSafe" as const, label: "Eau potable" },
+            { key: "petsAllowed" as const, label: "Animaux acceptés" },
+            { key: "ecoFriendly" as const, label: "Éco-friendly" },
+          ]).map(({ key, label }) => (
+            <label key={key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters[key] === true}
+                onChange={(e) => updateFilter(key, e.target.checked ? true : null)}
+                className="rounded border-gray-300 text-gray-900 focus:ring-gray-500"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
 
       {/* Ceremonies allowed */}
       <div className="mb-4">

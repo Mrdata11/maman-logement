@@ -1,0 +1,160 @@
+{
+  "id": "alga002",
+  "source": "tripadvisor.com",
+  "source_url": "https://www.tripadvisor.com/Hotel_Review-g1190874-d29358494-Reviews-Wild_View_Retreat-Sao_Bras_de_Alportel_Faro_District_Algarve.html",
+  "name": "Wild View Retreat",
+  "description": "Village de montagne abandonné entièrement restauré dans les contreforts de l'Algarve, au coeur d'une zone protégée Natura 2000. Piscine à débordement avec vue 360 degrés, studio de yoga dédié, cuisine saine et détox. Accueille jusqu'à 24 personnes en chambres doubles ou triples avec salle de bain privée. Reconnu par The Guardian parmi les 10 meilleurs centres de retraite en Europe. À 35 minutes de l'aéroport de Faro.",
+  "country": "PT",
+  "region": "Algarve",
+  "city": "São Brás de Alportel",
+  "latitude": 37.18,
+  "longitude": -7.89,
+  "nearest_airport": "Faro (FAO) - 35 km",
+  "transfer_available": true,
+  "capacity_min": 8,
+  "capacity_max": 24,
+  "num_rooms": 12,
+  "num_beds": 24,
+  "accommodation_types": [
+    "private_room",
+    "shared_room"
+  ],
+  "room_has_private_bathroom": true,
+  "activity_spaces": [
+    "yoga_studio",
+    "outdoor_deck"
+  ],
+  "main_practice_space_capacity": 26,
+  "main_practice_space_m2": 100,
+  "num_practice_spaces": 2,
+  "outdoor_spaces": [
+    "pool",
+    "garden",
+    "terrace",
+    "hiking_trails"
+  ],
+  "meal_service": "full_board",
+  "cuisine_options": [
+    "vegetarian",
+    "vegan",
+    "organic",
+    "gluten_free",
+    "local_seasonal"
+  ],
+  "kitchen_access": false,
+  "dietary_accommodations": true,
+  "currency": "EUR",
+  "price_per_person_per_night": 65,
+  "price_per_person_per_night_max": 95,
+  "price_full_venue_per_day": 1500,
+  "price_notes": "Location exclusive possible. Zone protégée Natura 2000. Réduction hors saison.",
+  "meals_included_in_price": true,
+  "setting": [
+    "countryside",
+    "mountain"
+  ],
+  "style": [
+    "eco",
+    "modern",
+    "spiritual"
+  ],
+  "services": [
+    "airport_transfer",
+    "yoga_mats",
+    "meditation_cushions",
+    "sound_system",
+    "massage",
+    "excursions",
+    "wifi"
+  ],
+  "suitable_for": [
+    "yoga",
+    "meditation",
+    "detox",
+    "silent_retreat",
+    "teacher_training",
+    "breathwork"
+  ],
+  "alcohol_policy": "limited",
+  "children_welcome": false,
+  "accessible": false,
+  "images": [
+    "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800",
+    "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800",
+    "https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800",
+    "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"
+  ],
+  "image_categories": {
+    "exterior": [
+      "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800"
+    ],
+    "practice_spaces": [
+      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800"
+    ],
+    "rooms": [
+      "https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=800"
+    ],
+    "surroundings": [
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"
+    ]
+  },
+  "contact_email": "hello@wildviewretreat.com",
+  "contact_phone": null,
+  "website": "https://wildviewretreat.com",
+  "booking_url": "https://wildviewretreat.com/retreat-schedule/",
+  "rating_average": 4.9,
+  "rating_count": 82,
+  "available_year_round": true,
+  "min_stay_nights": 5,
+  "lead_time_weeks": 16,
+  "original_language": "en",
+  "date_scraped": "2026-02-20T10:00:00Z",
+  "is_claimed": false,
+  "languages_spoken": [
+    "en",
+    "pt",
+    "fr"
+  ],
+  "cancellation_policy": "Annulation gratuite jusqu'à 90 jours avant. 50% remboursé entre 45-90 jours. Non remboursable sous 45 jours.",
+  "deposit_required": "25% à la réservation, solde 45 jours avant.",
+  "group_discount": true,
+  "suggested_durations": [
+    5,
+    7,
+    10
+  ],
+  "seasonal_availability": "Toute l'année (meilleur : mars-juin, sept-nov)",
+  "specialized_equipment": [
+    "yoga_props",
+    "singing_bowls",
+    "crystal_bowls",
+    "blankets",
+    "essential_oils",
+    "incense",
+    "candles",
+    "massage_tables"
+  ],
+  "ceremonies_allowed": true,
+  "silence_policy": "Zone Natura 2000 naturellement silencieuse. Retraites silencieuses possibles. Heures calmes : 22h-7h30.",
+  "noise_level": "very_quiet",
+  "climate_info": "Climat méditerranéen toute l'année. Été 25-35°C, hiver 10-18°C. 300 jours de soleil/an.",
+  "nearest_hospital_km": 12,
+  "retreats_hosted_count": 85,
+  "testimonials": [
+    {
+      "author": "Claire R.",
+      "role": "Thérapeute holistique",
+      "text": "La nature environnante est d'une puissance extraordinaire. Mes participants ressentent immédiatement l'énergie du lieu. Vue à couper le souffle.",
+      "rating": 5,
+      "date": "2025-10-08"
+    },
+    {
+      "author": "Marc B.",
+      "role": "Professeur de méditation",
+      "text": "Le silence et l'isolement de ce village restauré créent un cadre parfait pour la méditation profonde. Accueil chaleureux et professionnel.",
+      "rating": 5,
+      "date": "2025-05-12"
+    }
+  ],
+  "exclusive_hire_only": false
+}

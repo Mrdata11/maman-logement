@@ -262,7 +262,13 @@ export default function ProfilsPage() {
           const derived = deriveProfileCardData(
             row.questionnaire_answers || {}
           );
-          const introText = (row.introduction as Record<string, string>)?.whoAreYou || "";
+          const rawIntro = (row.introduction as Record<string, unknown>)?.whoAreYou;
+          const introText =
+            typeof rawIntro === "string"
+              ? rawIntro
+              : rawIntro && typeof rawIntro === "object" && "transcript" in rawIntro
+                ? (rawIntro as { transcript: string }).transcript || ""
+                : "";
           const intro_snippet = introText.length > 150
             ? introText.slice(0, 147) + "..."
             : introText || undefined;
@@ -603,12 +609,12 @@ export default function ProfilsPage() {
         <div className="shrink-0 flex items-center gap-3">
           <a
             href="/creer"
-            className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--surface)] transition-colors inline-flex items-center gap-2"
+            className="px-5 py-2.5 border-2 border-[var(--primary)] text-[var(--primary)] rounded-xl text-sm font-semibold hover:bg-[var(--primary)] hover:text-white transition-colors inline-flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
-            Lancer un projet
+            Personnalise tes r&eacute;sultats
           </a>
           <a
             href="/profils/creer"
@@ -753,12 +759,6 @@ export default function ProfilsPage() {
               )}
             </button>
 
-            {/* Person count */}
-            {!loading && filtered.length > 0 && (
-              <span className="text-sm text-[var(--muted)] whitespace-nowrap">
-                {filtered.length} personne{filtered.length !== 1 ? "s" : ""}
-              </span>
-            )}
           </div>
         </div>
 

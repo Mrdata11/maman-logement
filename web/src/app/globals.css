@@ -503,6 +503,136 @@ body {
   animation: recording-pulse 1.5s ease-in-out infinite;
 }
 
+/* ---- Mic button glow ---- */
+
+@keyframes mic-breathe {
+  0% { box-shadow: 0 0 0 0 rgba(91, 140, 90, 0.25); }
+  50% { box-shadow: 0 0 0 14px rgba(91, 140, 90, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(91, 140, 90, 0); }
+}
+
+.mic-breathe {
+  animation: mic-breathe 2.5s ease-in-out infinite;
+}
+
+@keyframes mic-recording-ring {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 0 18px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.mic-recording-ring {
+  animation: mic-recording-ring 1.5s ease-in-out infinite;
+}
+
+/* ---- Audio waveform bars ---- */
+
+@keyframes wave-bar {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+
+.wave-bar {
+  animation: wave-bar 0.8s ease-in-out infinite;
+}
+
+/* ---- Fade in up ---- */
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
+
+/* ---- Profile creation success celebration ---- */
+
+@keyframes success-circle-draw {
+  from { stroke-dashoffset: 166; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes success-check-draw {
+  from { stroke-dashoffset: 30; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes success-circle-fill {
+  from { fill-opacity: 0; }
+  to { fill-opacity: 0.08; }
+}
+
+@keyframes success-scale-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes success-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes success-ring-expand {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes success-sparkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1) rotate(180deg); opacity: 1; }
+  100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+.success-icon-container {
+  animation: success-scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.success-circle-svg {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: success-circle-draw 0.8s ease-out 0.3s forwards;
+}
+
+.success-check-svg {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: success-check-draw 0.4s ease-out 0.9s forwards;
+}
+
+.success-circle-fill {
+  fill-opacity: 0;
+  animation: success-circle-fill 0.4s ease-out 1.1s forwards;
+}
+
+.success-ring {
+  animation: success-ring-expand 0.8s ease-out 0.5s forwards;
+  opacity: 0;
+}
+
+.success-sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.success-sparkle:nth-child(1) { top: -8px; left: 50%; animation: success-sparkle 0.6s ease-out 1.0s forwards; }
+.success-sparkle:nth-child(2) { top: 15%; right: -6px; animation: success-sparkle 0.6s ease-out 1.1s forwards; }
+.success-sparkle:nth-child(3) { bottom: -8px; left: 50%; animation: success-sparkle 0.6s ease-out 1.2s forwards; }
+.success-sparkle:nth-child(4) { top: 15%; left: -6px; animation: success-sparkle 0.6s ease-out 1.15s forwards; }
+.success-sparkle:nth-child(5) { top: -4px; right: 8px; animation: success-sparkle 0.6s ease-out 1.05s forwards; background: var(--golden); }
+.success-sparkle:nth-child(6) { bottom: -4px; left: 8px; animation: success-sparkle 0.6s ease-out 1.25s forwards; background: var(--golden); }
+
+.success-text-1 { opacity: 0; animation: success-fade-up 0.5s ease-out 0.8s forwards; }
+.success-text-2 { opacity: 0; animation: success-fade-up 0.5s ease-out 1.0s forwards; }
+.success-text-3 { opacity: 0; animation: success-fade-up 0.5s ease-out 1.2s forwards; }
+.success-text-4 { opacity: 0; animation: success-fade-up 0.5s ease-out 1.4s forwards; }
+.success-text-5 { opacity: 0; animation: success-fade-up 0.5s ease-out 1.6s forwards; }
+
 /* ---- Hide scrollbar ---- */
 
 .scrollbar-hide {

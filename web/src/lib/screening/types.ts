@@ -43,6 +43,82 @@ export const DEFAULT_SCREENING_QUESTIONS: ScreeningQuestion[] = [
   },
 ];
 
+export type VerificationType = "profile" | "project" | "custom";
+
+export const VERIFICATION_PROFILE_QUESTIONS: ScreeningQuestion[] = [
+  {
+    id: "identity",
+    text: "Pouvez-vous vous présenter brièvement ? Votre prénom, votre âge, d'où vous venez ?",
+    followUp:
+      "Si la personne est très succincte, demande-lui ce qu'elle fait dans la vie.",
+    required: true,
+    order: 0,
+  },
+  {
+    id: "motivation",
+    text: "Qu'est-ce qui vous motive à chercher un habitat groupé ?",
+    followUp: "Demande si c'est un projet récent ou de longue date.",
+    required: true,
+    order: 1,
+  },
+  {
+    id: "values",
+    text: "Quelles valeurs sont essentielles pour vous dans une vie en communauté ?",
+    required: true,
+    order: 2,
+  },
+  {
+    id: "situation",
+    text: "Quelle est votre situation actuelle ? Êtes-vous seul(e), en couple, avec des enfants ?",
+    required: true,
+    order: 3,
+  },
+  {
+    id: "expectations",
+    text: "Qu'attendez-vous concrètement de cette plateforme ?",
+    followUp:
+      "Si vague, demande quel type de lieu ou quelle région l'intéresse.",
+    required: true,
+    order: 4,
+  },
+];
+
+export const VERIFICATION_PROJECT_QUESTIONS: ScreeningQuestion[] = [
+  {
+    id: "project_nature",
+    text: "Pouvez-vous décrire votre projet d'habitat groupé en quelques mots ?",
+    followUp:
+      "Demande le type de lieu (écolieu, coopérative, colocation...) et la localisation.",
+    required: true,
+    order: 0,
+  },
+  {
+    id: "progress",
+    text: "Où en êtes-vous dans l'avancement du projet ? Est-ce une idée, un projet en cours, ou déjà existant ?",
+    required: true,
+    order: 1,
+  },
+  {
+    id: "governance",
+    text: "Comment fonctionne la gouvernance du projet ? Comment sont prises les décisions ?",
+    followUp: "Si pas encore défini, demande quelle approche est envisagée.",
+    required: true,
+    order: 2,
+  },
+  {
+    id: "welcome",
+    text: "Quel type de personnes cherchez-vous à accueillir ?",
+    required: true,
+    order: 3,
+  },
+  {
+    id: "vision",
+    text: "Quelle est votre vision à long terme pour ce projet ?",
+    required: true,
+    order: 4,
+  },
+];
+
 export interface ScreeningConfig {
   id: string;
   title: string;
@@ -52,6 +128,7 @@ export interface ScreeningConfig {
   voice_id: string;
   language: string;
   elevenlabs_agent_id: string | null;
+  is_system: boolean;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -78,11 +155,14 @@ export interface ScreeningSession {
   status: ScreeningSessionStatus;
   transcript: TranscriptEntry[] | null;
   ai_summary: string | null;
+  audio_url: string | null;
   duration_seconds: number | null;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
   created_by: string;
+  verification_type: VerificationType | null;
+  verification_target_id: string | null;
   config?: ScreeningConfig;
   link?: ScreeningLink;
 }

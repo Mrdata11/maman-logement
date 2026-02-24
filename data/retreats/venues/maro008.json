@@ -1,0 +1,141 @@
+{
+  "id": "maro008",
+  "source": "retreat.guru",
+  "source_url": "https://retreat.guru/centers/3365-1/nosade",
+  "name": "NOSADE",
+  "description": "Riad intimiste de 3 chambres au coeur de la Médina historique de Marrakech, dans l'une des plus anciennes maisons de la ville datant du XIXe siècle. Spécialisé dans les retraites de yoga urbaines (5 jours) combinant yoga quotidien, exploration culturelle des souks et cuisine marocaine traditionnelle. Propose également des retraites yoga dans le désert du Sahara (Merzouga). Géré avec passion et souci du détail. Noté 5/5 sur TripAdvisor.",
+  "country": "MA",
+  "region": "Marrakech-Safi",
+  "city": "Marrakech",
+  "latitude": 31.6295,
+  "longitude": -7.9811,
+  "nearest_airport": "Marrakech Menara (RAK) - 6 km",
+  "transfer_available": true,
+  "capacity_min": 4,
+  "capacity_max": 6,
+  "num_rooms": 3,
+  "num_beds": 6,
+  "accommodation_types": [
+    "private_room",
+    "suite"
+  ],
+  "room_has_private_bathroom": true,
+  "activity_spaces": [
+    "yoga_studio",
+    "outdoor_deck"
+  ],
+  "main_practice_space_capacity": 8,
+  "main_practice_space_m2": 40,
+  "num_practice_spaces": 2,
+  "outdoor_spaces": [
+    "terrace",
+    "garden"
+  ],
+  "meal_service": "full_board",
+  "cuisine_options": [
+    "vegetarian",
+    "vegan",
+    "local_seasonal"
+  ],
+  "kitchen_access": false,
+  "dietary_accommodations": true,
+  "currency": "EUR",
+  "price_per_person_per_night": 55,
+  "price_per_person_per_night_max": 85,
+  "price_full_venue_per_day": 350,
+  "price_notes": "Retraites de 5 jours. Excursions dans le désert du Sahara en option. Noté 5/5 sur TripAdvisor.",
+  "meals_included_in_price": true,
+  "setting": [
+    "desert"
+  ],
+  "style": [
+    "boutique",
+    "traditional",
+    "spiritual"
+  ],
+  "services": [
+    "airport_transfer",
+    "yoga_mats",
+    "meditation_cushions",
+    "massage",
+    "excursions",
+    "wifi"
+  ],
+  "suitable_for": [
+    "yoga",
+    "meditation",
+    "breathwork",
+    "writing"
+  ],
+  "alcohol_policy": "not_allowed",
+  "children_welcome": false,
+  "accessible": false,
+  "images": [
+    "https://images.unsplash.com/photo-1539437829697-1b4ed5aebd19?w=800",
+    "https://images.unsplash.com/photo-1531217543955-63c89bf9a1b9?w=800",
+    "https://images.unsplash.com/photo-1545389336-cf090694435e?w=800",
+    "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800"
+  ],
+  "image_categories": {
+    "exterior": [
+      "https://images.unsplash.com/photo-1539437829697-1b4ed5aebd19?w=800"
+    ],
+    "practice_spaces": [
+      "https://images.unsplash.com/photo-1531217543955-63c89bf9a1b9?w=800"
+    ],
+    "rooms": [
+      "https://images.unsplash.com/photo-1545389336-cf090694435e?w=800"
+    ],
+    "surroundings": [
+      "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800"
+    ]
+  },
+  "contact_email": "info@nosade.com",
+  "contact_phone": "+49 176 21308602",
+  "website": "https://nosade.com",
+  "booking_url": "https://nosade.com/nosade-venue-marrakech/",
+  "rating_average": 5,
+  "rating_count": 41,
+  "available_year_round": true,
+  "min_stay_nights": 3,
+  "lead_time_weeks": 8,
+  "original_language": "en",
+  "date_scraped": "2026-02-20T10:00:00Z",
+  "is_claimed": false,
+  "languages_spoken": [
+    "en",
+    "de",
+    "fr",
+    "ar"
+  ],
+  "cancellation_policy": "Annulation gratuite jusqu'à 45 jours avant. Non remboursable sous 45 jours. Report possible sur une autre date.",
+  "deposit_required": "40% à la réservation, solde 30 jours avant.",
+  "group_discount": false,
+  "suggested_durations": [
+    5
+  ],
+  "seasonal_availability": "Toute l'année (éviter juillet-août : chaleur intense)",
+  "specialized_equipment": [
+    "yoga_props",
+    "essential_oils",
+    "incense",
+    "candles",
+    "blankets"
+  ],
+  "ceremonies_allowed": true,
+  "silence_policy": "Riad intimiste. Terrasse silencieuse pour la méditation. Respect de la tranquillité des voisins.",
+  "noise_level": "moderate",
+  "climate_info": "Semi-aride. Été 35-45°C, hiver 12-22°C, printemps/automne 20-30°C idéal. Très peu de pluie.",
+  "nearest_hospital_km": 3,
+  "retreats_hosted_count": 80,
+  "testimonials": [
+    {
+      "author": "Nathalie C.",
+      "role": "Professeur de yoga",
+      "text": "L'expérience NOSADE est unique : yoga le matin, exploration des souks l'après-midi, cuisine marocaine le soir. Le riad est un bijou. L'option désert du Sahara est inoubliable.",
+      "rating": 5,
+      "date": "2025-11-20"
+    }
+  ],
+  "exclusive_hire_only": true
+}

@@ -1,0 +1,141 @@
+{
+  "id": "cret007",
+  "source": "bookyogaretreats.com",
+  "source_url": "https://www.bookyogaretreats.com/yoga-rocks-crete",
+  "name": "Yoga Rocks",
+  "description": "Retraite de yoga située sur une baie pittoresque de la côte sud de la Crète, à quelques pas de la plage et de la mer cristalline. Hébergement sur une petite falaise surplombant une plage de sable. Cuisine végétarienne exceptionnelle avec plus de 90% de fruits et légumes issus de producteurs crétois locaux (bio si possible). Retraites de 8 jours avec différents styles de yoga (Vinyasa, Iyengar, Prana Flow). Saisons : mai, juillet, août.",
+  "country": "GR",
+  "region": "Crète",
+  "city": "Agios Pavlos",
+  "latitude": 35.2,
+  "longitude": 24.55,
+  "nearest_airport": "La Canée (CHQ) - 80 km",
+  "transfer_available": true,
+  "capacity_min": 8,
+  "capacity_max": 18,
+  "num_rooms": 9,
+  "num_beds": 18,
+  "accommodation_types": [
+    "private_room"
+  ],
+  "room_has_private_bathroom": true,
+  "activity_spaces": [
+    "yoga_studio",
+    "outdoor_deck"
+  ],
+  "main_practice_space_capacity": 20,
+  "main_practice_space_m2": 85,
+  "num_practice_spaces": 2,
+  "outdoor_spaces": [
+    "garden",
+    "hiking_trails",
+    "terrace",
+    "beach_access"
+  ],
+  "meal_service": "full_board",
+  "cuisine_options": [
+    "vegetarian",
+    "organic",
+    "local_seasonal"
+  ],
+  "kitchen_access": false,
+  "dietary_accommodations": true,
+  "currency": "EUR",
+  "price_per_person_per_night": 70,
+  "price_per_person_per_night_max": 100,
+  "price_full_venue_per_day": 950,
+  "price_notes": "Saison : mai, juillet, août. Inclut tous les repas avec 90% de produits crétois locaux.",
+  "meals_included_in_price": true,
+  "setting": [
+    "beach",
+    "countryside"
+  ],
+  "style": [
+    "traditional",
+    "eco",
+    "bohemian"
+  ],
+  "suitable_for": [
+    "yoga",
+    "meditation",
+    "pilates",
+    "writing",
+    "art",
+    "silent_retreat"
+  ],
+  "services": [
+    "airport_transfer",
+    "yoga_mats",
+    "meditation_cushions",
+    "excursions",
+    "wifi"
+  ],
+  "alcohol_policy": "allowed",
+  "children_welcome": true,
+  "accessible": false,
+  "images": [
+    "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800",
+    "https://images.unsplash.com/photo-1752253509873-86363f0188b0?w=800",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800",
+    "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800"
+  ],
+  "image_categories": {
+    "exterior": [
+      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800"
+    ],
+    "surroundings": [
+      "https://images.unsplash.com/photo-1752253509873-86363f0188b0?w=800"
+    ],
+    "rooms": [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"
+    ],
+    "dining": [
+      "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800"
+    ]
+  },
+  "contact_email": "info@yogaholidaysgreece.com",
+  "contact_phone": null,
+  "website": "https://www.yogaholidaysgreece.com",
+  "booking_url": "https://www.yogaholidaysgreece.com/contact/bookings/",
+  "rating_average": 4.8,
+  "rating_count": 29,
+  "available_year_round": false,
+  "min_stay_nights": 5,
+  "lead_time_weeks": 14,
+  "original_language": "en",
+  "date_scraped": "2026-02-20T10:00:00Z",
+  "is_claimed": false,
+  "languages_spoken": [
+    "en",
+    "el"
+  ],
+  "cancellation_policy": "Annulation gratuite jusqu'à 60 jours avant. 50% remboursé entre 30-60 jours. Non remboursable sous 30 jours.",
+  "deposit_required": "30% à la réservation, solde 45 jours avant.",
+  "group_discount": false,
+  "suggested_durations": [
+    7,
+    8
+  ],
+  "seasonal_availability": "Mai, Juillet, Août uniquement",
+  "specialized_equipment": [
+    "yoga_props",
+    "blankets",
+    "candles"
+  ],
+  "ceremonies_allowed": false,
+  "silence_policy": "Pas de politique de silence formelle. Lieu naturellement calme.",
+  "noise_level": "very_quiet",
+  "climate_info": "Méditerranéen sec en été. Juillet-août 28-35°C, mai 22-28°C. Brise marine agréable.",
+  "nearest_hospital_km": 35,
+  "retreats_hosted_count": 60,
+  "testimonials": [
+    {
+      "author": "Sarah W.",
+      "role": "Professeur de yoga Vinyasa",
+      "text": "Le cadre est à couper le souffle. La pratique face à la mer est transformative. La cuisine crétoise avec 90% de produits locaux est un vrai bonheur.",
+      "rating": 5,
+      "date": "2025-08-10"
+    }
+  ],
+  "exclusive_hire_only": false
+}

@@ -25,21 +25,44 @@ export interface RetreatVenue {
   // Accommodation
   accommodation_types: string[];
   room_has_private_bathroom: boolean | null;
+  bed_configurations: string[];              // single, double, twin, bunk, futon, mattress_floor
+  bed_linen_provided: boolean | null;
+  towels_provided: boolean | null;
+
+  // Room-level details
+  rooms: RetreatRoom[];
+
+  // Bathrooms / sanitaires
+  num_bathrooms: number | null;
+  num_shared_bathrooms: number | null;
+  num_toilets: number | null;
+  hot_water_type: string | null;             // solar, electric, gas, unlimited, limited_tank
+  bathroom_amenities: string[];              // towels, hair_dryer, toiletries, bathtub, shower_only, bidet
 
   // Activity/practice spaces
   activity_spaces: string[];
   main_practice_space_capacity: number | null;
   main_practice_space_m2: number | null;
   num_practice_spaces: number | null;
+  practice_space_floor_type: string | null;  // wood, bamboo, concrete, tatami, grass, stone, vinyl
+  practice_space_has_mirrors: boolean | null;
+  practice_space_natural_light: boolean | null;
+  practice_space_sound_insulation: boolean | null;
+  practice_space_climate_control: boolean | null;
 
   // Outdoor & wellness
   outdoor_spaces: string[];
+  pool_type: string | null;                  // outdoor, indoor, natural, heated, unheated, infinity, plunge
+  pool_dimensions: string | null;            // e.g. "12x6m"
 
   // Dining
   meal_service: string | null;
   cuisine_options: string[];
   kitchen_access: boolean | null;
   dietary_accommodations: boolean | null;
+  kitchen_type: string | null;               // professional, domestic, outdoor, none
+  kitchen_capacity_persons: number | null;
+  kitchen_equipment: string[];               // industrial_oven, blender, juicer, food_processor, dishwasher, multiple_fridges, freezer, coffee_machine, kettle, microwave
 
   // Pricing
   currency: string | null;
@@ -49,12 +72,44 @@ export interface RetreatVenue {
   price_notes: string | null;
   meals_included_in_price: boolean | null;
 
+  // Seasonal pricing
+  price_high_season: number | null;          // prix haute saison /pers/nuit
+  price_low_season: number | null;           // prix basse saison /pers/nuit
+  high_season_months: string | null;         // e.g. "Juin-Septembre"
+  low_season_months: string | null;          // e.g. "Octobre-Mars"
+  weekend_supplement: boolean | null;        // supplément week-end
+
+  // Package deals / forfaits
+  package_deals: RetreatPackageDeal[];       // forfaits types proposés
+
+  // Extra costs / frais supplémentaires
+  tourist_tax_per_person: number | null;     // taxe de séjour par personne/nuit
+  heating_supplement: boolean | null;        // supplément chauffage (hiver)
+  security_deposit: number | null;           // caution (EUR)
+  cleaning_fee: number | null;               // frais de ménage final (EUR)
+  linen_rental_available: boolean | null;    // location de draps possible
+  extra_bed_cost: number | null;             // lit supplémentaire (EUR/nuit)
+
+  // Payment
+  payment_methods: string[];                 // bank_transfer, credit_card, paypal, cash, crypto
+  payment_installments: boolean | null;      // paiement échelonné possible
+  contract_language: string | null;          // fr, en, es, etc.
+
   // Setting & style
   setting: string[];
   style: string[];
 
   // Services for organizers
   services: string[];
+
+  // Cleaning / ménage
+  cleaning_included: boolean | null;
+  cleaning_frequency: string | null;         // daily, mid_stay, end_of_stay, on_request
+
+  // Staff
+  staff_on_site: boolean | null;
+  staff_count: number | null;
+  staff_details: string | null;              // e.g. "2 personnes, ménage + cuisine"
 
   // Suitable retreat types
   suitable_for: string[];
@@ -63,10 +118,21 @@ export interface RetreatVenue {
   alcohol_policy: string | null;
   children_welcome: boolean | null;
   accessible: boolean | null;
+  smoking_policy: string | null;             // not_allowed, outdoor_only, designated_areas
+  pets_allowed: boolean | null;
 
-  // Photos
+  // Accessibility details
+  ground_floor_rooms: number | null;
+  elevator: boolean | null;
+  terrain_type: string | null;               // flat, slight_slope, hilly, steep, stairs
+  adapted_bathroom: boolean | null;
+
+  // Photos & media
   images: string[];
   image_categories: Record<string, string[]>;
+  video_url: string | null;                  // YouTube, Vimeo, etc.
+  virtual_tour_url: string | null;           // Matterport, 360°
+  floor_plan_url: string | null;             // plan du lieu (image ou PDF)
 
   // Contact
   contact_email: string | null;
@@ -82,6 +148,8 @@ export interface RetreatVenue {
   available_year_round: boolean | null;
   min_stay_nights: number | null;
   lead_time_weeks: number | null;
+  check_in_time: string | null;              // e.g. "15:00"
+  check_out_time: string | null;             // e.g. "10:00"
 
   // Languages spoken by staff
   languages_spoken: string[];
@@ -92,6 +160,9 @@ export interface RetreatVenue {
   group_discount: boolean | null;
   suggested_durations: number[];       // e.g. [3, 5, 7] nights
   seasonal_availability: string | null; // e.g. "Mai-Octobre"
+  cancellation_insurance_available: boolean | null;
+  covid_flexible_policy: boolean | null; // politique flexible COVID / force majeure
+  average_response_time: string | null;  // e.g. "24h", "48h", "1 semaine"
 
   // Specialized equipment
   specialized_equipment: string[];
@@ -102,8 +173,25 @@ export interface RetreatVenue {
   noise_level: string | null;          // "very_quiet" | "quiet" | "moderate" | "lively"
   climate_info: string | null;
 
+  // Technical / infrastructure
+  wifi_speed: string | null;           // none, basic, good, excellent, fiber
+  mobile_signal: string | null;        // none, weak, moderate, good
+  backup_power: boolean | null;        // groupe électrogène / onduleur
+
+  // Climate & comfort
+  heating_type: string | null;         // central, wood_stove, electric, radiator, underfloor, heat_pump, none
+  air_conditioning_type: string | null; // central, split, fans_only, none, natural_ventilation
+  mosquito_protection: boolean | null;
+  drinking_water_safe: boolean | null; // eau du robinet potable
+
   // Safety
   nearest_hospital_km: number | null;
+  nearest_pharmacy_km: number | null;
+  nearest_grocery_km: number | null;
+  nearest_restaurant_km: number | null;
+  first_aid_kit: boolean | null;
+  fire_safety: boolean | null;             // extincteurs, alarmes incendie
+  emergency_procedure: boolean | null;     // procédure d'urgence documentée
 
   // Track record
   retreats_hosted_count: number | null;
@@ -112,10 +200,53 @@ export interface RetreatVenue {
   // Hire model
   exclusive_hire_only: boolean | null;
 
+  // Transport / logistics
+  nearest_airport_km: number | null;
+  nearest_train_station: string | null;
+  nearest_train_station_km: number | null;
+  nearest_town_km: number | null;
+  parking_spaces: number | null;
+  parking_type: string | null;             // free, paid, on_site, street, none
+
+  // Eco / sustainability
+  eco_certifications: string[];            // ecolabel, green_key, bio, leed, breeam
+  sustainability_features: string[];       // solar_panels, composting, recycling, rainwater, organic_garden, low_energy, natural_materials, zero_waste
+
+  // Nearby activities
+  nearby_activities: string[];             // kayaking, surfing, horse_riding, rock_climbing, snorkeling, cultural_visits, wine_tasting, cooking_class, local_market, thermal_baths, diving, sailing, cycling, golf
+  nearest_beach_km: number | null;
+
+  // Legal / insurance
+  liability_insurance: boolean | null;
+  max_legal_occupancy: number | null;
+
   // Metadata
   original_language: string | null;
   date_scraped: string;
   is_claimed: boolean;
+}
+
+export interface RetreatPackageDeal {
+  name: string;              // e.g. "Weekend Yoga 12 pers."
+  duration_nights: number;
+  group_size: number;
+  price_total: number;
+  currency: string;
+  includes: string[];        // e.g. ["hébergement", "repas", "salle de yoga", "ménage"]
+  notes: string | null;
+}
+
+export interface RetreatRoom {
+  name: string;              // e.g. "Chambre Lavande", "Dortoir 1"
+  type: string;              // private_room, shared_room, dormitory, suite, etc.
+  capacity: number;
+  bed_type: string;          // single, double, twin, bunk
+  has_private_bathroom: boolean;
+  has_view: boolean | null;
+  floor: number | null;      // 0 = RDC
+  size_m2: number | null;
+  amenities: string[];       // e.g. ["balcon", "bureau", "coffre-fort", "climatisation"]
+  images: string[];
 }
 
 export interface RetreatTestimonial {
@@ -179,6 +310,22 @@ export interface RetreatVenueTags {
   alcohol_free: boolean | null;
   children_welcome: boolean | null;
   price_bracket: string | null;
+  // New tags
+  has_professional_kitchen: boolean | null;
+  bed_linen_provided: boolean | null;
+  towels_provided: boolean | null;
+  cleaning_included: boolean | null;
+  staff_on_site: boolean | null;
+  has_parking: boolean | null;
+  smoking_not_allowed: boolean | null;
+  pets_allowed: boolean | null;
+  has_heating: boolean | null;
+  has_ac: boolean | null;
+  drinking_water_safe: boolean | null;
+  first_aid_kit: boolean | null;
+  eco_friendly: boolean | null;
+  has_nearby_activities: boolean | null;
+  has_liability_insurance: boolean | null;
   date_extracted: string;
 }
 
@@ -221,6 +368,19 @@ export interface RetreatFilterState {
   outdoorSpaces: string[];
   specializedEquipment: string[];
   ceremoniesAllowed: boolean | null;
+  // New filter dimensions
+  kitchenEquipment: string[];
+  bedConfigurations: string[];
+  sustainabilityFeatures: string[];
+  nearbyActivities: string[];
+  bedLinenProvided: boolean | null;
+  towelsProvided: boolean | null;
+  cleaningIncluded: boolean | null;
+  staffOnSite: boolean | null;
+  hasParking: boolean | null;
+  petsAllowed: boolean | null;
+  drinkingWaterSafe: boolean | null;
+  ecoFriendly: boolean | null;
 }
 
 export const DEFAULT_RETREAT_FILTERS: RetreatFilterState = {
@@ -243,6 +403,18 @@ export const DEFAULT_RETREAT_FILTERS: RetreatFilterState = {
   outdoorSpaces: [],
   specializedEquipment: [],
   ceremoniesAllowed: null,
+  kitchenEquipment: [],
+  bedConfigurations: [],
+  sustainabilityFeatures: [],
+  nearbyActivities: [],
+  bedLinenProvided: null,
+  towelsProvided: null,
+  cleaningIncluded: null,
+  staffOnSite: null,
+  hasParking: null,
+  petsAllowed: null,
+  drinkingWaterSafe: null,
+  ecoFriendly: null,
 };
 
 // === Labels (French) ===
@@ -476,6 +648,197 @@ export const SPECIALIZED_EQUIPMENT_LABELS: Record<string, string> = {
   heating: "Chauffage dans les salles",
   air_conditioning: "Climatisation",
   blackout: "Occultation (stores / rideaux opaques)",
+};
+
+// === Nouveaux labels pour champs ajoutés ===
+
+export const BED_CONFIGURATION_LABELS: Record<string, string> = {
+  single: "Lit simple",
+  double: "Lit double",
+  twin: "Lits jumeaux",
+  bunk: "Lits superposés",
+  futon: "Futon",
+  mattress_floor: "Matelas au sol",
+};
+
+export const HOT_WATER_LABELS: Record<string, string> = {
+  solar: "Solaire",
+  electric: "Électrique",
+  gas: "Gaz",
+  unlimited: "Illimitée",
+  limited_tank: "Réservoir limité",
+};
+
+export const BATHROOM_AMENITY_LABELS: Record<string, string> = {
+  towels: "Serviettes fournies",
+  hair_dryer: "Sèche-cheveux",
+  toiletries: "Produits d'hygiène",
+  bathtub: "Baignoire",
+  shower_only: "Douche uniquement",
+  bidet: "Bidet",
+};
+
+export const PRACTICE_FLOOR_LABELS: Record<string, string> = {
+  wood: "Parquet bois",
+  bamboo: "Bambou",
+  concrete: "Béton",
+  tatami: "Tatami",
+  grass: "Herbe / pelouse",
+  stone: "Pierre",
+  vinyl: "Vinyle / sol souple",
+};
+
+export const POOL_TYPE_LABELS: Record<string, string> = {
+  outdoor: "Extérieure",
+  indoor: "Intérieure",
+  natural: "Naturelle / biologique",
+  heated: "Chauffée",
+  unheated: "Non chauffée",
+  infinity: "À débordement",
+  plunge: "Bain froid / plongeon",
+};
+
+export const KITCHEN_TYPE_LABELS: Record<string, string> = {
+  professional: "Cuisine professionnelle",
+  domestic: "Cuisine domestique",
+  outdoor: "Cuisine extérieure",
+  none: "Pas de cuisine",
+};
+
+export const KITCHEN_EQUIPMENT_LABELS: Record<string, string> = {
+  industrial_oven: "Four professionnel",
+  blender: "Blender",
+  juicer: "Extracteur de jus",
+  food_processor: "Robot culinaire",
+  dishwasher: "Lave-vaisselle",
+  multiple_fridges: "Plusieurs réfrigérateurs",
+  freezer: "Congélateur",
+  coffee_machine: "Machine à café",
+  kettle: "Bouilloire",
+  microwave: "Micro-ondes",
+};
+
+export const CLEANING_FREQUENCY_LABELS: Record<string, string> = {
+  daily: "Quotidien",
+  mid_stay: "En milieu de séjour",
+  end_of_stay: "Fin de séjour",
+  on_request: "Sur demande",
+};
+
+export const SMOKING_POLICY_LABELS: Record<string, string> = {
+  not_allowed: "Interdit",
+  outdoor_only: "Extérieur uniquement",
+  designated_areas: "Zones désignées",
+};
+
+export const TERRAIN_TYPE_LABELS: Record<string, string> = {
+  flat: "Plat",
+  slight_slope: "Légère pente",
+  hilly: "Vallonné",
+  steep: "Escarpé",
+  stairs: "Escaliers",
+};
+
+export const WIFI_SPEED_LABELS: Record<string, string> = {
+  none: "Pas de Wi-Fi",
+  basic: "Basique (email)",
+  good: "Bon (vidéo)",
+  excellent: "Excellent (streaming)",
+  fiber: "Fibre",
+};
+
+export const MOBILE_SIGNAL_LABELS: Record<string, string> = {
+  none: "Aucun signal",
+  weak: "Faible",
+  moderate: "Modéré",
+  good: "Bon",
+};
+
+export const HEATING_TYPE_LABELS: Record<string, string> = {
+  central: "Chauffage central",
+  wood_stove: "Poêle à bois",
+  electric: "Radiateurs électriques",
+  radiator: "Radiateurs",
+  underfloor: "Plancher chauffant",
+  heat_pump: "Pompe à chaleur",
+  none: "Pas de chauffage",
+};
+
+export const AC_TYPE_LABELS: Record<string, string> = {
+  central: "Climatisation centrale",
+  split: "Split / réversible",
+  fans_only: "Ventilateurs uniquement",
+  none: "Pas de climatisation",
+  natural_ventilation: "Ventilation naturelle",
+};
+
+export const PARKING_TYPE_LABELS: Record<string, string> = {
+  free: "Gratuit sur place",
+  paid: "Payant",
+  on_site: "Sur place",
+  street: "Rue / extérieur",
+  none: "Pas de parking",
+};
+
+export const ECO_CERTIFICATION_LABELS: Record<string, string> = {
+  ecolabel: "Écolabel européen",
+  green_key: "Clef Verte",
+  bio: "Agriculture biologique",
+  leed: "LEED",
+  breeam: "BREEAM",
+};
+
+export const SUSTAINABILITY_LABELS: Record<string, string> = {
+  solar_panels: "Panneaux solaires",
+  composting: "Compostage",
+  recycling: "Tri sélectif",
+  rainwater: "Récupération eau de pluie",
+  organic_garden: "Potager / jardin bio",
+  low_energy: "Basse consommation",
+  natural_materials: "Matériaux naturels",
+  zero_waste: "Zéro déchet",
+};
+
+export const NEARBY_ACTIVITY_LABELS: Record<string, string> = {
+  kayaking: "Kayak",
+  surfing: "Surf",
+  horse_riding: "Équitation",
+  rock_climbing: "Escalade",
+  snorkeling: "Snorkeling",
+  cultural_visits: "Visites culturelles",
+  wine_tasting: "Dégustation de vin",
+  cooking_class: "Cours de cuisine",
+  local_market: "Marché local",
+  thermal_baths: "Thermes",
+  diving: "Plongée",
+  sailing: "Voile",
+  cycling: "Vélo",
+  golf: "Golf",
+};
+
+export const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  bank_transfer: "Virement bancaire",
+  credit_card: "Carte bancaire",
+  paypal: "PayPal",
+  cash: "Espèces",
+  crypto: "Crypto-monnaie",
+  check: "Chèque",
+};
+
+export const ROOM_AMENITY_LABELS: Record<string, string> = {
+  balcon: "Balcon",
+  bureau: "Bureau",
+  coffre_fort: "Coffre-fort",
+  climatisation: "Climatisation",
+  ventilateur: "Ventilateur",
+  moustiquaire: "Moustiquaire",
+  vue_mer: "Vue mer",
+  vue_montagne: "Vue montagne",
+  vue_jardin: "Vue jardin",
+  terrasse_privee: "Terrasse privée",
+  cheminee: "Cheminée",
+  mini_frigo: "Mini-frigo",
+  bouilloire: "Bouilloire",
 };
 
 export const NOISE_LEVEL_LABELS: Record<string, string> = {

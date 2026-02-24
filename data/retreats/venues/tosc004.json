@@ -1,0 +1,159 @@
+{
+  "id": "tosc004",
+  "source": "tripadvisor.com",
+  "source_url": "https://www.tripadvisor.com/Hotel_Review-g796973-d2320985-Reviews-La_Dogana-Tuoro_sul_Trasimeno_Province_of_Perugia_Umbria.html",
+  "name": "Agriturismo La Dogana",
+  "description": "Domaine familial de quatrième génération surplombant le lac Trasimène, à la frontière entre l'Ombrie et la Toscane. Villa du XIXe siècle entièrement décorée de fresques, entourée de 4 000 oliviers bio. 11 appartements dans la maison principale plus 2 maisons indépendantes. Piscine panoramique de 26 mètres, restaurant avec terrasse vue lac, école d'équitation. À proximité de Cortona et à 1h30 de Florence.",
+  "country": "IT",
+  "region": "Ombrie / Toscane",
+  "city": "Tuoro sul Trasimeno",
+  "latitude": 43.1833,
+  "longitude": 12.0833,
+  "nearest_airport": "Florence (FLR) - 130 km / Rome (FCO) - 200 km",
+  "transfer_available": true,
+  "capacity_min": 10,
+  "capacity_max": 60,
+  "num_rooms": 13,
+  "num_beds": 40,
+  "accommodation_types": [
+    "private_room",
+    "suite",
+    "apartment"
+  ],
+  "room_has_private_bathroom": true,
+  "activity_spaces": [
+    "yoga_studio",
+    "workshop_room",
+    "outdoor_deck"
+  ],
+  "main_practice_space_capacity": 40,
+  "main_practice_space_m2": 120,
+  "num_practice_spaces": 2,
+  "outdoor_spaces": [
+    "pool",
+    "garden",
+    "terrace",
+    "hiking_trails"
+  ],
+  "meal_service": "full_board",
+  "cuisine_options": [
+    "vegetarian",
+    "organic",
+    "local_seasonal"
+  ],
+  "kitchen_access": false,
+  "dietary_accommodations": true,
+  "currency": "EUR",
+  "price_per_person_per_night": 80,
+  "price_per_person_per_night_max": 150,
+  "price_full_venue_per_day": 1800,
+  "price_notes": "Tarifs incluent les repas avec produits du domaine. Huile d'olive bio du domaine. École d'équitation disponible.",
+  "meals_included_in_price": true,
+  "setting": [
+    "countryside",
+    "lake"
+  ],
+  "style": [
+    "luxury",
+    "traditional",
+    "boutique"
+  ],
+  "services": [
+    "airport_transfer",
+    "yoga_mats",
+    "sound_system",
+    "massage",
+    "excursions",
+    "wifi",
+    "laundry",
+    "event_planning_support"
+  ],
+  "suitable_for": [
+    "yoga",
+    "pilates",
+    "meditation",
+    "writing",
+    "art",
+    "corporate_wellness"
+  ],
+  "alcohol_policy": "allowed",
+  "children_welcome": true,
+  "accessible": true,
+  "images": [
+    "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=800",
+    "https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=800",
+    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800",
+    "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800"
+  ],
+  "image_categories": {
+    "exterior": [
+      "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=800"
+    ],
+    "practice_spaces": [
+      "https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?w=800"
+    ],
+    "rooms": [
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800"
+    ],
+    "surroundings": [
+      "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800"
+    ]
+  },
+  "contact_email": "retreats@agriturismodogana.it",
+  "contact_phone": null,
+  "website": "https://agriturismodogana.it",
+  "booking_url": "https://agriturismodogana.it/yoga-retreat-venue-in-italy-tuscany/",
+  "rating_average": 4.9,
+  "rating_count": 36,
+  "available_year_round": false,
+  "min_stay_nights": 5,
+  "lead_time_weeks": 20,
+  "original_language": "it",
+  "date_scraped": "2026-02-20T10:00:00Z",
+  "is_claimed": false,
+  "languages_spoken": [
+    "it",
+    "en",
+    "fr",
+    "de"
+  ],
+  "cancellation_policy": "Annulation gratuite jusqu'à 90 jours avant. 50% remboursé entre 60-90 jours. Non remboursable sous 60 jours.",
+  "deposit_required": "30% à la réservation, solde 60 jours avant.",
+  "group_discount": true,
+  "suggested_durations": [
+    5,
+    7,
+    10
+  ],
+  "seasonal_availability": "Avril à Octobre",
+  "specialized_equipment": [
+    "yoga_props",
+    "blankets",
+    "candles",
+    "heating",
+    "air_conditioning"
+  ],
+  "ceremonies_allowed": true,
+  "silence_policy": "Pas de politique de silence stricte. Lieu vivant et convivial.",
+  "noise_level": "quiet",
+  "climate_info": "Continental méditerranéen. Été 28-36°C, printemps/automne 15-25°C. Vue sur le lac Trasimène.",
+  "nearest_hospital_km": 20,
+  "retreats_hosted_count": 45,
+  "testimonials": [
+    {
+      "author": "Anna P.",
+      "role": "Professeur de yoga et pilates",
+      "text": "Le domaine est somptueux. La grande salle de 120m² peut accueillir des groupes importants. Les fresques historiques créent une atmosphère unique. Huile d'olive du domaine exceptionnelle.",
+      "rating": 5,
+      "date": "2025-09-01"
+    },
+    {
+      "author": "Jean-Marc F.",
+      "role": "Coach bien-être corporate",
+      "text": "Parfait pour les séminaires corporate wellness. Capacité flexible, cadre inspirant, cuisine incroyable. L'école d'équitation est un plus apprécié.",
+      "rating": 4,
+      "date": "2025-07-20"
+    }
+  ],
+  "exclusive_hire_only": false
+}

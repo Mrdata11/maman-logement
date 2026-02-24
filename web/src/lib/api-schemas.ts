@@ -127,17 +127,29 @@ export const reportSchema = z.object({
     .max(50),
 });
 
+// Valeur d'introduction : audio (IntroAnswer) ou texte legacy ou null
+const introValueSchema = z.union([
+  z.object({
+    audio_url: z.string().max(2000),
+    audio_path: z.string().max(500),
+    transcript: z.string().max(5000),
+    duration_seconds: z.number().min(0),
+  }),
+  z.string().max(2000),
+  z.null(),
+]);
+
 // /api/profiles/generate-summary
 export const generateSummarySchema = z.object({
   questionnaireAnswers: z.record(z.string(), z.unknown()).optional(),
   introduction: z
     .object({
-      whoAreYou: z.string().max(2000).optional(),
-      whyGroupHousing: z.string().max(2000).optional(),
-      communityValues: z.string().max(2000).optional(),
-      whatYouBring: z.string().max(2000).optional(),
-      idealDay: z.string().max(2000).optional(),
-      additionalInfo: z.string().max(2000).optional(),
+      whoAreYou: introValueSchema.optional(),
+      whyGroupHousing: introValueSchema.optional(),
+      communityValues: introValueSchema.optional(),
+      whatYouBring: introValueSchema.optional(),
+      idealDay: introValueSchema.optional(),
+      additionalInfo: introValueSchema.optional(),
     })
     .optional(),
 });
@@ -178,6 +190,18 @@ export const screeningAgentSchema = z.object({
 
 // /api/screening/complete
 export const screeningCompleteSchema = z.object({
+  session_id: z.string().uuid(),
+  conversation_id: z.string().max(200),
+});
+
+// /api/screening/verify
+export const verificationStartSchema = z.object({
+  type: z.enum(["profile", "project"]),
+  target_id: z.string().min(1).max(200),
+});
+
+// /api/screening/verify/complete
+export const verificationCompleteSchema = z.object({
   session_id: z.string().uuid(),
   conversation_id: z.string().max(200),
 });

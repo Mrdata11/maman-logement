@@ -36,7 +36,7 @@ export function ListingCardCompact({ item }: ListingCardCompactProps) {
   );
 
   return (
-    <div className="group/card bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] overflow-hidden hover:shadow-md transition-shadow flex flex-col sm:flex-row sm:h-52">
+    <div className="group/card bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] overflow-hidden hover:shadow-md transition-shadow flex flex-col sm:flex-row">
       {/* Image carousel */}
       <div className="relative group aspect-[16/9] sm:aspect-auto sm:w-56 md:w-64 shrink-0 bg-[var(--surface)]">
         {images.length > 0 ? (

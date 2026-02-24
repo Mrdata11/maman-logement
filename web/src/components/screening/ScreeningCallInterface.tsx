@@ -29,8 +29,12 @@ export function ScreeningCallInterface({
   const [candidateName, setCandidateName] = useState("");
   const [configTitle, setConfigTitle] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [isVerification, setIsVerification] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const conversation = useConversation({
     onConnect: () => {
@@ -53,10 +57,34 @@ export function ScreeningCallInterface({
     },
   });
 
+  // Upload l'enregistrement audio
+  const uploadAudio = useCallback(async (sid: string) => {
+    if (audioChunksRef.current.length === 0) return;
+    setUploadingAudio(true);
+    try {
+      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+      const formData = new FormData();
+      formData.append("audio", audioBlob, `recording_${sid}.webm`);
+      formData.append("session_id", sid);
+      await fetch("/api/screening/upload-audio", {
+        method: "POST",
+        body: formData,
+      });
+    } catch (e) {
+      console.error("Error uploading audio:", e);
+    } finally {
+      setUploadingAudio(false);
+      audioChunksRef.current = [];
+    }
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (mediaRecorderRef.current?.state === "recording") {
+        mediaRecorderRef.current.stop();
+      }
     };
   }, []);
 
@@ -89,6 +117,7 @@ export function ScreeningCallInterface({
         setSessionId(data.sessionId);
         setCandidateName(data.candidateName);
         setConfigTitle(data.configTitle);
+        setIsVerification(!!data.isVerification);
         setPhase("ready");
       } catch {
         setErrorMessage("Erreur de connexion. Vérifiez votre réseau.");
@@ -105,7 +134,20 @@ export function ScreeningCallInterface({
 
     try {
       // Demander l'accès au micro
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Démarrer l'enregistrement audio
+      audioChunksRef.current = [];
+      const recorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus"
+          : "audio/webm",
+      });
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      recorder.start(1000); // Chunk toutes les secondes
+      mediaRecorderRef.current = recorder;
 
       const convId = await conversation.startSession({
         signedUrl,
@@ -129,6 +171,11 @@ export function ScreeningCallInterface({
   }, [signedUrl, conversation]);
 
   const endCall = useCallback(async () => {
+    // Arrêter l'enregistrement audio
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach((t) => t.stop());
+    }
     try {
       await conversation.endSession();
     } catch {
@@ -137,17 +184,37 @@ export function ScreeningCallInterface({
     setPhase("ending");
   }, [conversation]);
 
-  // When ending phase, notify backend
+  // When ending phase: upload audio + auto-complete for verification calls
   useEffect(() => {
-    if (phase !== "ending" || !conversationId) return;
+    if (phase !== "ending" || !conversationId || !sessionId) return;
 
-    // On ne fait qu'indiquer la complétion, le transcript sera récupéré par le manager
-    const timeout = setTimeout(() => {
+    const finalize = async () => {
+      // Upload l'enregistrement audio en parallèle
+      const audioUpload = uploadAudio(sessionId);
+
+      if (isVerification) {
+        // Appeler l'API de complétion de vérification automatiquement
+        try {
+          await fetch("/api/screening/verify/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              session_id: sessionId,
+              conversation_id: conversationId,
+            }),
+          });
+        } catch (e) {
+          console.error("Error completing verification:", e);
+        }
+      }
+
+      // Attendre la fin de l'upload audio
+      await audioUpload;
       setPhase("completed");
-    }, 2000);
+    };
 
-    return () => clearTimeout(timeout);
-  }, [phase, conversationId, sessionId]);
+    finalize();
+  }, [phase, conversationId, sessionId, isVerification, uploadAudio]);
 
   const toggleMute = useCallback(() => {
     if (isMuted) {
@@ -268,7 +335,7 @@ export function ScreeningCallInterface({
           <div>
             <div className="animate-spin rounded-full h-10 w-10 border-2 border-[var(--primary)] border-t-transparent mx-auto mb-4" />
             <p className="text-[var(--foreground)] font-medium">
-              Finalisation...
+              {uploadingAudio ? "Sauvegarde de l'enregistrement..." : "Finalisation..."}
             </p>
             <p className="text-[var(--muted)] text-sm mt-1">
               Durée : {formatTime(seconds)}
@@ -286,14 +353,24 @@ export function ScreeningCallInterface({
               Merci {candidateName} !
             </h2>
             <p className="text-[var(--muted)] mb-2">
-              Votre entretien a bien été enregistré.
+              {isVerification
+                ? "Votre vérification est terminée. Votre badge vérifié sera visible sous peu."
+                : "Votre entretien a bien été enregistré."}
             </p>
             <p className="text-[var(--muted)] text-sm">
               Durée : {formatTime(seconds)}
             </p>
             <p className="text-[var(--muted)] text-sm mt-4 max-w-sm mx-auto">
-              Le porteur du projet reviendra vers vous prochainement.
-              Vous pouvez fermer cette page.
+              {isVerification ? (
+                <a
+                  href="/profils/mon-profil"
+                  className="text-[var(--primary)] hover:underline"
+                >
+                  Retourner à mon profil
+                </a>
+              ) : (
+                "Le porteur du projet reviendra vers vous prochainement. Vous pouvez fermer cette page."
+              )}
             </p>
           </div>
         )}

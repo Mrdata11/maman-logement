@@ -1,0 +1,154 @@
+{
+  "id": "prov001",
+  "source": "tripadvisor.com",
+  "source_url": "https://www.tripadvisor.com/Hotel_Review-g1080290-d8306937-Reviews-Yobaba_Lounge_Yoga_Retreat_Centre-Chalabre_Aude_Occitanie.html",
+  "name": "Yobaba Lounge",
+  "description": "Centre de retraite boutique de yoga et méditation, installé dans un château historique au coeur d'un village médiéval du sud de la France. Primée et publiée dans \"Great Escapes Yoga\" de Taschen. Cuisine vegan, sans gluten et sans sucre raffiné. Capacité de 10 à 20 personnes en usage exclusif. À 50 km au sud-est de Carcassonne, dans les contreforts des Pyrénées.",
+  "country": "FR",
+  "region": "Occitanie",
+  "city": "Chalabre",
+  "latitude": 42.9714,
+  "longitude": 2.0006,
+  "nearest_airport": "Carcassonne (CCF) - 50 km / Toulouse (TLS) - 100 km",
+  "transfer_available": true,
+  "capacity_min": 10,
+  "capacity_max": 20,
+  "num_rooms": 12,
+  "num_beds": 20,
+  "accommodation_types": [
+    "private_room",
+    "shared_room"
+  ],
+  "room_has_private_bathroom": true,
+  "activity_spaces": [
+    "yoga_studio",
+    "meditation_hall",
+    "outdoor_deck"
+  ],
+  "main_practice_space_capacity": 22,
+  "main_practice_space_m2": 90,
+  "num_practice_spaces": 3,
+  "outdoor_spaces": [
+    "garden",
+    "terrace",
+    "meditation_garden"
+  ],
+  "meal_service": "full_board",
+  "cuisine_options": [
+    "vegan",
+    "gluten_free",
+    "organic"
+  ],
+  "kitchen_access": false,
+  "dietary_accommodations": true,
+  "currency": "EUR",
+  "price_per_person_per_night": 75,
+  "price_per_person_per_night_max": 110,
+  "price_full_venue_per_day": 1200,
+  "price_notes": "Location exclusive uniquement. Cuisine vegan, sans gluten et sans sucre raffiné incluse.",
+  "meals_included_in_price": true,
+  "setting": [
+    "countryside"
+  ],
+  "style": [
+    "boutique",
+    "spiritual",
+    "traditional"
+  ],
+  "services": [
+    "airport_transfer",
+    "yoga_mats",
+    "meditation_cushions",
+    "sound_system",
+    "wifi",
+    "laundry"
+  ],
+  "suitable_for": [
+    "yoga",
+    "meditation",
+    "breathwork",
+    "silent_retreat",
+    "teacher_training"
+  ],
+  "alcohol_policy": "limited",
+  "children_welcome": false,
+  "accessible": false,
+  "images": [
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800",
+    "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
+    "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800",
+    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"
+  ],
+  "image_categories": {
+    "exterior": [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"
+    ],
+    "practice_spaces": [
+      "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800"
+    ],
+    "rooms": [
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800"
+    ],
+    "surroundings": [
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"
+    ]
+  },
+  "contact_email": "breathe@yobabalounge.com",
+  "contact_phone": "+44 20 7097 3933",
+  "website": "https://www.yobabalounge.com",
+  "booking_url": "https://www.booking.com/hotel/fr/yobaba-lounge-chalabre.en-gb.html",
+  "rating_average": 4.8,
+  "rating_count": 47,
+  "available_year_round": false,
+  "min_stay_nights": 3,
+  "lead_time_weeks": 12,
+  "original_language": "en",
+  "date_scraped": "2026-02-20T10:00:00Z",
+  "is_claimed": false,
+  "languages_spoken": [
+    "en",
+    "fr"
+  ],
+  "cancellation_policy": "Annulation gratuite jusqu'à 60 jours avant. 50% remboursé entre 30-60 jours. Non remboursable sous 30 jours.",
+  "deposit_required": "30% à la réservation, solde 60 jours avant le début.",
+  "group_discount": true,
+  "suggested_durations": [
+    3,
+    5,
+    7
+  ],
+  "seasonal_availability": "Avril à Octobre",
+  "specialized_equipment": [
+    "yoga_props",
+    "meditation_cushions",
+    "singing_bowls",
+    "blankets",
+    "essential_oils",
+    "incense",
+    "candles",
+    "heating"
+  ],
+  "ceremonies_allowed": true,
+  "silence_policy": "Retraites silencieuses possibles sur demande. Heures calmes : 22h-7h.",
+  "noise_level": "very_quiet",
+  "climate_info": "Climat méditerranéen doux. Été 25-35°C, printemps/automne 15-25°C. Pluies rares en été.",
+  "nearest_hospital_km": 15,
+  "retreats_hosted_count": 120,
+  "testimonials": [
+    {
+      "author": "Sophie M.",
+      "role": "Professeur de Reiki",
+      "text": "Un cadre exceptionnel pour mes retraites Reiki. Le château crée une atmosphère sacrée unique. L'équipe est aux petits soins et la cuisine vegan est incroyable.",
+      "rating": 5,
+      "date": "2025-09-15"
+    },
+    {
+      "author": "David L.",
+      "role": "Enseignant de yoga Kundalini",
+      "text": "Trois espaces de pratique magnifiques, idéaux pour alterner entre méditation silencieuse et sessions dynamiques. Je reviens chaque année.",
+      "rating": 5,
+      "date": "2025-06-20"
+    }
+  ],
+  "exclusive_hire_only": true
+}

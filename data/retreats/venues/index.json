@@ -1,0 +1,92 @@
+[
+  {
+    "id": "prov001",
+    "name": "Yobaba Lounge",
+    "country": "FR",
+    "region": "Occitanie",
+    "city": "Chalabre",
+    "score": null,
+    "thumbnail": null
+  },
+  {
+    "id": "alga002",
+    "name": "Wild View Retreat",
+    "country": "PT",
+    "region": "Algarve",
+    "city": "São Brás de Alportel",
+    "score": null,
+    "thumbnail": null
+  },
+  {
+    "id": "bali003",
+    "name": "Gaia Retreat Center",
+    "country": "ID",
+    "region": "Bali",
+    "city": "Ubud",
+    "score": null,
+    "thumbnail": null
+  },
+  {
+    "id": "tosc004",
+    "name": "Agriturismo La Dogana",
+    "country": "IT",
+    "region": "Ombrie / Toscane",
+    "city": "Tuoro sul Trasimeno",
+    "score": null,
+    "thumbnail": null
+  },
+  {
+    "id": "anda005",
+    "name": "Suryalila Yoga Retreat Centre",
+    "country": "ES",
+    "region": "Andalousie",
+    "city": "Villamartín",
+    "score": null,
+    "thumbnail": null
+  },
+  {
+    "id": "thai006",
+    "name": "Orion Healing Centre",
+    "country": "TH",
+    "region": "Koh Phangan",
+    "city": "Srithanu",
+    "score": null,
+    "thumbnail": null
+  },
+  {
+    "id": "cret007",
+    "name": "Yoga Rocks",
+    "country": "GR",
+    "region": "Crète",
+    "city": "Agios Pavlos",
+    "score": null,
+    "thumbnail": null
+  },
+  {
+    "id": "maro008",
+    "name": "NOSADE",
+    "country": "MA",
+    "region": "Marrakech-Safi",
+    "city": "Marrakech",
+    "score": null,
+    "thumbnail": null
+  },
+  {
+    "id": "cost009",
+    "name": "Casas Kismet",
+    "country": "CR",
+    "region": "Guanacaste",
+    "city": "Nosara",
+    "score": null,
+    "thumbnail": null
+  },
+  {
+    "id": "brit010",
+    "name": "Notgrove Holidays",
+    "country": "GB",
+    "region": "Cotswolds",
+    "city": "Notgrove",
+    "score": null,
+    "thumbnail": null
+  }
+]

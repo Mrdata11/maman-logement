@@ -53,6 +53,10 @@ const AUTH_REQUIRED_ROUTES = [
   "/api/screening/configs",
   "/api/screening/sessions",
   "/api/screening/complete",
+  "/api/screening/verify",
+  "/api/projects/generate-invite",
+  "/api/projects/join",
+  "/api/applications",
 ];
 
 export async function middleware(request: NextRequest) {

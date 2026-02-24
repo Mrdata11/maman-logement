@@ -53,6 +53,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https: http:",
               "font-src 'self' https://fonts.gstatic.com",
               "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://api.groq.com https://accounts.google.com https://www.googleapis.com https://gmail.googleapis.com https://*.tile.openstreetmap.org https://api.elevenlabs.io wss://*.elevenlabs.io https://*.elevenlabs.io",
+              "media-src 'self' blob:",
               "frame-src https://accounts.google.com",
               "base-uri 'self'",
               "form-action 'self'",

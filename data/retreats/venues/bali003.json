@@ -1,0 +1,163 @@
+{
+  "id": "bali003",
+  "source": "retreatsandvenues.com",
+  "source_url": "https://retreatsandvenues.com/venue/indonesia/gaia-retreat-center",
+  "name": "Gaia Retreat Center",
+  "description": "Centre de retraite bien-être niché au coeur des rizières en terrasses d'Ubud, le centre créatif et spirituel de Bali. Villa Gaia propose 8 chambres (16-18 personnes), location exclusive pour groupes privés, formations de professeurs et ateliers. Piscine sans chlore, jacuzzi, sauna infrarouge, salle de massage. À 15 minutes à pied du centre-ville d'Ubud et 90 minutes de l'aéroport international. Noté 4.87/5 sur BookRetreats (103 avis).",
+  "country": "ID",
+  "region": "Bali",
+  "city": "Ubud",
+  "latitude": -8.5069,
+  "longitude": 115.2624,
+  "nearest_airport": "Ngurah Rai (DPS) - 35 km",
+  "transfer_available": true,
+  "capacity_min": 6,
+  "capacity_max": 18,
+  "num_rooms": 8,
+  "num_beds": 18,
+  "accommodation_types": [
+    "private_room"
+  ],
+  "room_has_private_bathroom": true,
+  "activity_spaces": [
+    "yoga_studio",
+    "outdoor_deck",
+    "healing_room"
+  ],
+  "main_practice_space_capacity": 20,
+  "main_practice_space_m2": 80,
+  "num_practice_spaces": 2,
+  "outdoor_spaces": [
+    "pool",
+    "garden",
+    "terrace",
+    "hot_tub",
+    "sauna"
+  ],
+  "meal_service": "full_board",
+  "cuisine_options": [
+    "vegetarian",
+    "vegan",
+    "organic",
+    "gluten_free"
+  ],
+  "kitchen_access": false,
+  "dietary_accommodations": true,
+  "currency": "EUR",
+  "price_per_person_per_night": 35,
+  "price_per_person_per_night_max": 60,
+  "price_full_venue_per_day": null,
+  "price_notes": "Prix très compétitif incluant tous les repas et accès piscine/sauna.",
+  "meals_included_in_price": true,
+  "setting": [
+    "jungle",
+    "countryside"
+  ],
+  "style": [
+    "spiritual",
+    "eco",
+    "traditional"
+  ],
+  "services": [
+    "airport_transfer",
+    "yoga_mats",
+    "meditation_cushions",
+    "sound_system",
+    "massage",
+    "spa",
+    "wifi",
+    "laundry"
+  ],
+  "suitable_for": [
+    "yoga",
+    "meditation",
+    "breathwork",
+    "silent_retreat",
+    "detox",
+    "sound_healing",
+    "teacher_training"
+  ],
+  "alcohol_policy": "not_allowed",
+  "children_welcome": false,
+  "accessible": false,
+  "images": [
+    "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800",
+    "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800",
+    "https://images.unsplash.com/photo-1758908296291-8dde3655d07a?w=800",
+    "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800"
+  ],
+  "image_categories": {
+    "exterior": [
+      "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800"
+    ],
+    "practice_spaces": [
+      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800"
+    ],
+    "surroundings": [
+      "https://images.unsplash.com/photo-1758908296291-8dde3655d07a?w=800"
+    ],
+    "rooms": [
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800"
+    ]
+  },
+  "contact_email": null,
+  "contact_phone": null,
+  "website": "https://www.gaiaretreatcenter.com",
+  "booking_url": "https://www.gaiaretreatcenter.com/private-rental-and-accommodation-villa-gaia-bali.php",
+  "rating_average": 4.87,
+  "rating_count": 103,
+  "available_year_round": true,
+  "min_stay_nights": 3,
+  "lead_time_weeks": 8,
+  "original_language": "en",
+  "date_scraped": "2026-02-20T10:00:00Z",
+  "is_claimed": false,
+  "languages_spoken": [
+    "en",
+    "id"
+  ],
+  "cancellation_policy": "Annulation gratuite jusqu'à 45 jours avant. 50% remboursé entre 21-45 jours. Non remboursable sous 21 jours.",
+  "deposit_required": "50% à la réservation, solde 30 jours avant.",
+  "group_discount": false,
+  "suggested_durations": [
+    3,
+    5,
+    7,
+    14
+  ],
+  "seasonal_availability": "Toute l'année (saison sèche avril-octobre recommandée)",
+  "specialized_equipment": [
+    "yoga_props",
+    "singing_bowls",
+    "gongs",
+    "massage_tables",
+    "reiki_tables",
+    "essential_oils",
+    "incense",
+    "candles",
+    "altar_space"
+  ],
+  "ceremonies_allowed": true,
+  "silence_policy": "Ambiance naturellement paisible au coeur des rizières. Cérémonies balinaises respectées.",
+  "noise_level": "quiet",
+  "climate_info": "Tropical humide. 26-32°C toute l'année. Saison des pluies nov-mars (averses courtes).",
+  "nearest_hospital_km": 8,
+  "retreats_hosted_count": 200,
+  "testimonials": [
+    {
+      "author": "Isabelle D.",
+      "role": "Maître Reiki Usui",
+      "text": "Le Gaia Center est mon lieu de prédilection pour les formations Reiki. La salle de soins est parfaite et l'énergie de Bali amplifie les initiations. Prix imbattable.",
+      "rating": 5,
+      "date": "2025-08-25"
+    },
+    {
+      "author": "Thomas K.",
+      "role": "Sound healer",
+      "text": "La healing room est idéale pour les bains sonores. Bols tibétains et gongs disponibles sur place. L'acoustique est remarquable.",
+      "rating": 4,
+      "date": "2025-07-10"
+    }
+  ],
+  "exclusive_hire_only": true
+}

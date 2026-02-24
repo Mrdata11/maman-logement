@@ -9,6 +9,8 @@ import {
   EMPTY_INTRODUCTION,
   PROFILE_VOICE_QUESTIONS,
   deriveProfileCardData,
+  getIntroAudioUrl,
+  getIntroText,
 } from "@/lib/profile-types";
 import {
   QuestionnaireState,
@@ -16,10 +18,10 @@ import {
   QUESTIONNAIRE_STORAGE_KEY,
 } from "@/lib/questionnaire-types";
 import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
-import { ProfileVoiceIntro } from "./ProfileVoiceIntro";
+import { ProfileVoiceIntro, AudioBlobMap } from "./ProfileVoiceIntro";
 import { AuthButton } from "./AuthButton";
 
-type Step = "questionnaire" | "introduction" | "preview" | "publish";
+type Step = "questionnaire" | "introduction" | "preview";
 
 interface ProfileCreationFlowProps {
   existingProfile?: Profile;
@@ -52,13 +54,6 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
   const [contactEmail, setContactEmail] = useState(
     isEditing ? existingProfile.contact_email : ""
   );
-  const [aiSummary, setAiSummary] = useState<string | null>(
-    isEditing ? existingProfile.ai_summary : null
-  );
-  const [aiTags, setAiTags] = useState<string[]>(
-    isEditing ? existingProfile.ai_tags : []
-  );
-  const [generatingSummary, setGeneratingSummary] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
@@ -69,16 +64,17 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
     isEditing ? existingProfile.photos : []
   );
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [draggingPhotos, setDraggingPhotos] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [audioBlobs, setAudioBlobs] = useState<AudioBlobMap>({});
 
   const supabase = createClient();
 
   const steps: { id: Step; label: string }[] = [
     { id: "questionnaire", label: "Questionnaire" },
     { id: "introduction", label: "Présentation" },
-    { id: "preview", label: "Aperçu" },
-    { id: "publish", label: "Publication" },
+    { id: "preview", label: "Aperçu & publication" },
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.id === step);
@@ -98,61 +94,26 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
     } catch {}
   }, [isEditing]);
 
-  // Check auth state
+  // Pre-fill fields from auth user (only when creating)
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user);
-        if (!isEditing) {
-          if (!displayName)
-            setDisplayName(user.user_metadata?.full_name || "");
-          if (!contactEmail) setContactEmail(user.email || "");
-          if (!avatarUrl && user.user_metadata?.avatar_url)
-            setAvatarUrl(user.user_metadata.avatar_url);
-        }
-      }
-    });
-  }, [supabase, isEditing]);
+    if (user && !isEditing) {
+      if (!displayName)
+        setDisplayName(user.user_metadata?.full_name || "");
+      if (!contactEmail) setContactEmail(user.email || "");
+      if (!avatarUrl && user.user_metadata?.avatar_url)
+        setAvatarUrl(user.user_metadata.avatar_url);
+    }
+  }, [user, isEditing]);
 
   const handleIntroComplete = useCallback(
-    (intro: ProfileIntroduction) => {
+    (intro: ProfileIntroduction, blobs: AudioBlobMap) => {
       setIntroduction(intro);
+      setAudioBlobs(blobs);
       setStep("preview");
     },
     []
   );
 
-  const generateSummary = useCallback(async () => {
-    setGeneratingSummary(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/profiles/generate-summary", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionnaireAnswers,
-          introduction,
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setAiSummary(data.summary);
-        setAiTags(data.tags);
-      } else {
-        setError("Impossible de générer le résumé. Tu peux continuer sans.");
-      }
-    } catch {
-      setError("Erreur réseau. Tu peux continuer sans résumé.");
-    }
-    setGeneratingSummary(false);
-  }, [questionnaireAnswers, introduction]);
-
-  // Auto-generate summary when reaching preview
-  useEffect(() => {
-    if (step === "preview" && !aiSummary && !generatingSummary) {
-      generateSummary();
-    }
-  }, [step, aiSummary, generatingSummary, generateSummary]);
 
   const handlePublish = useCallback(async () => {
     if (!user) return;
@@ -160,6 +121,27 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
     setError(null);
 
     try {
+      // Upload audio blobs that haven't been uploaded yet
+      let finalIntro = { ...introduction };
+      for (const [questionId, blob] of Object.entries(audioBlobs)) {
+        const formData = new FormData();
+        formData.append("audio", blob, `recording.${blob.type.includes("mp4") ? "m4a" : "webm"}`);
+        formData.append("questionId", questionId);
+        formData.append("duration", String(
+          (finalIntro[questionId as keyof ProfileIntroduction] as { duration_seconds?: number })?.duration_seconds || 0
+        ));
+
+        const res = await fetch("/api/profiles/upload-intro-audio", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          finalIntro = { ...finalIntro, [questionId]: data };
+        }
+      }
+
       const { error: dbError } = await supabase.from("profiles").upsert(
         {
           user_id: user.id,
@@ -168,10 +150,8 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
           location: location.trim() || null,
           contact_email: contactEmail.trim() || user.email,
           questionnaire_answers: questionnaireAnswers,
-          introduction,
+          introduction: finalIntro,
           photos,
-          ai_summary: aiSummary,
-          ai_tags: aiTags,
           is_published: true,
           updated_at: new Date().toISOString(),
         },
@@ -197,10 +177,9 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
     contactEmail,
     questionnaireAnswers,
     introduction,
+    audioBlobs,
     photos,
     avatarUrl,
-    aiSummary,
-    aiTags,
   ]);
 
   const handleAvatarUpload = useCallback(
@@ -241,16 +220,14 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
     [supabase]
   );
 
-  const handlePhotoUpload = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files || files.length === 0) return;
-
+  const uploadPhotoFiles = useCallback(
+    async (files: File[]) => {
+      if (files.length === 0) return;
       setUploadingPhotos(true);
       setError(null);
       const newUrls: string[] = [];
 
-      for (const file of Array.from(files)) {
+      for (const file of files) {
         if (!file.type.startsWith("image/")) continue;
         if (file.size > 5 * 1024 * 1024) {
           setError("Les images doivent faire moins de 5 Mo.");
@@ -277,12 +254,33 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
       }
 
       if (newUrls.length > 0) {
-        setPhotos((prev) => [...prev, ...newUrls].slice(0, 6));
+        setPhotos((prev) => [...prev, ...newUrls].slice(0, 5));
       }
       setUploadingPhotos(false);
-      e.target.value = "";
     },
     [supabase]
+  );
+
+  const handlePhotoUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+      await uploadPhotoFiles(Array.from(files));
+      e.target.value = "";
+    },
+    [uploadPhotoFiles]
+  );
+
+  const handlePhotoDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDraggingPhotos(false);
+      const files = Array.from(e.dataTransfer.files).filter((f) =>
+        f.type.startsWith("image/")
+      );
+      uploadPhotoFiles(files);
+    },
+    [uploadPhotoFiles]
   );
 
   const removePhoto = useCallback((index: number) => {
@@ -330,68 +328,206 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
     return String(value);
   };
 
-  if (published) {
+  // Auth gate: require login before starting
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (u) setUser(u);
+      setAuthLoading(false);
+    });
+  }, [supabase]);
+
+  if (authLoading) {
     return (
-      <div className="text-center py-12 space-y-6">
-        <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-          <svg
-            className="w-10 h-10 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
+      <div className="text-center py-12">
+        <div className="flex justify-center gap-1.5 mb-3">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-2.5 h-2.5 bg-[var(--primary)] rounded-full"
+              style={{
+                animation: `recording-pulse 1s ease-in-out ${i * 0.2}s infinite`,
+              }}
             />
+          ))}
+        </div>
+        <p className="text-sm text-[var(--muted)]">Chargement...</p>
+      </div>
+    );
+  }
+
+  if (!user && !isEditing) {
+    return (
+      <div className="max-w-md mx-auto text-center py-16 space-y-6">
+        <div className="w-16 h-16 mx-auto rounded-full bg-[var(--primary)]/10 flex items-center justify-center">
+          <svg className="w-8 h-8 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-[var(--foreground)]">
-            {isEditing ? "Ton profil a été mis à jour !" : "Ton profil est publié !"}
-          </h2>
-          <p className="text-[var(--muted)] mt-2">
-            Les porteurs de projets peuvent maintenant te d&eacute;couvrir et te contacter.
+          <h1 className="text-xl font-bold text-[var(--foreground)] mb-2">
+            Cr&eacute;er mon profil
+          </h1>
+          <p className="text-[var(--muted)]">
+            Connecte-toi pour cr&eacute;er et g&eacute;rer ton profil.
           </p>
         </div>
-        <div className="flex justify-center gap-3">
-          <a
-            href="/profils"
-            className="px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
-          >
-            Voir les profils
-          </a>
+        <div className="max-w-xs mx-auto">
+          <AuthButton onAuthChange={handleAuthChange} redirectTo="/profils/creer" />
+        </div>
+      </div>
+    );
+  }
+
+  if (published) {
+    return (
+      <div className="max-w-lg mx-auto py-12 space-y-8">
+        {/* Animated success icon */}
+        <div className="flex justify-center">
+          <div className="relative success-icon-container" style={{ opacity: 0 }}>
+            {/* Expanding ring */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className="w-24 h-24 rounded-full border-2 border-[var(--primary)] success-ring"
+                style={{ opacity: 0 }}
+              />
+            </div>
+            {/* Sparkles */}
+            <span className="success-sparkle" style={{ opacity: 0 }} />
+            <span className="success-sparkle" style={{ opacity: 0 }} />
+            <span className="success-sparkle" style={{ opacity: 0 }} />
+            <span className="success-sparkle" style={{ opacity: 0 }} />
+            <span className="success-sparkle" style={{ opacity: 0 }} />
+            <span className="success-sparkle" style={{ opacity: 0 }} />
+            {/* Main circle + check */}
+            <svg width="80" height="80" viewBox="0 0 52 52">
+              <circle
+                className="success-circle-fill"
+                cx="26" cy="26" r="25"
+                fill="var(--primary)"
+              />
+              <circle
+                className="success-circle-svg"
+                cx="26" cy="26" r="25"
+                fill="none"
+                stroke="var(--primary)"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <path
+                className="success-check-svg"
+                fill="none"
+                stroke="var(--primary)"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 27l6 6 16-16"
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* Title + subtitle */}
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-bold text-[var(--foreground)] success-text-1">
+            {isEditing ? "Ton profil a été mis à jour !" : "Ton profil est en ligne !"}
+          </h2>
+          <p className="text-[var(--muted)] success-text-2">
+            {isEditing
+              ? "Les modifications sont visibles immédiatement."
+              : "Bienvenue dans la communauté. Les porteurs de projets peuvent maintenant te découvrir."}
+          </p>
+        </div>
+
+        {/* Primary CTA */}
+        <div className="success-text-3">
           <a
             href="/profils/mon-profil"
-            className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--surface)] transition-colors"
+            className="flex items-center justify-center gap-2 w-full px-5 py-3.5 bg-[var(--primary)] text-white rounded-xl text-sm font-bold hover:bg-[var(--primary-hover)] transition-colors"
           >
-            Mon profil
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Voir mon profil
           </a>
         </div>
+
+        {/* Next steps */}
+        {!isEditing && (
+          <div className="success-text-4 bg-[var(--surface)] rounded-2xl p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              Et maintenant ?
+            </h3>
+            <div className="space-y-3">
+              <a
+                href="/projets"
+                className="flex items-center gap-3 p-3 bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] hover:border-[var(--primary)] hover:shadow-sm transition-all group"
+              >
+                <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--primary)]/15 transition-colors">
+                  <svg className="w-4.5 h-4.5 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[var(--foreground)]">Explorer les projets</p>
+                  <p className="text-xs text-[var(--muted)]">D&eacute;couvre les lieux et communaut&eacute;s qui recrutent</p>
+                </div>
+                <svg className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--primary)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+
+              <a
+                href="/profils"
+                className="flex items-center gap-3 p-3 bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] hover:border-[var(--primary)] hover:shadow-sm transition-all group"
+              >
+                <div className="w-9 h-9 rounded-lg bg-[var(--golden)]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--golden)]/15 transition-colors">
+                  <svg className="w-4.5 h-4.5 text-[var(--golden)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[var(--foreground)]">Voir les autres profils</p>
+                  <p className="text-xs text-[var(--muted)]">Rencontre les membres de la communaut&eacute;</p>
+                </div>
+                <svg className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--primary)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Tip */}
+        {!isEditing && (
+          <p className="text-center text-xs text-[var(--muted)] success-text-5">
+            Tu peux modifier ton profil &agrave; tout moment depuis &laquo;&nbsp;Mon profil&nbsp;&raquo;.
+          </p>
+        )}
       </div>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Step progress */}
-      <div className="flex items-center justify-between mb-8">
+      {/* Step progress — minimal pill stepper */}
+      <div className="flex items-center justify-center gap-1 mb-8">
         {steps.map((s, i) => (
           <div key={s.id} className="flex items-center">
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
                 i < currentStepIndex
-                  ? "bg-[var(--primary)] text-white"
+                  ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                   : i === currentStepIndex
-                    ? "bg-[var(--primary)] text-white ring-4 ring-[var(--primary)]/20"
-                    : "bg-[var(--surface)] text-[var(--muted)]"
+                    ? "bg-[var(--primary)] text-white shadow-sm"
+                    : "text-[var(--muted)]"
               }`}
             >
               {i < currentStepIndex ? (
                 <svg
-                  className="w-4 h-4"
+                  className="w-3.5 h-3.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -399,28 +535,20 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
               ) : (
-                i + 1
+                <span>{i + 1}</span>
               )}
+              <span className="hidden sm:inline">{s.label}</span>
             </div>
-            <span
-              className={`ml-2 text-sm hidden sm:inline ${
-                i === currentStepIndex
-                  ? "font-medium text-[var(--foreground)]"
-                  : "text-[var(--muted)]"
-              }`}
-            >
-              {s.label}
-            </span>
             {i < steps.length - 1 && (
               <div
-                className={`w-8 sm:w-16 h-0.5 mx-2 ${
+                className={`w-4 sm:w-6 h-px mx-0.5 transition-colors duration-300 ${
                   i < currentStepIndex
-                    ? "bg-[var(--primary)]"
+                    ? "bg-[var(--primary)]/30"
                     : "bg-[var(--border-color)]"
                 }`}
               />
@@ -430,7 +558,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
       </div>
 
       {/* Step content */}
-      <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8">
+      <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] shadow-[var(--card-shadow)] p-6 sm:p-8">
         {/* STEP 1: Questionnaire check */}
         {step === "questionnaire" && (
           <div className="space-y-6">
@@ -510,7 +638,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <a
-                    href="/questionnaire"
+                    href="/questionnaire?returnTo=/profils/creer"
                     className="flex-1 px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors text-center"
                   >
                     Remplir le questionnaire
@@ -523,17 +651,10 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
 
         {/* STEP 2: Voice introduction */}
         {step === "introduction" && (
-          <div className="space-y-4">
-            <div className="text-center mb-2">
-              <h2 className="text-xl font-bold text-[var(--foreground)]">
-                Pr&eacute;sente-toi
-              </h2>
-              <p className="text-sm text-[var(--muted)] mt-1">
-                R&eacute;ponds &agrave; quelques questions pour que les gens apprennent &agrave; te conna&icirc;tre.
-              </p>
-            </div>
+          <div>
             <ProfileVoiceIntro
               initialIntroduction={introduction}
+              initialBlobs={audioBlobs}
               onComplete={handleIntroComplete}
               onBack={() => setStep("questionnaire")}
             />
@@ -637,10 +758,10 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
             {/* Photos */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-[var(--foreground)]">
-                Photos (optionnel, max 6)
+                Moi en 5 images
               </label>
-              <p className="text-xs text-[var(--muted)]">
-                Ajoute des photos de toi pour que les gens puissent mieux te conna&icirc;tre.
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Pas forc&eacute;ment des photos de toi &mdash; montre ce qui compte : un lieu qui t&apos;inspire, ton animal, un projet, un coucher de soleil... Les profils avec photos re&ccedil;oivent beaucoup plus de visites.
               </p>
 
               {photos.length > 0 && (
@@ -661,8 +782,24 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
                 </div>
               )}
 
-              {photos.length < 6 && (
-                <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[var(--border-color)] rounded-xl cursor-pointer hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-colors">
+              {photos.length < 5 && (
+                <label
+                  className={`flex flex-col items-center justify-center gap-3 px-6 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                    draggingPhotos
+                      ? "border-[var(--primary)] bg-[var(--primary)]/10"
+                      : "border-[var(--border-color)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5"
+                  }`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDraggingPhotos(true);
+                  }}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    setDraggingPhotos(true);
+                  }}
+                  onDragLeave={() => setDraggingPhotos(false)}
+                  onDrop={handlePhotoDrop}
+                >
                   <input
                     type="file"
                     accept="image/*"
@@ -673,13 +810,25 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
                   />
                   {uploadingPhotos ? (
                     <span className="text-sm text-[var(--muted)]">Upload en cours...</span>
+                  ) : draggingPhotos ? (
+                    <>
+                      <svg className="w-8 h-8 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                      <span className="text-sm font-medium text-[var(--primary)]">
+                        Lâche ici !
+                      </span>
+                    </>
                   ) : (
                     <>
-                      <svg className="w-5 h-5 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg className="w-8 h-8 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span className="text-sm text-[var(--muted)]">
-                        Ajouter des photos
+                      <span className="text-sm text-[var(--foreground)]">
+                        Glisse tes photos ici
+                      </span>
+                      <span className="text-xs text-[var(--muted)]">
+                        ou clique pour parcourir
                       </span>
                     </>
                   )}
@@ -687,116 +836,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
               )}
             </div>
 
-            {/* AI Summary */}
-            {generatingSummary ? (
-              <div className="text-center py-4 space-y-2">
-                <div className="flex justify-center gap-1.5">
-                  {[0, 1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="w-2.5 h-2.5 bg-[var(--primary)] rounded-full"
-                      style={{
-                        animation: `recording-pulse 1s ease-in-out ${i * 0.2}s infinite`,
-                      }}
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-[var(--muted)]">
-                  G&eacute;n&eacute;ration du r&eacute;sum&eacute;...
-                </p>
-              </div>
-            ) : (
-              aiSummary && (
-                <div className="bg-[var(--surface)] rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-medium text-[var(--muted)]">
-                    R&eacute;sum&eacute; g&eacute;n&eacute;r&eacute; par l&apos;IA
-                  </p>
-                  <p className="text-sm text-[var(--foreground)] italic leading-relaxed">
-                    &laquo; {aiSummary} &raquo;
-                  </p>
-                  {aiTags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {aiTags.map((tag, i) => (
-                        <span
-                          key={i}
-                          className="text-xs px-2 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full font-medium"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <button
-                    onClick={generateSummary}
-                    className="text-xs text-[var(--muted)] hover:text-[var(--primary)] transition-colors"
-                  >
-                    Reg&eacute;n&eacute;rer le r&eacute;sum&eacute;
-                  </button>
-                </div>
-              )
-            )}
 
-            {/* Introduction preview */}
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-[var(--foreground)]">
-                Ta pr&eacute;sentation
-              </p>
-              {PROFILE_VOICE_QUESTIONS.map((q) => {
-                const answer = introduction[q.id];
-                if (!answer) return null;
-                return (
-                  <div key={q.id} className="bg-[var(--surface)] rounded-lg p-3">
-                    <p className="text-xs font-medium text-[var(--muted)] mb-1">
-                      {q.question}
-                    </p>
-                    <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                      {answer}
-                    </p>
-                  </div>
-                );
-              })}
-              <button
-                onClick={() => setStep("introduction")}
-                className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors"
-              >
-                Modifier les r&eacute;ponses
-              </button>
-            </div>
-
-            {/* Questionnaire summary */}
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-[var(--foreground)]">
-                Ce que tu recherches
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {questionnaireDisplay.budget_range && (
-                  <span className="text-xs px-2 py-0.5 bg-[var(--surface)] text-[var(--muted)] rounded-full">
-                    {questionnaireDisplay.budget_range}
-                  </span>
-                )}
-                {questionnaireDisplay.preferred_regions.map((r, i) => (
-                  <span
-                    key={i}
-                    className="text-xs px-2 py-0.5 bg-[var(--surface)] text-[var(--muted)] rounded-full"
-                  >
-                    {r}
-                  </span>
-                ))}
-                {questionnaireDisplay.community_size && (
-                  <span className="text-xs px-2 py-0.5 bg-[var(--surface)] text-[var(--muted)] rounded-full">
-                    {questionnaireDisplay.community_size}
-                  </span>
-                )}
-                {questionnaireDisplay.core_values.map((v, i) => (
-                  <span
-                    key={i}
-                    className="text-xs px-2 py-0.5 bg-[var(--surface)] text-[var(--muted)] rounded-full"
-                  >
-                    {v}
-                  </span>
-                ))}
-              </div>
-            </div>
 
             {error && (
               <div className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
@@ -812,135 +852,30 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
                 Retour
               </button>
               <button
-                onClick={() => setStep("publish")}
-                className="flex-1 px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+                onClick={handlePublish}
+                disabled={publishing}
+                className="flex-1 px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-bold hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Continuer
+                {publishing ? (
+                  <>
+                    <div className="flex gap-1">
+                      {[0, 1, 2].map((i) => (
+                        <div
+                          key={i}
+                          className="w-1.5 h-1.5 bg-white rounded-full"
+                          style={{
+                            animation: `recording-pulse 1s ease-in-out ${i * 0.2}s infinite`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    {isEditing ? "Mise à jour..." : "Publication..."}
+                  </>
+                ) : (
+                  isEditing ? "Mettre à jour" : "Publier mon profil"
+                )}
               </button>
             </div>
-          </div>
-        )}
-
-        {/* STEP 4: Auth + Publish */}
-        {step === "publish" && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-[var(--foreground)]">
-                {isEditing ? "Mettre à jour ton profil" : "Publier ton profil"}
-              </h2>
-              <p className="text-sm text-[var(--muted)] mt-1">
-                {isEditing
-                  ? "Vérifie et confirme les modifications."
-                  : "Connecte-toi pour publier et gérer ton profil."}
-              </p>
-            </div>
-
-            {!user ? (
-              <div className="space-y-4">
-                <div className="bg-[var(--surface)] rounded-xl p-4">
-                  <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                    La connexion Google permet de :
-                  </p>
-                  <ul className="text-sm text-[var(--muted)] mt-2 space-y-1">
-                    <li className="flex items-start gap-2">
-                      <svg
-                        className="w-4 h-4 text-[var(--primary)] mt-0.5 shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      Publier ton profil
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <svg
-                        className="w-4 h-4 text-[var(--primary)] mt-0.5 shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      Modifier ou supprimer ton profil plus tard
-                    </li>
-                  </ul>
-                </div>
-                <AuthButton
-                  onAuthChange={handleAuthChange}
-                  className="w-full justify-center"
-                />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl">
-                  {user.user_metadata?.avatar_url && (
-                    <img
-                      src={user.user_metadata.avatar_url}
-                      alt=""
-                      className="w-10 h-10 rounded-full"
-                    />
-                  )}
-                  <div>
-                    <p className="font-medium text-emerald-800">
-                      Connect&eacute;(e) en tant que{" "}
-                      {user.user_metadata?.full_name || user.email}
-                    </p>
-                    <p className="text-xs text-emerald-600">
-                      Pr&ecirc;t(e) &agrave; publier
-                    </p>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  onClick={handlePublish}
-                  disabled={publishing}
-                  className="w-full px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-bold hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {publishing ? (
-                    <>
-                      <div className="flex gap-1">
-                        {[0, 1, 2].map((i) => (
-                          <div
-                            key={i}
-                            className="w-1.5 h-1.5 bg-white rounded-full"
-                            style={{
-                              animation: `recording-pulse 1s ease-in-out ${i * 0.2}s infinite`,
-                            }}
-                          />
-                        ))}
-                      </div>
-                      {isEditing ? "Mise à jour en cours..." : "Publication en cours..."}
-                    </>
-                  ) : (
-                    isEditing ? "Mettre à jour" : "Publier mon profil"
-                  )}
-                </button>
-              </div>
-            )}
-
-            <button
-              onClick={() => setStep("preview")}
-              className="w-full text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-            >
-              &larr; Retour &agrave; l&apos;aper&ccedil;u
-            </button>
           </div>
         )}
       </div>

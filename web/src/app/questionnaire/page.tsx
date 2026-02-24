@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Questionnaire } from "@/components/Questionnaire";
 import type { Metadata } from "next";
 
@@ -13,5 +14,11 @@ export const metadata: Metadata = {
 };
 
 export default function QuestionnairePage() {
-  return <div className="max-w-6xl mx-auto"><Questionnaire /></div>;
+  return (
+    <div className="max-w-6xl mx-auto">
+      <Suspense fallback={<div className="max-w-lg mx-auto py-16 text-center"><div className="text-[var(--muted-light)]">Chargement...</div></div>}>
+        <Questionnaire />
+      </Suspense>
+    </div>
+  );
 }

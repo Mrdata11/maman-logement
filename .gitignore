@@ -27,3 +27,6 @@ Thumbs.db
 # Playwright
 scraper/playwright-cache/
 .vercel
+
+# GitHub workflows (OAuth token lacks workflow scope)
+.github/

@@ -99,6 +99,66 @@ export function applyRetreatFilters(
     if (venue.ceremonies_allowed !== filters.ceremoniesAllowed) return false;
   }
 
+  // Kitchen equipment
+  if (filters.kitchenEquipment.length > 0) {
+    if (!venue.kitchen_equipment || !filters.kitchenEquipment.some((e) => venue.kitchen_equipment.includes(e))) return false;
+  }
+
+  // Bed configurations
+  if (filters.bedConfigurations.length > 0) {
+    if (!venue.bed_configurations || !filters.bedConfigurations.some((b) => venue.bed_configurations.includes(b))) return false;
+  }
+
+  // Sustainability features
+  if (filters.sustainabilityFeatures.length > 0) {
+    if (!venue.sustainability_features || !filters.sustainabilityFeatures.some((s) => venue.sustainability_features.includes(s))) return false;
+  }
+
+  // Nearby activities
+  if (filters.nearbyActivities.length > 0) {
+    if (!venue.nearby_activities || !filters.nearbyActivities.some((a) => venue.nearby_activities.includes(a))) return false;
+  }
+
+  // Bed linen provided
+  if (filters.bedLinenProvided !== null) {
+    if (venue.bed_linen_provided !== filters.bedLinenProvided) return false;
+  }
+
+  // Towels provided
+  if (filters.towelsProvided !== null) {
+    if (venue.towels_provided !== filters.towelsProvided) return false;
+  }
+
+  // Cleaning included
+  if (filters.cleaningIncluded !== null) {
+    if (venue.cleaning_included !== filters.cleaningIncluded) return false;
+  }
+
+  // Staff on site
+  if (filters.staffOnSite !== null) {
+    if (venue.staff_on_site !== filters.staffOnSite) return false;
+  }
+
+  // Parking
+  if (filters.hasParking !== null) {
+    if (filters.hasParking && (!venue.parking_spaces || venue.parking_spaces <= 0)) return false;
+  }
+
+  // Pets allowed
+  if (filters.petsAllowed !== null) {
+    if (venue.pets_allowed !== filters.petsAllowed) return false;
+  }
+
+  // Drinking water safe
+  if (filters.drinkingWaterSafe !== null) {
+    if (venue.drinking_water_safe !== filters.drinkingWaterSafe) return false;
+  }
+
+  // Eco friendly
+  if (filters.ecoFriendly !== null) {
+    if (filters.ecoFriendly && (!venue.sustainability_features || venue.sustainability_features.length === 0) && (!venue.eco_certifications || venue.eco_certifications.length === 0)) return false;
+  }
+
   return true;
 }
 
@@ -123,5 +183,17 @@ export function countActiveFilters(filters: RetreatFilterState): number {
   if (filters.outdoorSpaces.length > 0) count++;
   if (filters.specializedEquipment.length > 0) count++;
   if (filters.ceremoniesAllowed !== null) count++;
+  if (filters.kitchenEquipment.length > 0) count++;
+  if (filters.bedConfigurations.length > 0) count++;
+  if (filters.sustainabilityFeatures.length > 0) count++;
+  if (filters.nearbyActivities.length > 0) count++;
+  if (filters.bedLinenProvided !== null) count++;
+  if (filters.towelsProvided !== null) count++;
+  if (filters.cleaningIncluded !== null) count++;
+  if (filters.staffOnSite !== null) count++;
+  if (filters.hasParking !== null) count++;
+  if (filters.petsAllowed !== null) count++;
+  if (filters.drinkingWaterSafe !== null) count++;
+  if (filters.ecoFriendly !== null) count++;
   return count;
 }

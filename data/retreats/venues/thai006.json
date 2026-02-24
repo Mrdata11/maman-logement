@@ -1,0 +1,167 @@
+{
+  "id": "thai006",
+  "source": "bookretreats.com",
+  "source_url": "https://bookretreats.com/organizers/o/orion-healing-centre",
+  "name": "Orion Healing Centre",
+  "description": "Centre de guérison et de yoga en bord de mer, fondé en 2005, situé dans la baie de Srithanu à Koh Phangan. Propose des retraites de yoga, programmes détox, formations de thérapies holistiques (Reiki, cranio-sacral, équilibrage des chakras). Dispose d'un hammam aux herbes thaïlandaises, sauna infrarouge, bain de glace, deux salles de yoga, et d'un café végétarien servant des fruits tropicaux frais quotidiennement.",
+  "country": "TH",
+  "region": "Koh Phangan",
+  "city": "Srithanu",
+  "latitude": 9.7519,
+  "longitude": 99.9661,
+  "nearest_airport": "Koh Samui (USM) - ferry 30 min",
+  "transfer_available": true,
+  "capacity_min": 10,
+  "capacity_max": 35,
+  "num_rooms": 18,
+  "num_beds": 35,
+  "accommodation_types": [
+    "private_room",
+    "shared_room",
+    "bungalow"
+  ],
+  "room_has_private_bathroom": true,
+  "activity_spaces": [
+    "yoga_studio",
+    "outdoor_deck",
+    "meditation_hall",
+    "healing_room"
+  ],
+  "main_practice_space_capacity": 40,
+  "main_practice_space_m2": 160,
+  "num_practice_spaces": 3,
+  "outdoor_spaces": [
+    "beach_access",
+    "garden",
+    "terrace",
+    "sauna"
+  ],
+  "meal_service": "flexible",
+  "cuisine_options": [
+    "vegetarian",
+    "vegan",
+    "organic",
+    "raw",
+    "gluten_free"
+  ],
+  "kitchen_access": false,
+  "dietary_accommodations": true,
+  "currency": "EUR",
+  "price_per_person_per_night": 30,
+  "price_per_person_per_night_max": 55,
+  "price_full_venue_per_day": null,
+  "price_notes": "Tarifs très avantageux. Repas au café végétarien (10-15 EUR/jour). Fondé en 2005.",
+  "meals_included_in_price": false,
+  "setting": [
+    "beach",
+    "island"
+  ],
+  "style": [
+    "spiritual",
+    "eco",
+    "traditional"
+  ],
+  "services": [
+    "airport_transfer",
+    "yoga_mats",
+    "meditation_cushions",
+    "sound_system",
+    "massage",
+    "spa",
+    "wifi"
+  ],
+  "suitable_for": [
+    "yoga",
+    "meditation",
+    "detox",
+    "fasting",
+    "teacher_training",
+    "sound_healing",
+    "breathwork"
+  ],
+  "alcohol_policy": "not_allowed",
+  "children_welcome": false,
+  "accessible": false,
+  "images": [
+    "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+    "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800",
+    "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"
+  ],
+  "image_categories": {
+    "exterior": [
+      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800"
+    ],
+    "surroundings": [
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"
+    ],
+    "practice_spaces": [
+      "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800"
+    ],
+    "rooms": [
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800"
+    ]
+  },
+  "contact_email": null,
+  "contact_phone": "+66 77 445 966",
+  "website": "https://www.orionhealing.com",
+  "booking_url": null,
+  "rating_average": 4.5,
+  "rating_count": 203,
+  "available_year_round": true,
+  "min_stay_nights": 3,
+  "lead_time_weeks": 10,
+  "original_language": "en",
+  "date_scraped": "2026-02-20T10:00:00Z",
+  "is_claimed": false,
+  "languages_spoken": [
+    "en",
+    "th"
+  ],
+  "cancellation_policy": "Annulation gratuite jusqu'à 30 jours avant. Non remboursable sous 30 jours. Report possible.",
+  "deposit_required": "50% à la réservation, solde à l'arrivée.",
+  "group_discount": true,
+  "suggested_durations": [
+    3,
+    5,
+    7,
+    14,
+    21
+  ],
+  "seasonal_availability": "Toute l'année (éviter fin oct - début déc : mousson)",
+  "specialized_equipment": [
+    "yoga_props",
+    "singing_bowls",
+    "gongs",
+    "massage_tables",
+    "reiki_tables",
+    "essential_oils",
+    "incense",
+    "candles",
+    "altar_space",
+    "blankets"
+  ],
+  "ceremonies_allowed": true,
+  "silence_policy": "Retraites silencieuses possibles. Zone plage naturellement calme.",
+  "noise_level": "quiet",
+  "climate_info": "Tropical. 27-34°C toute l'année. Mousson octobre-décembre. Humidité élevée.",
+  "nearest_hospital_km": 15,
+  "retreats_hosted_count": 500,
+  "testimonials": [
+    {
+      "author": "Florence G.",
+      "role": "Maître Reiki et formatrice",
+      "text": "Orion est LE lieu pour les formations Reiki et thérapies holistiques en Asie. Tables de Reiki disponibles, salle de soins dédiée, et une communauté de praticiens sur place. Rapport qualité-prix exceptionnel.",
+      "rating": 5,
+      "date": "2025-12-01"
+    },
+    {
+      "author": "Pierre V.",
+      "role": "Naturopathe",
+      "text": "Les programmes détox sont parmi les meilleurs que j'ai vus. Le hammam aux herbes et le sauna infrarouge complètent parfaitement les soins. Fondé en 2005, l'expérience se ressent.",
+      "rating": 4,
+      "date": "2025-10-15"
+    }
+  ],
+  "exclusive_hire_only": false
+}

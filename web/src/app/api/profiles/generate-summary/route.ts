@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
-import { ProfileIntroduction } from "@/lib/profile-types";
+import { ProfileIntroduction, getIntroText } from "@/lib/profile-types";
 import { QuestionnaireAnswers } from "@/lib/questionnaire-types";
 import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/api-auth";
 import { generateSummarySchema } from "@/lib/api-schemas";
@@ -34,16 +34,17 @@ function formatQuestionnaireForPrompt(answers: QuestionnaireAnswers): string {
 
 function formatIntroductionForPrompt(intro: ProfileIntroduction): string {
   const sections: string[] = [];
-  if (intro.whoAreYou) sections.push(`Qui suis-je: ${intro.whoAreYou}`);
-  if (intro.whyGroupHousing)
-    sections.push(`Pourquoi l'habitat groupe: ${intro.whyGroupHousing}`);
-  if (intro.communityValues)
-    sections.push(`Mes valeurs: ${intro.communityValues}`);
-  if (intro.whatYouBring)
-    sections.push(`Ce que j'apporte: ${intro.whatYouBring}`);
-  if (intro.idealDay) sections.push(`Ma journee ideale: ${intro.idealDay}`);
-  if (intro.additionalInfo)
-    sections.push(`Informations supplementaires: ${intro.additionalInfo}`);
+  const t = (val: ProfileIntroduction[keyof ProfileIntroduction]) => getIntroText(val);
+  if (t(intro.whoAreYou)) sections.push(`Qui suis-je: ${t(intro.whoAreYou)}`);
+  if (t(intro.whyGroupHousing))
+    sections.push(`Pourquoi l'habitat groupe: ${t(intro.whyGroupHousing)}`);
+  if (t(intro.communityValues))
+    sections.push(`Mes valeurs: ${t(intro.communityValues)}`);
+  if (t(intro.whatYouBring))
+    sections.push(`Ce que j'apporte: ${t(intro.whatYouBring)}`);
+  if (t(intro.idealDay)) sections.push(`Ma journee ideale: ${t(intro.idealDay)}`);
+  if (t(intro.additionalInfo))
+    sections.push(`Informations supplementaires: ${t(intro.additionalInfo)}`);
   return sections.join("\n");
 }
 

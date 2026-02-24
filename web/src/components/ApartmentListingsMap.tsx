@@ -10,16 +10,19 @@ import { BRUSSELS_MAP_CENTER, BRUSSELS_DEFAULT_ZOOM } from "@/lib/coordinates";
 import { escapeHtml, sanitizeUrl } from "@/lib/sanitize";
 
 function formatPrice(price: number | null): string {
-  if (!price) return "•";
+  if (!price) return "";
   if (price >= 1000) return `${(price / 1000).toFixed(1)}k€`;
   return `${price}€`;
 }
 
+const HOME_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+
 function createPricePinIcon(label: string, isHighlighted: boolean): L.DivIcon {
+  const content = label || HOME_SVG;
   return L.divIcon({
     className: "",
     html: `<div class="map-price-pin${isHighlighted ? " highlighted" : ""}">
-      <span>${label}</span>
+      <span>${content}</span>
     </div>`,
     iconSize: [0, 0],
     iconAnchor: [0, 0],

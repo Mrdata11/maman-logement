@@ -543,6 +543,7 @@ export function ListingDetailActions({
             onClick={() => setShowStatusMenu(!showStatusMenu)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${STATUS_CONFIG[status].color}`}
           >
+            <span className="text-xs opacity-60 font-normal">Statut</span>
             {STATUS_CONFIG[status].label}
             <svg
               className={`w-3 h-3 transition-transform ${showStatusMenu ? "rotate-180" : ""}`}
@@ -565,6 +566,9 @@ export function ListingDetailActions({
                 onClick={() => setShowStatusMenu(false)}
               />
               <div className="absolute right-0 z-20 mt-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-lg py-1 min-w-[180px]">
+                <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                  Changer le statut
+                </div>
                 {(Object.keys(STATUS_CONFIG) as ListingStatus[])
                   .filter((s) => s !== status && s !== "archived" && s !== "rejected")
                   .map((s) => (

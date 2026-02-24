@@ -8,10 +8,15 @@ import {
   PROFILE_VOICE_QUESTIONS,
   INTRO_DISPLAY_TITLES,
   deriveProfileCardData,
+  getIntroAudioUrl,
+  getIntroText,
+  isIntroAnswer,
 } from "@/lib/profile-types";
 import { QUESTIONNAIRE_STEPS } from "@/lib/questionnaire-data";
 import { AuthButton } from "@/components/AuthButton";
 import { ProfileCreationFlow } from "@/components/ProfileCreationFlow";
+import type { ApplicationWithProject } from "@/lib/application-types";
+import { APPLICATION_STATUS_CONFIG } from "@/lib/application-types";
 
 export default function MonProfilPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -19,6 +24,8 @@ export default function MonProfilPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [applications, setApplications] = useState<ApplicationWithProject[]>([]);
+  const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
   const supabase = createClient();
 
   const loadProfile = useCallback(
@@ -37,16 +44,53 @@ export default function MonProfilPage() {
     [supabase]
   );
 
+  const loadApplications = useCallback(async () => {
+    try {
+      const res = await fetch("/api/applications");
+      if (res.ok) {
+        const data = await res.json();
+        setApplications(data);
+      }
+    } catch (err) {
+      console.error("Error loading applications:", err);
+    }
+  }, []);
+
+  const handleWithdraw = useCallback(
+    async (applicationId: string) => {
+      setWithdrawingId(applicationId);
+      try {
+        const res = await fetch(`/api/applications/${applicationId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "withdrawn" }),
+        });
+        if (res.ok) {
+          setApplications((prev) =>
+            prev.map((a) =>
+              a.id === applicationId ? { ...a, status: "withdrawn" } : a
+            )
+          );
+        }
+      } catch (err) {
+        console.error("Error withdrawing application:", err);
+      }
+      setWithdrawingId(null);
+    },
+    []
+  );
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
       if (user) {
         loadProfile(user.id);
+        loadApplications();
       } else {
         setLoading(false);
       }
     });
-  }, [supabase, loadProfile]);
+  }, [supabase, loadProfile, loadApplications]);
 
   const handleDelete = useCallback(async () => {
     if (!profile || !confirm("Supprimer définitivement ton profil ?"))
@@ -163,12 +207,16 @@ export default function MonProfilPage() {
   if (profile.gender)
     demographicParts.push(GENDER_LABELS[profile.gender] || profile.gender);
 
-  const introSections = PROFILE_VOICE_QUESTIONS.filter(
-    (q) => intro[q.id]?.trim()
-  ).map((q) => ({
+  const introSections = PROFILE_VOICE_QUESTIONS.filter((q) => {
+    const val = intro[q.id];
+    if (!val) return false;
+    if (typeof val === "string") return val.trim().length > 0;
+    return isIntroAnswer(val);
+  }).map((q) => ({
     id: q.id,
     ...INTRO_DISPLAY_TITLES[q.id],
-    content: intro[q.id],
+    content: getIntroText(intro[q.id]),
+    audioUrl: getIntroAudioUrl(intro[q.id]),
   }));
 
   // Build detailed questionnaire display
@@ -346,9 +394,18 @@ export default function MonProfilPage() {
                 <span className="text-base">{section.icon}</span>
                 {section.title}
               </h3>
-              <p className="text-[var(--foreground)] leading-relaxed">
-                {section.content}
-              </p>
+              {section.audioUrl ? (
+                <audio
+                  src={section.audioUrl}
+                  controls
+                  preload="metadata"
+                  className="w-full"
+                />
+              ) : (
+                <p className="text-[var(--foreground)] leading-relaxed">
+                  {section.content}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -484,6 +541,91 @@ export default function MonProfilPage() {
           </svg>
         </a>
       )}
+
+      {/* Mes candidatures */}
+      <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8">
+        <h3 className="text-lg font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
+          <svg
+            className="w-5 h-5 text-[var(--primary)]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+            />
+          </svg>
+          Mes candidatures
+        </h3>
+
+        {applications.length === 0 ? (
+          <div className="text-center py-4">
+            <p className="text-sm text-[var(--muted)] mb-3">
+              Aucune candidature pour le moment.
+            </p>
+            <a
+              href="/projets"
+              className="inline-flex items-center gap-1.5 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors"
+            >
+              D&eacute;couvrir les projets
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {applications.map((app) => {
+              const statusConfig = APPLICATION_STATUS_CONFIG[app.status];
+              const project = app.projects;
+              return (
+                <div
+                  key={app.id}
+                  className="flex items-center justify-between gap-3 p-3 rounded-xl border border-[var(--border-color)] hover:bg-[var(--surface)]/50 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <a
+                      href={`/projets/${project?.id}`}
+                      className="text-sm font-medium text-[var(--foreground)] hover:text-[var(--primary)] transition-colors truncate block"
+                    >
+                      {project?.name || "Projet"}
+                    </a>
+                    <p className="text-xs text-[var(--muted-light)] mt-0.5">
+                      {new Date(app.created_at).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusConfig.color}`}
+                    >
+                      {statusConfig.label}
+                    </span>
+                    {app.status === "pending" && (
+                      <button
+                        onClick={() => handleWithdraw(app.id)}
+                        disabled={withdrawingId === app.id}
+                        className="text-xs text-[var(--muted)] hover:text-red-500 transition-colors disabled:opacity-50"
+                        title="Retirer ma candidature"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Profile date */}
       <p className="text-xs text-[var(--muted)] text-center">

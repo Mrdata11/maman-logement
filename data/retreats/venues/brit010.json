@@ -1,0 +1,137 @@
+{
+  "id": "brit010",
+  "source": "cotswolds.com",
+  "source_url": "https://www.cotswolds.com/event/yoga-&-wellbeing-retreat/341307301/",
+  "name": "Notgrove Holidays",
+  "description": "Retraites de yoga et bien-être sur un domaine privé de 600 hectares au coeur des Cotswolds. Hébergement en 9 pods de glamping (1-2 personnes chacun) pour une expérience intime et personnalisée. Programme comprenant Hatha Yoga, Yin Yoga, Qigong, bain sonore aux bols de cristal, marches méditatives guidées et repas nourrissants issus de produits locaux. Retraites de 3 jours au printemps et en automne.",
+  "country": "GB",
+  "region": "Cotswolds",
+  "city": "Notgrove",
+  "latitude": 51.87,
+  "longitude": -1.78,
+  "nearest_airport": "Birmingham (BHX) - 70 km / London Heathrow (LHR) - 130 km",
+  "transfer_available": false,
+  "capacity_min": 6,
+  "capacity_max": 18,
+  "num_rooms": 9,
+  "num_beds": 18,
+  "accommodation_types": [
+    "glamping"
+  ],
+  "room_has_private_bathroom": false,
+  "activity_spaces": [
+    "yoga_studio",
+    "outdoor_deck"
+  ],
+  "main_practice_space_capacity": 20,
+  "main_practice_space_m2": 80,
+  "num_practice_spaces": 2,
+  "outdoor_spaces": [
+    "garden",
+    "terrace",
+    "hiking_trails"
+  ],
+  "meal_service": "full_board",
+  "cuisine_options": [
+    "vegetarian",
+    "organic",
+    "local_seasonal",
+    "gluten_free"
+  ],
+  "kitchen_access": false,
+  "dietary_accommodations": true,
+  "currency": "GBP",
+  "price_per_person_per_night": 85,
+  "price_per_person_per_night_max": 120,
+  "price_full_venue_per_day": 1500,
+  "price_notes": "Prix en GBP. Domaine privé de 600 hectares. Retraites de 3 jours au printemps et automne.",
+  "meals_included_in_price": true,
+  "setting": [
+    "countryside"
+  ],
+  "style": [
+    "eco",
+    "rustic"
+  ],
+  "services": [
+    "yoga_mats",
+    "meditation_cushions",
+    "sound_system",
+    "wifi"
+  ],
+  "suitable_for": [
+    "yoga",
+    "meditation",
+    "writing",
+    "silent_retreat"
+  ],
+  "alcohol_policy": "limited",
+  "children_welcome": false,
+  "accessible": false,
+  "images": [
+    "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800",
+    "https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800",
+    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800"
+  ],
+  "image_categories": {
+    "exterior": [
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800"
+    ],
+    "practice_spaces": [
+      "https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800"
+    ],
+    "rooms": [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"
+    ],
+    "surroundings": [
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800"
+    ]
+  },
+  "contact_email": "holiday@notgrove.com",
+  "contact_phone": "+44 7517 268225",
+  "website": "https://notgroveholidays.com",
+  "booking_url": "https://notgroveholidays.com/activities/yoga-retreat-2/",
+  "rating_average": 4.4,
+  "rating_count": 18,
+  "available_year_round": false,
+  "min_stay_nights": 2,
+  "lead_time_weeks": 16,
+  "original_language": "en",
+  "date_scraped": "2026-02-20T10:00:00Z",
+  "is_claimed": false,
+  "languages_spoken": [
+    "en"
+  ],
+  "cancellation_policy": "Annulation gratuite jusqu'à 30 jours avant. Non remboursable sous 30 jours.",
+  "deposit_required": "50% à la réservation, solde 14 jours avant.",
+  "group_discount": false,
+  "suggested_durations": [
+    2,
+    3
+  ],
+  "seasonal_availability": "Printemps (avril-mai) et Automne (sept-oct)",
+  "specialized_equipment": [
+    "yoga_props",
+    "crystal_bowls",
+    "singing_bowls",
+    "blankets",
+    "candles"
+  ],
+  "ceremonies_allowed": false,
+  "silence_policy": "Marches méditatives silencieuses guidées. Pas de politique de silence stricte.",
+  "noise_level": "very_quiet",
+  "climate_info": "Océanique tempéré. Printemps 10-18°C, automne 8-16°C. Pluie possible. Prévoir couches chaudes.",
+  "nearest_hospital_km": 20,
+  "retreats_hosted_count": 25,
+  "testimonials": [
+    {
+      "author": "Emma T.",
+      "role": "Professeur de Hatha Yoga",
+      "text": "Le glamping dans les Cotswolds est une expérience unique. Le bain sonore aux bols de cristal sous les étoiles est magique. Le domaine de 600 hectares offre un isolement total.",
+      "rating": 5,
+      "date": "2025-10-05"
+    }
+  ],
+  "exclusive_hire_only": true
+}

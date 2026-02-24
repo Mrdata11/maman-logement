@@ -1,0 +1,158 @@
+{
+  "id": "cost009",
+  "source": "tripadvisor.com",
+  "source_url": "https://www.tripadvisor.com/Hotel_Review-g656474-d23319530-Reviews-Casas_Kismet-Nosara_Province_of_Guanacaste.html",
+  "name": "Casas Kismet",
+  "description": "Centre de retraite boutique situé sur une crête paisible à Nosara, au coeur de l'une des cinq zones bleues du monde (où les habitants vivent plus longtemps). Vue océan et jungle, shala de yoga en plein air, salle de sport, restaurant farm-to-table avec cuisine biologique. Accueille des retraites privées, mariages, réunions de famille. À 2h30 de l'aéroport de Liberia.",
+  "country": "CR",
+  "region": "Guanacaste",
+  "city": "Nosara",
+  "latitude": 9.95,
+  "longitude": -85.65,
+  "nearest_airport": "Liberia (LIR) - 130 km",
+  "transfer_available": true,
+  "capacity_min": 8,
+  "capacity_max": 22,
+  "num_rooms": 11,
+  "num_beds": 22,
+  "accommodation_types": [
+    "private_room",
+    "suite"
+  ],
+  "room_has_private_bathroom": true,
+  "activity_spaces": [
+    "outdoor_deck",
+    "yoga_studio"
+  ],
+  "main_practice_space_capacity": 25,
+  "main_practice_space_m2": 100,
+  "num_practice_spaces": 2,
+  "outdoor_spaces": [
+    "pool",
+    "garden",
+    "beach_access",
+    "terrace"
+  ],
+  "meal_service": "full_board",
+  "cuisine_options": [
+    "vegan",
+    "vegetarian",
+    "organic",
+    "gluten_free",
+    "local_seasonal"
+  ],
+  "kitchen_access": false,
+  "dietary_accommodations": true,
+  "currency": "USD",
+  "price_per_person_per_night": 50,
+  "price_per_person_per_night_max": 80,
+  "price_full_venue_per_day": 900,
+  "price_notes": "Tarifs en USD. Situé dans une zone bleue. Restaurant farm-to-table.",
+  "meals_included_in_price": true,
+  "setting": [
+    "jungle",
+    "beach"
+  ],
+  "style": [
+    "boutique",
+    "eco",
+    "spiritual"
+  ],
+  "services": [
+    "airport_transfer",
+    "yoga_mats",
+    "meditation_cushions",
+    "sound_system",
+    "massage",
+    "excursions",
+    "wifi",
+    "event_planning_support"
+  ],
+  "suitable_for": [
+    "yoga",
+    "meditation",
+    "dance",
+    "breathwork",
+    "detox",
+    "teacher_training",
+    "ecstatic_dance"
+  ],
+  "alcohol_policy": "limited",
+  "children_welcome": true,
+  "accessible": false,
+  "images": [
+    "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+    "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800",
+    "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+  ],
+  "image_categories": {
+    "exterior": [
+      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800"
+    ],
+    "surroundings": [
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"
+    ],
+    "practice_spaces": [
+      "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800"
+    ],
+    "rooms": [
+      "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+    ]
+  },
+  "contact_email": "retreats@casaskismet.com",
+  "contact_phone": "+1 865 386 8266",
+  "website": "https://www.casaskismet.com",
+  "booking_url": "https://www.casaskismet.com/retreat-leader-page",
+  "rating_average": 4.6,
+  "rating_count": 67,
+  "available_year_round": true,
+  "min_stay_nights": 5,
+  "lead_time_weeks": 12,
+  "original_language": "en",
+  "date_scraped": "2026-02-20T10:00:00Z",
+  "is_claimed": false,
+  "languages_spoken": [
+    "en",
+    "es"
+  ],
+  "cancellation_policy": "Annulation gratuite jusqu'à 60 jours avant. 50% remboursé entre 30-60 jours. Non remboursable sous 30 jours.",
+  "deposit_required": "25% à la réservation, solde 45 jours avant.",
+  "group_discount": true,
+  "suggested_durations": [
+    5,
+    7
+  ],
+  "seasonal_availability": "Toute l'année (saison sèche déc-avril recommandée)",
+  "specialized_equipment": [
+    "yoga_props",
+    "singing_bowls",
+    "blankets",
+    "essential_oils",
+    "candles",
+    "massage_tables"
+  ],
+  "ceremonies_allowed": true,
+  "silence_policy": "Pas de politique de silence stricte. Atmosphère détendue. Heures calmes : 22h-7h.",
+  "noise_level": "quiet",
+  "climate_info": "Tropical. 25-33°C toute l'année. Saison des pluies mai-novembre (averses l'après-midi).",
+  "nearest_hospital_km": 25,
+  "retreats_hosted_count": 40,
+  "testimonials": [
+    {
+      "author": "Julie M.",
+      "role": "Coach de yoga et surf",
+      "text": "Nosara est une zone bleue unique. La vue océan depuis le shala est extraordinaire. Le restaurant farm-to-table est excellent. Parfait pour combiner yoga et surf.",
+      "rating": 5,
+      "date": "2025-07-30"
+    },
+    {
+      "author": "Carlos R.",
+      "role": "Organisateur de retraites",
+      "text": "L'équipe d'aide à l'organisation est professionnelle et réactive. Le lieu s'adapte aussi bien aux retraites qu'aux mariages. Accueil chaleureux.",
+      "rating": 4,
+      "date": "2025-06-15"
+    }
+  ],
+  "exclusive_hire_only": false
+}

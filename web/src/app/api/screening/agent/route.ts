@@ -118,6 +118,7 @@ export async function POST(request: NextRequest) {
       sessionId: session.id,
       candidateName: session.candidate_name,
       configTitle: config.title,
+      isVerification: !!session.verification_type,
     });
   } catch (error) {
     console.error("Error setting up screening agent:", error);
