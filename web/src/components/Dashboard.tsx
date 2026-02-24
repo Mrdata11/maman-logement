@@ -17,7 +17,10 @@ import {
   haversineDistance,
   getListingCoordinates,
   EUROPE_CENTER,
+  loadReferenceLocation,
+  ReferenceLocation,
 } from "@/lib/coordinates";
+import { ReferenceLocationPicker } from "./ReferenceLocationPicker";
 import { ListingCard } from "./ListingCard";
 import { TagFilterCounts } from "./TagFilterPanel";
 import { FilterModal } from "./FilterModal";
@@ -101,6 +104,23 @@ export function Dashboard({
   // Custom dropdown states
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
+  const toolbarSentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = toolbarSentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        document.documentElement.dataset.toolbarSticky = entry.isIntersecting ? "false" : "true";
+      },
+      { threshold: 0 }
+    );
+    observer.observe(sentinel);
+    return () => {
+      observer.disconnect();
+      delete document.documentElement.dataset.toolbarSticky;
+    };
+  }, []);
 
   // Refinement state (driven by questionnaire)
   const [filters, setFilters] = useState<RefinementFilters>({ ...DEFAULT_FILTERS });
@@ -113,6 +133,9 @@ export function Dashboard({
   // Questionnaire state
   const [questionnaireState, setQuestionnaireState] = useState<QuestionnaireState | null>(null);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+
+  // Reference location (for distance calculation)
+  const [referenceLocation, setReferenceLocation] = useState<ReferenceLocation | null>(null);
 
   // Personalized scoring state
   const [showScoringPanel, setShowScoringPanel] = useState(false);
@@ -155,6 +178,12 @@ export function Dashboard({
     } catch {
       // Ignore parse errors
     }
+  }, []);
+
+  // Load reference location from localStorage
+  useEffect(() => {
+    const ref = loadReferenceLocation();
+    if (ref) setReferenceLocation(ref);
   }, []);
 
   // Load personalized criteria and scores from localStorage
@@ -292,7 +321,8 @@ export function Dashboard({
     }
   }, [personalScores]);
 
-  // Calculate distances from Bruxelles
+  // Calculate distances from reference location (or EUROPE_CENTER as fallback)
+  const distanceCenter = referenceLocation?.coords ?? EUROPE_CENTER;
   const distances = useMemo(() => {
     const map = new Map<string, number | null>();
     for (const item of items) {
@@ -301,13 +331,13 @@ export function Dashboard({
         item.listing.province
       );
       if (coords) {
-        map.set(item.listing.id, haversineDistance(EUROPE_CENTER, coords));
+        map.set(item.listing.id, haversineDistance(distanceCenter, coords));
       } else {
         map.set(item.listing.id, null);
       }
     }
     return map;
-  }, [items]);
+  }, [items, distanceCenter]);
 
   // Available sources with counts
   const availableSources = useMemo(() => {
@@ -522,7 +552,9 @@ export function Dashboard({
     }
 
     // Quality filter: always on — only relevant, evaluated listings
+    // Supabase projects (with project_id) bypass evaluation requirement
     result = result.filter((i) => {
+      if (i.project_id) return true;
       const lt = i.listing.listing_type;
       if (!lt || !RELEVANT_TYPES.has(lt)) return false;
       if (!i.evaluation) return false;
@@ -866,8 +898,11 @@ export function Dashboard({
       {/* Spacer before toolbar */}
       <div className="mb-2" />
 
+      {/* Sentinel for detecting when toolbar becomes sticky */}
+      <div ref={toolbarSentinelRef} className="h-0" />
+
       {/* Sticky toolbar — single row */}
-      <div className="sticky top-0 z-30 -mx-4 px-4 py-2 sm:py-3 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 print:hidden">
+      <div className="sticky top-0 z-50 -mx-4 px-4 py-2 sm:py-3 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 print:hidden">
         <div className="flex items-center gap-2">
           {/* Status tabs (scrollable) */}
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide min-w-0 pb-0.5">
@@ -875,7 +910,7 @@ export function Dashboard({
               ["all", "Actifs"],
               ["new", "Nouveaux"],
               ["favorite", "Favoris"],
-              ["active", "En cours"],
+              ["active", "Discussion en cours"],
               ["archived", "Archives"],
             ] as [FilterType, string][]).map(([key, label]) => (
               <button
@@ -952,6 +987,12 @@ export function Dashboard({
                 </div>
               )}
             </div>
+
+            {/* Reference location picker */}
+            <ReferenceLocationPicker
+              value={referenceLocation}
+              onChange={setReferenceLocation}
+            />
 
             {/* Filter toggle */}
             <button
@@ -1110,6 +1151,7 @@ export function Dashboard({
                   personalScore={personalScores.get(item.listing.id) ? { score: personalScores.get(item.listing.id)!.score, explanation: personalScores.get(item.listing.id)!.explanation } : null}
                   isHighlighted={hoveredListingId === item.listing.id}
                   distance={distances.get(item.listing.id) ?? null}
+                  referenceName={referenceLocation?.name ?? null}
                 />
               </div>
             ))}

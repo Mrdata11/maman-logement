@@ -12,7 +12,10 @@ import {
   haversineDistance,
   getListingCoordinates,
   EUROPE_CENTER,
+  loadReferenceLocation,
+  ReferenceLocation,
 } from "@/lib/coordinates";
+import { ReferenceLocationPicker } from "./ReferenceLocationPicker";
 import { ScoreBadge } from "./ScoreBar";
 import { PlaceholderImage } from "./PlaceholderImage";
 
@@ -28,12 +31,15 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
   const [localNotes, setLocalNotes] = useState("");
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [searchText, setSearchText] = useState("");
+  const [referenceLocation, setReferenceLocation] = useState<ReferenceLocation | null>(null);
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
-  // Load favorites from localStorage
+  // Load favorites + reference location from localStorage
   useEffect(() => {
     setMounted(true);
+    const ref = loadReferenceLocation();
+    if (ref) setReferenceLocation(ref);
     try {
       const savedStates = JSON.parse(localStorage.getItem("listing_states") || "{}");
       const savedNotes = JSON.parse(localStorage.getItem(NOTES_STORAGE_KEY) || "{}");
@@ -61,19 +67,20 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Distances
+  // Distances (from reference location or EUROPE_CENTER fallback)
+  const distanceCenter = referenceLocation?.coords ?? EUROPE_CENTER;
   const distances = useMemo(() => {
     const map = new Map<string, number | null>();
     for (const item of items) {
       const coords = getListingCoordinates(item.listing.location, item.listing.province);
       if (coords) {
-        map.set(item.listing.id, haversineDistance(EUROPE_CENTER, coords));
+        map.set(item.listing.id, haversineDistance(distanceCenter, coords));
       } else {
         map.set(item.listing.id, null);
       }
     }
     return map;
-  }, [items]);
+  }, [items, distanceCenter]);
 
   // Filter & Sort
   const sorted = useMemo(() => {
@@ -296,6 +303,12 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
             )}
           </div>
 
+          {/* Reference location picker */}
+          <ReferenceLocationPicker
+            value={referenceLocation}
+            onChange={setReferenceLocation}
+          />
+
           {/* Print */}
           <button
             onClick={() => window.print()}
@@ -380,7 +393,7 @@ export function FavoritesPage({ allItems }: { allItems: ListingWithEval[] }) {
                     )}
                     {dist != null && (
                       <span className="text-xs px-2 py-0.5 rounded bg-sky-50 text-sky-700">
-                        ~{Math.round(dist)} km de Bruxelles
+                        ~{Math.round(dist)} km{referenceLocation ? ` de ${referenceLocation.name}` : ""}
                       </span>
                     )}
                   </div>

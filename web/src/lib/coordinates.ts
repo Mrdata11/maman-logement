@@ -162,10 +162,98 @@ export const LOCATION_COORDINATES: Record<string, Coordinates> = {
 export const EUROPE_CENTER: Coordinates = { lat: 47.5, lng: 3.0 };
 export const DEFAULT_ZOOM = 5;
 
-// Brussels apartment search references
-export const IXELLES_CENTER: Coordinates = { lat: 50.8306, lng: 4.3722 };
-export const BRUSSELS_MAP_CENTER: Coordinates = { lat: 50.8400, lng: 4.3700 };
-export const BRUSSELS_DEFAULT_ZOOM = 13;
+// Cle localStorage pour la ville de reference
+export const REFERENCE_LOCATION_KEY = "reference_location";
+
+export interface ReferenceLocation {
+  name: string;
+  coords: Coordinates;
+}
+
+/**
+ * Resout les coordonnees d'un string de localisation (ex: "Ixelles, Bruxelles").
+ * Essaie chaque partie separee par une virgule, puis le string complet.
+ * Retourne le nom match et les coordonnees, ou null si rien ne correspond.
+ */
+export function resolveLocationCoordinates(
+  locationStr: string | null
+): ReferenceLocation | null {
+  if (!locationStr || !locationStr.trim()) return null;
+
+  // Essayer le string complet d'abord
+  const trimmed = locationStr.trim();
+  if (LOCATION_COORDINATES[trimmed]) {
+    return { name: trimmed, coords: LOCATION_COORDINATES[trimmed] };
+  }
+
+  // Decouper par virgule et essayer chaque partie
+  const parts = trimmed.split(",").map((p) => p.trim()).filter(Boolean);
+  for (const part of parts) {
+    if (LOCATION_COORDINATES[part]) {
+      return { name: part, coords: LOCATION_COORDINATES[part] };
+    }
+  }
+
+  // Essayer un match case-insensitive
+  const lower = trimmed.toLowerCase();
+  for (const [key, coords] of Object.entries(LOCATION_COORDINATES)) {
+    if (key.toLowerCase() === lower) {
+      return { name: key, coords };
+    }
+  }
+  for (const part of parts) {
+    const partLower = part.toLowerCase();
+    for (const [key, coords] of Object.entries(LOCATION_COORDINATES)) {
+      if (key.toLowerCase() === partLower) {
+        return { name: key, coords };
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Charge la ville de reference depuis localStorage.
+ * Retourne null si non definie ou invalide.
+ */
+export function loadReferenceLocation(): ReferenceLocation | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = localStorage.getItem(REFERENCE_LOCATION_KEY);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    if (
+      parsed &&
+      typeof parsed.name === "string" &&
+      parsed.coords &&
+      typeof parsed.coords.lat === "number" &&
+      typeof parsed.coords.lng === "number"
+    ) {
+      return parsed as ReferenceLocation;
+    }
+  } catch {
+    // Ignore
+  }
+  return null;
+}
+
+/**
+ * Sauvegarde la ville de reference dans localStorage.
+ */
+export function saveReferenceLocation(ref: ReferenceLocation): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(REFERENCE_LOCATION_KEY, JSON.stringify(ref));
+}
+
+/**
+ * Retourne la liste des noms de villes disponibles pour l'autocomplete.
+ */
+export function getAvailableLocationNames(): string[] {
+  return Object.keys(LOCATION_COORDINATES).sort((a, b) =>
+    a.localeCompare(b, "fr")
+  );
+}
 
 // Calcul de distance Haversine en km
 export function haversineDistance(

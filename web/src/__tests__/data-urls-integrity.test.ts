@@ -46,7 +46,6 @@ const BROWSER_ONLY_DOMAINS: Record<string, number[]> = {
   "www.vrbo.com": [429, 403],
   "en.planetofhotels.com": [403],
   "retreatsandvenues.com": [429, 403],
-  "www.immoweb.be": [403],
 };
 
 function isBrowserOnlyOk(url: string, status: number): boolean {
@@ -199,35 +198,3 @@ describe("Cohousing listings — URL sample check", () => {
   }
 });
 
-// ============================================================
-// APARTMENT LISTINGS — Sample URL check
-// ============================================================
-describe("Apartment listings — URL sample check", () => {
-  let listings: Record<string, unknown>[];
-  try {
-    listings = loadJSON("apartments/listings.json");
-  } catch {
-    listings = [];
-  }
-
-  if (listings.length === 0) {
-    it.skip("no apartments/listings.json found", () => {});
-  } else {
-    const allSourceUrls = listings
-      .filter((l) => typeof l.source_url === "string" && (l.source_url as string).startsWith("http"))
-      .map((l) => ({ field: "source_url", url: l.source_url as string, name: (l.title || l.id || "?") as string }));
-
-    const sample = sampleArray(allSourceUrls, 10);
-
-    for (const { url, name } of sample) {
-      it(
-        `apartment "${name}" source_url is reachable`,
-        async () => {
-          const result = await checkUrl(url);
-          expect(result.ok, `${url} returned ${result.status ?? result.error}`).toBe(true);
-        },
-        TIMEOUT_MS * 2,
-      );
-    }
-  }
-});

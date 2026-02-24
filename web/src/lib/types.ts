@@ -22,7 +22,10 @@ export interface Listing {
 export interface Evaluation {
   listing_id: string;
   quality_score: number;
-  quality_summary: string;
+  overall_score?: number;
+  quality_summary?: string;
+  match_summary?: string;
+  criteria_scores?: Record<string, number>;
   highlights: string[];
   concerns: string[];
   availability_status?: "likely_available" | "possibly_expired" | "unknown";
@@ -247,8 +250,164 @@ export interface RefinementEntry {
   filtersAfter: RefinementFilters;
 }
 
-export function calculateRefinedScore(qualityScore: number, _weights: RefinementWeights): number {
-  return qualityScore;
+/**
+ * Calcule un score personnalisé en combinant le score de qualité global
+ * avec les criteria_scores pondérés par les préférences utilisateur.
+ *
+ * Si pas de criteria_scores ou pas de poids, retourne le qualityScore brut.
+ */
+export function calculateRefinedScore(
+  qualityScore: number,
+  weights: RefinementWeights,
+  criteriaScores?: Record<string, number>
+): number {
+  if (!criteriaScores || Object.keys(weights).length === 0) {
+    return qualityScore;
+  }
+
+  // Calcul pondéré : chaque criteria_score (0-10) × poids correspondant
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  for (const [key, weight] of Object.entries(weights)) {
+    const score = criteriaScores[key];
+    if (score !== undefined && weight > 0) {
+      weightedSum += (score / 10) * weight;
+      totalWeight += weight;
+    }
+  }
+
+  if (totalWeight === 0) return qualityScore;
+
+  // Score pondéré normalisé 0-100
+  const weightedScore = (weightedSum / totalWeight) * 100;
+
+  // Blend: 40% qualité globale + 60% score pondéré personnalisé
+  return Math.round(qualityScore * 0.4 + weightedScore * 0.6);
+}
+
+/**
+ * Soft penalties — ajustements de score pour les critères qui étaient
+ * auparavant des filtres durs binaires.
+ *
+ * Retourne un ajustement en points (-30 à +10) à ajouter au score.
+ */
+export interface SoftFilterContext {
+  budgetMax: number | null;
+  settingPreference: string | null; // "rural" | "semi_rural" | "urban_green" | "urban"
+  spiritualImportance: string | null; // "central" | "welcome" | "neutral" | "prefer_without"
+  communitySize: string | null; // "small" | "medium" | "large"
+  projectMaturity: string | null; // "existing_mature" | "existing_recent" | "creation"
+  healthProximity: string | null; // "essential" | "preferable" | "not_needed"
+}
+
+export const DEFAULT_SOFT_CONTEXT: SoftFilterContext = {
+  budgetMax: null,
+  settingPreference: null,
+  spiritualImportance: null,
+  communitySize: null,
+  projectMaturity: null,
+  healthProximity: null,
+};
+
+export function calculateSoftPenalties(
+  item: ListingWithEval,
+  context: SoftFilterContext
+): number {
+  let adjustment = 0;
+  const { listing, tags } = item;
+
+  // ─── Budget ───
+  if (context.budgetMax !== null && listing.price_amount !== null) {
+    const ratio = listing.price_amount / context.budgetMax;
+    if (ratio <= 0.7) adjustment += 10; // bien en dessous du budget
+    else if (ratio <= 1.0) adjustment += 5; // dans le budget
+    else if (ratio <= 1.15) adjustment -= 10; // légèrement au-dessus
+    else if (ratio <= 1.3) adjustment -= 20; // au-dessus
+    else adjustment -= 30; // très au-dessus
+  }
+  // Prix absent : pas de bonus ni pénalité (neutre)
+
+  // ─── Cadre de vie (environment) ───
+  if (context.settingPreference && tags?.environment) {
+    const pref = context.settingPreference;
+    const env = tags.environment;
+    const matchMap: Record<string, string[]> = {
+      rural: ["rural"],
+      semi_rural: ["rural", "suburban"],
+      urban_green: ["suburban", "urban"],
+      urban: ["urban"],
+    };
+    const acceptable = matchMap[pref] ?? [];
+    if (acceptable.includes(env)) {
+      adjustment += 5;
+    } else {
+      // Mismatch : rural quand on veut urban = pénalité forte
+      adjustment -= 15;
+    }
+  }
+
+  // ─── Spiritualité ───
+  if (context.spiritualImportance && tags?.values) {
+    const hasSpiritual = tags.values.some((v) =>
+      ["spiritual", "biodanza", "meditation"].includes(v)
+    );
+    if (context.spiritualImportance === "central" && hasSpiritual)
+      adjustment += 8;
+    else if (context.spiritualImportance === "central" && !hasSpiritual)
+      adjustment -= 5;
+    else if (context.spiritualImportance === "prefer_without" && hasSpiritual)
+      adjustment -= 15;
+    else if (context.spiritualImportance === "prefer_without" && !hasSpiritual)
+      adjustment += 3;
+  }
+
+  // ─── Taille communauté ───
+  if (context.communitySize && tags?.group_size) {
+    const size = tags.group_size;
+    switch (context.communitySize) {
+      case "small":
+        if (size >= 4 && size <= 8) adjustment += 5;
+        else if (size > 15) adjustment -= 10;
+        break;
+      case "medium":
+        if (size >= 8 && size <= 15) adjustment += 5;
+        else if (size < 4 || size > 25) adjustment -= 8;
+        break;
+      case "large":
+        if (size >= 15) adjustment += 5;
+        else if (size < 8) adjustment -= 8;
+        break;
+    }
+  }
+
+  // ─── Maturité du projet ───
+  if (context.projectMaturity && listing.listing_type) {
+    const type = listing.listing_type;
+    if (
+      context.projectMaturity === "creation" &&
+      type === "creation-groupe"
+    )
+      adjustment += 5;
+    else if (
+      context.projectMaturity === "existing_mature" &&
+      type === "existing-project"
+    )
+      adjustment += 5;
+    else if (
+      context.projectMaturity === "existing_mature" &&
+      type === "creation-groupe"
+    )
+      adjustment -= 8;
+    else if (
+      context.projectMaturity === "creation" &&
+      type === "existing-project"
+    )
+      adjustment -= 5;
+  }
+
+  // Clamp à [-30, +15]
+  return Math.max(-30, Math.min(15, adjustment));
 }
 
 export interface ListingWithEval {
@@ -257,6 +416,8 @@ export interface ListingWithEval {
   tags: ListingTags | null;
   status: ListingStatus;
   notes: string;
+  /** Si c'est un projet Supabase, son UUID (permet la candidature) */
+  project_id?: string;
 }
 
 export interface RefinementFilters {
@@ -459,157 +620,3 @@ export const DEFAULT_TAG_FILTERS: UITagFilters = {
   availabilityStatus: [],
 };
 
-// === Apartment types (Brussels apartment search) ===
-
-export interface ApartmentListing {
-  id: string;
-  source: string;
-  source_url: string;
-  title: string;
-  description: string;
-  commune: string | null;
-  postal_code: string | null;
-  address: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  price_monthly: number | null;
-  charges_monthly: number | null;
-  charges_included: boolean | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  surface_m2: number | null;
-  floor: number | null;
-  total_floors: number | null;
-  has_elevator: boolean | null;
-  peb_rating: string | null;
-  peb_value: number | null;
-  furnished: boolean | null;
-  has_balcony: boolean | null;
-  has_terrace: boolean | null;
-  has_garden: boolean | null;
-  has_parking: boolean | null;
-  parking_count: number | null;
-  has_cellar: boolean | null;
-  pets_allowed: boolean | null;
-  available_from: string | null;
-  date_published: string | null;
-  date_scraped: string;
-  images: string[];
-  agency_name: string | null;
-  agency_phone: string | null;
-  immoweb_id: number | null;
-  tags: string[];
-}
-
-export interface ApartmentCriteriaScores {
-  price_budget: number;
-  bedroom_count: number;
-  proximity_ixelles: number;
-  surface_area: number;
-  condition_energy: number;
-  amenities: number;
-  transport_access: number;
-  value_for_money: number;
-}
-
-export const APARTMENT_CRITERIA_LABELS: Record<keyof ApartmentCriteriaScores, string> = {
-  price_budget: "Prix / Budget",
-  bedroom_count: "Nombre de chambres",
-  proximity_ixelles: "Proximite Ixelles",
-  surface_area: "Surface",
-  condition_energy: "Etat / Energie",
-  amenities: "Equipements",
-  transport_access: "Acces transport",
-  value_for_money: "Rapport qualite/prix",
-};
-
-export interface ApartmentEvaluation {
-  listing_id: string;
-  overall_score: number;
-  quality_score: number;
-  match_summary: string;
-  quality_summary: string;
-  criteria_scores: ApartmentCriteriaScores;
-  highlights: string[];
-  concerns: string[];
-  date_evaluated: string;
-}
-
-export interface ApartmentWithEval {
-  listing: ApartmentListing;
-  evaluation: ApartmentEvaluation | null;
-  status: ListingStatus;
-  notes: string;
-}
-
-export interface ApartmentFilterState {
-  searchText: string;
-  communes: string[];
-  priceMin: number | null;
-  priceMax: number | null;
-  bedroomsMin: number | null;
-  bathroomsMin: number | null;
-  surfaceMin: number | null;
-  surfaceMax: number | null;
-  pebRatings: string[];
-  furnished: boolean | null;
-  hasParking: boolean | null;
-  hasBalconyOrTerrace: boolean | null;
-  hasGarden: boolean | null;
-  petsAllowed: boolean | null;
-  hasElevator: boolean | null;
-  scoreMin: number | null;
-}
-
-export const DEFAULT_APARTMENT_FILTERS: ApartmentFilterState = {
-  searchText: "",
-  communes: [],
-  priceMin: null,
-  priceMax: null,
-  bedroomsMin: 2,
-  bathroomsMin: null,
-  surfaceMin: null,
-  surfaceMax: null,
-  pebRatings: [],
-  furnished: null,
-  hasParking: null,
-  hasBalconyOrTerrace: null,
-  hasGarden: null,
-  petsAllowed: null,
-  hasElevator: null,
-  scoreMin: null,
-};
-
-
-
-export const PEB_RATING_COLORS: Record<string, string> = {
-  A: "bg-green-600 text-white",
-  B: "bg-green-500 text-white",
-  C: "bg-yellow-400 text-gray-900",
-  D: "bg-orange-400 text-white",
-  E: "bg-orange-600 text-white",
-  F: "bg-red-500 text-white",
-  G: "bg-red-700 text-white",
-};
-
-export const BRUSSELS_COMMUNES = [
-  "Anderlecht",
-  "Auderghem",
-  "Berchem-Sainte-Agathe",
-  "Bruxelles",
-  "Etterbeek",
-  "Evere",
-  "Forest",
-  "Ganshoren",
-  "Ixelles",
-  "Jette",
-  "Koekelberg",
-  "Molenbeek-Saint-Jean",
-  "Saint-Gilles",
-  "Saint-Josse-ten-Noode",
-  "Schaerbeek",
-  "Uccle",
-  "Watermael-Boitsfort",
-  "Woluwe-Saint-Lambert",
-  "Woluwe-Saint-Pierre",
-];

@@ -181,7 +181,7 @@ export const SESSION_STATUS_CONFIG: Record<
   { label: string; color: string }
 > = {
   pending: { label: "En attente", color: "bg-amber-100 text-amber-800" },
-  in_progress: { label: "En cours", color: "bg-blue-100 text-blue-800" },
+  in_progress: { label: "Discussion en cours", color: "bg-blue-100 text-blue-800" },
   completed: { label: "Terminé", color: "bg-emerald-100 text-emerald-800" },
   failed: { label: "Échoué", color: "bg-red-100 text-red-800" },
 };

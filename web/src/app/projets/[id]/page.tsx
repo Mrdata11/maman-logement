@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import { CREATION_STEPS } from "@/lib/creation-questionnaire-data";
 import { ProjectDetail } from "@/components/ProjectDetail";
-import { ApplyButton } from "@/components/ApplyButton";
+import { ProjectViewTracker } from "@/components/ProjectViewTracker";
 import type { ProjectWithMembers } from "@/lib/project-types";
 
 export const revalidate = 60;
@@ -37,12 +37,10 @@ function formatAnswer(
   return String(value);
 }
 
-function getQuestionText(questionId: string): string {
-  for (const step of CREATION_STEPS) {
-    const q = step.questions.find((q) => q.id === questionId);
-    if (q) return q.text;
-  }
-  return questionId;
+export interface StepSection {
+  id: string;
+  title: string;
+  answers: { id: string; question: string; answer: string }[];
 }
 
 async function getProject(id: string) {
@@ -50,23 +48,39 @@ async function getProject(id: string) {
 
   const { data: project, error } = await supabase
     .from("projects")
-    .select(
-      `
-      *,
-      project_members (
-        id, project_id, profile_id, role, joined_at,
-        profiles (
-          id, display_name, avatar_url, location, age, gender,
-          ai_summary, ai_tags, is_verified, created_at
-        )
-      )
-    `
-    )
+    .select("*")
     .eq("id", id)
     .single();
 
   if (error || !project) return null;
-  return project as unknown as ProjectWithMembers;
+
+  const { data: members } = await supabase
+    .from("project_members")
+    .select("id, project_id, profile_id, role, joined_at")
+    .eq("project_id", id);
+
+  const profileIds = (members || []).map((m: { profile_id: string }) => m.profile_id).filter(Boolean);
+  let profilesMap: Record<string, Record<string, unknown>> = {};
+
+  if (profileIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, display_name, avatar_url, location, age, gender, ai_summary, ai_tags, is_verified, created_at")
+      .in("id", profileIds);
+
+    if (profiles) {
+      for (const p of profiles) {
+        profilesMap[p.id] = p;
+      }
+    }
+  }
+
+  const membersWithProfiles = (members || []).map((m: Record<string, unknown>) => ({
+    ...m,
+    profiles: profilesMap[m.profile_id as string] || null,
+  }));
+
+  return { ...project, project_members: membersWithProfiles } as unknown as ProjectWithMembers;
 }
 
 export async function generateMetadata({
@@ -96,8 +110,7 @@ export default async function ProjectPage({
 
   const answers = project.answers || {};
 
-  // Grouper les réponses par étape
-  const stepSections = CREATION_STEPS.map((step) => {
+  const stepSections: StepSection[] = CREATION_STEPS.map((step) => {
     const stepAnswers = step.questions
       .filter((q) => answers[q.id] !== undefined)
       .map((q) => ({
@@ -110,77 +123,12 @@ export default async function ProjectPage({
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
-        {/* En-tête du projet */}
-        <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 mb-6">
-          <div className="text-center mb-6">
-            <div className="w-14 h-14 mx-auto mb-4 bg-[var(--primary)]/10 rounded-xl flex items-center justify-center">
-              <svg
-                className="w-7 h-7 text-[var(--primary)]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-[var(--foreground)]">
-              {project.name}
-            </h1>
-            {project.vision && (
-              <p className="text-sm text-[var(--muted)] mt-2 leading-relaxed italic max-w-md mx-auto">
-                &laquo; {project.vision} &raquo;
-              </p>
-            )}
-            <div className="mt-4">
-              <ApplyButton
-                projectId={project.id}
-                projectName={project.name}
-              />
-            </div>
-          </div>
-
-          {/* Détails du projet */}
-          {stepSections.length > 0 && (
-            <div className="space-y-6">
-              {stepSections.map((section) => (
-                <div key={section.id}>
-                  <h3 className="text-sm font-semibold text-[var(--primary)] mb-3 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-[var(--primary)] rounded-full" />
-                    {section.title}
-                  </h3>
-                  <div className="space-y-2 ml-4">
-                    {section.answers.map((a) => (
-                      <div
-                        key={a.id}
-                        className="flex flex-col sm:flex-row sm:gap-2"
-                      >
-                        <span className="text-xs text-[var(--muted)] shrink-0 sm:w-48">
-                          {a.question}
-                        </span>
-                        <span className="text-sm text-[var(--foreground)] font-medium">
-                          {a.answer}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Section membres + actions (client component) */}
-        <ProjectDetail
-          project={project}
-          members={project.project_members || []}
-        />
-      </div>
+      <ProjectViewTracker projectId={project.id} />
+      <ProjectDetail
+        project={project}
+        members={project.project_members || []}
+        stepSections={stepSections}
+      />
     </div>
   );
 }

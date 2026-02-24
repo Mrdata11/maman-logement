@@ -567,10 +567,10 @@ export default function MonProfilPage() {
               Aucune candidature pour le moment.
             </p>
             <a
-              href="/projets"
+              href="/habitats"
               className="inline-flex items-center gap-1.5 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors"
             >
-              D&eacute;couvrir les projets
+              D&eacute;couvrir les habitats
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -588,7 +588,7 @@ export default function MonProfilPage() {
                 >
                   <div className="min-w-0 flex-1">
                     <a
-                      href={`/projets/${project?.id}`}
+                      href={`/habitats/${project?.id}`}
                       className="text-sm font-medium text-[var(--foreground)] hover:text-[var(--primary)] transition-colors truncate block"
                     >
                       {project?.name || "Projet"}

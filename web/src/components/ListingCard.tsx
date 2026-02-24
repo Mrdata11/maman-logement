@@ -10,6 +10,7 @@ import {
 } from "@/lib/types";
 import { TagsPills } from "./TagsDisplay";
 import { PlaceholderImage } from "./PlaceholderImage";
+import { ApplyButton } from "./ApplyButton";
 import { prioritizePhotos } from "@/lib/image-utils";
 
 interface ListingCardProps {
@@ -19,6 +20,7 @@ interface ListingCardProps {
   personalScore?: { score: number; explanation: string } | null;
   isHighlighted?: boolean;
   distance?: number | null;
+  referenceName?: string | null;
 }
 
 export function ListingCard({
@@ -28,10 +30,12 @@ export function ListingCard({
   personalScore,
   isHighlighted = false,
   distance,
+  referenceName,
 }: ListingCardProps) {
-  const { listing, evaluation, tags, status, notes } = item;
+  const { listing, evaluation, tags, status, notes, project_id } = item;
   const isFaded = status === "archived" || status === "rejected";
   const isFavorite = status === "favorite";
+  const detailHref = project_id ? `/habitats/${project_id}` : `/listing/${listing.id}`;
   const [showNotes, setShowNotes] = useState(false);
   const [localNotes, setLocalNotes] = useState(notes);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -76,7 +80,7 @@ export function ListingCard({
       <div className="relative group aspect-[16/9] sm:aspect-auto sm:w-64 md:w-80 shrink-0 bg-[var(--surface)] overflow-hidden rounded-t-xl sm:rounded-t-none sm:rounded-l-xl">
         {images.length > 0 ? (
           <>
-            <Link href={`/listing/${listing.id}`} className="block h-full">
+            <Link href={detailHref} className="block h-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={images[imgIndex]}
@@ -179,14 +183,14 @@ export function ListingCard({
                 )}
                 {distance !== null && distance !== undefined && (
                   <span className="text-xs px-2 py-0.5 rounded bg-sky-50 text-sky-700">
-                    ~{Math.round(distance)} km
+                    ~{Math.round(distance)} km{referenceName ? ` de ${referenceName}` : ""}
                   </span>
                 )}
               </div>
 
               {/* Title */}
               <Link
-                href={`/listing/${listing.id}`}
+                href={detailHref}
                 className="text-lg font-semibold text-[var(--foreground)] hover:text-[var(--primary)] line-clamp-2"
               >
                 {evaluation?.ai_title || listing.title}
@@ -314,14 +318,23 @@ export function ListingCard({
             </div>
           )}
 
-          {/* Voir détail + Status row */}
+          {/* Voir détail + Candidater + Status row */}
           <div className="mt-auto pt-2 flex items-center justify-between">
-            <Link
-              href={`/listing/${listing.id}`}
-              className="text-sm text-[var(--muted)] underline hover:text-[var(--primary)] transition-colors"
-            >
-              Voir détail
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href={detailHref}
+                className="text-sm text-[var(--muted)] underline hover:text-[var(--primary)] transition-colors"
+              >
+                Voir détail
+              </Link>
+              {project_id && (
+                <ApplyButton
+                  projectId={project_id}
+                  projectName={evaluation?.ai_title || listing.title}
+                  compact
+                />
+              )}
+            </div>
 
             {/* Status menu */}
             <div className="relative">

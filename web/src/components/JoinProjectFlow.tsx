@@ -116,7 +116,7 @@ export function JoinProjectFlow({
         return;
       }
 
-      router.push(`/projets/${data.project_id}`);
+      router.push(`/habitats/${data.project_id}`);
     } catch {
       setError("Erreur de connexion. Veuillez réessayer.");
       setJoining(false);
@@ -139,7 +139,7 @@ export function JoinProjectFlow({
           </p>
         </div>
         <a
-          href={`/projets/${projectId}`}
+          href={`/habitats/${projectId}`}
           className="inline-block px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
         >
           Voir le projet

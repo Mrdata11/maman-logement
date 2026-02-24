@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Image from "next/image";
-import Link from "next/link";
-import { ProfileNav } from "@/components/ProfileNav";
-import { AppModeToggle } from "@/components/AppModeToggle";
 import { CookieConsent } from "@/components/CookieConsent";
 import { ConditionalFooter } from "@/components/ConditionalFooter";
+import { ConditionalHeader } from "@/components/ConditionalHeader";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import "./globals.css";
 
 const inter = Inter({
@@ -59,19 +57,10 @@ export default function RootLayout({
         >
           Aller au contenu principal
         </a>
-        <header role="banner" className="bg-[var(--card-bg)] border-b border-[var(--border-color)] px-3 sm:px-4 py-2.5 sm:py-3 transition-colors">
-          <nav className="max-w-6xl mx-auto flex items-center justify-between gap-2" aria-label="Navigation principale">
-            <Link href="/" className="shrink-0">
-              <Image src="/logo_alt_living.png" alt="Cohabitat Europe" width={100} height={33} className="sm:w-[120px]" priority />
-            </Link>
-            <AppModeToggle />
-            <div className="flex items-center shrink-0">
-              <ProfileNav />
-            </div>
-          </nav>
-        </header>
+        <ConditionalHeader />
         <main id="main-content" role="main" className="px-4 sm:px-6 py-8 flex-1">{children}</main>
         <ConditionalFooter />
+        <ScrollToTop />
         <CookieConsent />
       </body>
     </html>

@@ -3,13 +3,16 @@
  * eval-matching.ts — Évaluation end-to-end du pipeline de matching
  *
  * Crée 5 personas fictives, fait tourner le pipeline complet
- * (questionnaire → filtres → scoring IA), puis demande à une IA juge
- * de noter la qualité des suggestions.
+ * (questionnaire → filtres → score pondéré + soft penalties),
+ * puis demande à une IA juge de noter la qualité des suggestions.
+ *
+ * V2: Remplace le scoring Haiku par criteria_scores pondérés + soft penalties.
+ *     Seul le juge utilise l'API (Sonnet). Scoring = $0/utilisateur.
  *
  * Usage:
  *   npx tsx scripts/eval-matching.ts
  *
- * Nécessite ANTHROPIC_API_KEY dans web/.env.local
+ * Nécessite ANTHROPIC_API_KEY dans web/.env.local (pour le juge uniquement)
  */
 
 import { readFileSync, existsSync } from "fs";
@@ -23,19 +26,19 @@ const ROOT = resolve(process.cwd());
 const envPath = resolve(ROOT, "web/.env.local");
 if (existsSync(envPath)) {
   for (const line of readFileSync(envPath, "utf-8").split("\n")) {
-    const m = line.match(/^([A-Z_]+)=(.*)$/);
+    const m = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
     if (m) process.env[m[1]] = m[2];
   }
 }
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 if (!API_KEY) {
-  console.error("❌ ANTHROPIC_API_KEY manquante dans web/.env.local");
+  console.error("ANTHROPIC_API_KEY manquante dans web/.env.local");
   process.exit(1);
 }
 
 // ──────────────────────────────────────────────
-// 1. Types (inline to avoid import gymnastics)
+// 1. Types
 // ──────────────────────────────────────────────
 
 type Answers = Record<string, string | string[] | number>;
@@ -56,6 +59,8 @@ interface Evaluation {
   listing_id: string;
   overall_score?: number;
   quality_score?: number;
+  criteria_scores?: Record<string, number>;
+  match_summary?: string;
   quality_summary?: string;
   ai_title?: string;
   ai_description?: string;
@@ -96,16 +101,30 @@ interface RefinementFilters {
   keywords_exclude: string[];
 }
 
+interface SoftFilterContext {
+  budgetMax: number | null;
+  settingPreference: string | null;
+  spiritualImportance: string | null;
+  communitySize: string | null;
+  projectMaturity: string | null;
+  healthProximity: string | null;
+}
+
 interface Persona {
   name: string;
   age: number;
-  description: string; // short human-readable description
+  description: string;
   answers: Answers;
 }
 
-interface ScoreResult {
-  listing_id: string;
-  score: number;
+interface ScoredListing {
+  listing: Listing;
+  eval_: Evaluation | null;
+  tags: ListingTags | null;
+  baseScore: number;
+  weightedScore: number;
+  softPenalty: number;
+  finalScore: number;
   explanation: string;
 }
 
@@ -302,32 +321,8 @@ const PERSONAS: Persona[] = [
 ];
 
 // ──────────────────────────────────────────────
-// 3. Replicate questionnaire mapping (from questionnaire-mapping.ts)
+// 3. Questionnaire mapping (replicates questionnaire-mapping.ts)
 // ──────────────────────────────────────────────
-
-const REGION_TO_PROVINCE: Record<string, string[]> = {
-  bruxelles: ["Bruxelles"],
-  brabant_wallon: ["Brabant Wallon"],
-  hainaut: ["Hainaut"],
-  liege: ["Liège"],
-  namur: ["Namur"],
-  luxembourg: ["Luxembourg"],
-  brabant_flamand: ["Flandre"],
-  flandre: ["Flandre"],
-};
-
-const REGION_TOKENS: Record<string, string> = {
-  flandre: "Flandre",
-  flamand: "Flandre",
-  flamande: "Flandre",
-  bruxelles: "Bruxelles",
-  hainaut: "Hainaut",
-  liege: "Liège",
-  liège: "Liège",
-  namur: "Namur",
-  luxembourg: "Luxembourg",
-  "brabant wallon": "Brabant Wallon",
-};
 
 function getStr(a: Answers, k: string): string | null {
   const v = a[k];
@@ -345,10 +340,13 @@ function clamp(val: number, min: number, max: number) {
   return Math.min(max, Math.max(min, val));
 }
 
-function mapAnswersToFilters(answers: Answers): {
+interface MappingResult {
   filters: RefinementFilters;
-  criteriaSummary: string;
-} {
+  weights: Record<string, number>;
+  softContext: SoftFilterContext;
+}
+
+function mapAnswersToFiltersAndWeights(answers: Answers): MappingResult {
   const w: Record<string, number> = {};
   const f: RefinementFilters = {
     listing_types_include: [],
@@ -360,49 +358,158 @@ function mapAnswersToFilters(answers: Answers): {
     keywords_include: [],
     keywords_exclude: [],
   };
-  const summaryParts: string[] = [];
 
-  // single_most_important
+  // ─── Weights (replicated from questionnaire-mapping.ts) ───
+
   const mostImportant = getStr(answers, "single_most_important");
+  if (mostImportant) {
+    switch (mostImportant) {
+      case "budget": w.rental_price = (w.rental_price ?? 1) + 1.0; break;
+      case "location": w.location_brussels = (w.location_brussels ?? 1) + 1.0; break;
+      case "community_spirit":
+        w.community_meals = (w.community_meals ?? 1) + 0.5;
+        w.community_size_and_maturity = (w.community_size_and_maturity ?? 1) + 0.5;
+        w.common_projects = (w.common_projects ?? 1) + 0.5;
+        break;
+      case "values": w.values_alignment = (w.values_alignment ?? 1) + 1.0; break;
+      case "practical":
+        w.unit_type = (w.unit_type ?? 1) + 0.5;
+        w.parking = (w.parking ?? 1) + 0.5;
+        break;
+      case "health": w.near_hospital = (w.near_hospital ?? 1) + 1.5; break;
+    }
+  }
 
-  // budget_max
+  const spiritual = getStr(answers, "spiritual_importance");
+  if (spiritual) {
+    switch (spiritual) {
+      case "central":
+        w.spiritual_alignment = (w.spiritual_alignment ?? 1) + 1.5;
+        w.large_hall_biodanza = (w.large_hall_biodanza ?? 1) + 1.5;
+        w.values_alignment = (w.values_alignment ?? 1) + 0.5;
+        break;
+      case "welcome":
+        w.spiritual_alignment = (w.spiritual_alignment ?? 1) + 0.5;
+        break;
+      case "prefer_without":
+        w.spiritual_alignment = 0.2;
+        w.large_hall_biodanza = 0.2;
+        break;
+    }
+  }
+
+  const brussels = getStr(answers, "brussels_proximity");
+  if (brussels) {
+    switch (brussels) {
+      case "in_brussels": w.location_brussels = (w.location_brussels ?? 1) + 2.0; break;
+      case "very_close": w.location_brussels = (w.location_brussels ?? 1) + 1.5; break;
+      case "somewhat": w.location_brussels = (w.location_brussels ?? 1) + 0.5; break;
+      case "not_important": w.location_brussels = 0.3; break;
+    }
+  }
+
+  const health = getStr(answers, "health_proximity");
+  if (health) {
+    switch (health) {
+      case "essential": w.near_hospital = (w.near_hospital ?? 1) + 1.5; break;
+      case "preferable": w.near_hospital = (w.near_hospital ?? 1) + 0.5; break;
+      case "not_needed": w.near_hospital = 0.3; break;
+    }
+  }
+
+  const meals = getStr(answers, "shared_meals_importance");
+  if (meals) {
+    switch (meals) {
+      case "essential": w.community_meals = (w.community_meals ?? 1) + 1.5; break;
+      case "nice": w.community_meals = (w.community_meals ?? 1) + 0.5; break;
+      case "not_interested": w.community_meals = 0.3; break;
+    }
+  }
+
+  const involvement = getNum(answers, "involvement_level");
+  if (involvement !== null) {
+    if (involvement >= 4) {
+      w.common_projects = (w.common_projects ?? 1) + 0.5;
+      w.community_meals = (w.community_meals ?? 1) + 0.3;
+    } else if (involvement <= 2) {
+      w.common_projects = Math.max(0.3, (w.common_projects ?? 1) - 0.3);
+      w.community_meals = Math.max(0.3, (w.community_meals ?? 1) - 0.3);
+    }
+  }
+
+  const charter = getStr(answers, "charter_preference");
+  if (charter === "essential") w.charter_openness = (w.charter_openness ?? 1) + 1.0;
+  else if (charter === "good_idea") w.charter_openness = (w.charter_openness ?? 1) + 0.3;
+
+  const parking = getArr(answers, "parking_needs");
+  if (parking.includes("car") || parking.includes("motorcycle"))
+    w.parking = (w.parking ?? 1) + 1.0;
+
   const budgetMax = getNum(answers, "budget_max");
   if (budgetMax !== null) {
-    const buffer = mostImportant === "budget" ? 1.05 : 1.15;
-    f.max_price = Math.round(budgetMax * buffer);
-    summaryParts.push(`Budget max: ${f.max_price}€/mois`);
+    if (budgetMax <= 600) w.rental_price = (w.rental_price ?? 1) + 1.0;
+    else if (budgetMax <= 800) w.rental_price = (w.rental_price ?? 1) + 0.5;
+    else if (budgetMax >= 1200) w.rental_price = 0.3;
   }
 
-  // tenure_type
+  const unitType = getStr(answers, "unit_type");
+  if (unitType && unitType !== "flexible") {
+    w.unit_type = (w.unit_type ?? 1) + (unitType === "2_bedrooms" || unitType === "small_house" ? 1.0 : 0.5);
+  }
+
+  const values = getArr(answers, "core_values");
+  if (values.includes("ecology")) w.values_alignment = (w.values_alignment ?? 1) + 0.3;
+  if (values.includes("solidarity")) w.values_alignment = (w.values_alignment ?? 1) + 0.3;
+  if (values.includes("spirituality")) {
+    w.spiritual_alignment = (w.spiritual_alignment ?? 1) + 0.5;
+    w.large_hall_biodanza = (w.large_hall_biodanza ?? 1) + 0.3;
+  }
+  if (values.includes("openness")) w.charter_openness = (w.charter_openness ?? 1) + 0.3;
+  if (values.includes("creativity")) w.common_projects = (w.common_projects ?? 1) + 0.3;
+
+  const motivation = getArr(answers, "motivation");
+  if (motivation.includes("valeurs")) w.values_alignment = (w.values_alignment ?? 1) + 0.3;
+  if (motivation.includes("economique")) w.rental_price = (w.rental_price ?? 1) + 0.5;
+  if (motivation.includes("ecologique")) w.values_alignment = (w.values_alignment ?? 1) + 0.3;
+  if (motivation.includes("projets_communs")) w.common_projects = (w.common_projects ?? 1) + 0.5;
+  if (motivation.includes("entraide")) w.community_size_and_maturity = (w.community_size_and_maturity ?? 1) + 0.3;
+  if (motivation.includes("securite")) w.near_hospital = (w.near_hospital ?? 1) + 0.3;
+
+  const activities = getArr(answers, "community_activities");
+  if (activities.includes("spiritual")) {
+    w.spiritual_alignment = (w.spiritual_alignment ?? 1) + 0.5;
+    w.large_hall_biodanza = (w.large_hall_biodanza ?? 1) + 0.3;
+  }
+  if (activities.includes("shared_meals")) w.community_meals = (w.community_meals ?? 1) + 0.3;
+
+  const communitySize = getStr(answers, "community_size");
+  if (communitySize && communitySize !== "no_preference")
+    w.community_size_and_maturity = (w.community_size_and_maturity ?? 1) + 0.5;
+
+  const dealbreakers = getArr(answers, "dealbreakers");
+  if (dealbreakers.includes("too_chaotic")) w.charter_openness = (w.charter_openness ?? 1) + 0.5;
+
+  // Clamp all weights
+  for (const key of Object.keys(w)) {
+    w[key] = clamp(w[key], 0.2, 3.0);
+  }
+
+  // ─── Hard filters ───
+
   const tenure = getStr(answers, "tenure_type");
-  if (tenure === "rental")
-    f.listing_types_include = ["offre-location", "creation-groupe"];
-  else if (tenure === "purchase")
-    f.listing_types_include = ["offre-vente", "creation-groupe"];
-  else if (tenure === "either")
-    f.listing_types_include = [
-      "offre-location",
-      "offre-vente",
-      "creation-groupe",
-    ];
+  if (tenure === "rental") f.listing_types_include = ["offre-location", "creation-groupe"];
+  else if (tenure === "purchase") f.listing_types_include = ["offre-vente", "creation-groupe"];
+  else if (tenure === "either") f.listing_types_include = ["offre-location", "offre-vente", "creation-groupe"];
 
-  // preferred_regions
-  const regions = getArr(answers, "preferred_regions");
-  if (regions.length > 0 && !regions.includes("no_preference")) {
-    const provinces = new Set<string>();
-    for (const r of regions) {
-      const mapped = REGION_TO_PROVINCE[r];
-      if (mapped) mapped.forEach((p) => provinces.add(p));
-    }
-    if (provinces.size > 0) {
-      f.locations_include = Array.from(provinces);
-      summaryParts.push(`Régions: ${f.locations_include.join(", ")}`);
-    }
-  }
-
-  // locations_avoid
+  // Location exclude only (no more hard include — let soft penalties handle proximity)
   const locAvoid = getStr(answers, "locations_avoid");
   if (locAvoid && locAvoid.trim()) {
+    const REGION_TOKENS: Record<string, string> = {
+      flandre: "Flandre", flamand: "Flandre", flamande: "Flandre",
+      bruxelles: "Bruxelles", hainaut: "Hainaut",
+      liege: "Liège", liège: "Liège", namur: "Namur",
+      luxembourg: "Luxembourg", "brabant wallon": "Brabant Wallon",
+    };
     const lower = locAvoid.toLowerCase();
     for (const [token, province] of Object.entries(REGION_TOKENS)) {
       if (lower.includes(token)) f.locations_exclude.push(province);
@@ -410,141 +517,184 @@ function mapAnswersToFilters(answers: Answers): {
     f.locations_exclude = [...new Set(f.locations_exclude)];
   }
 
-  // dealbreakers → language_barrier excludes Flandre
-  const dealbreakers = getArr(answers, "dealbreakers");
   if (dealbreakers.includes("language_barrier")) {
-    if (!f.locations_exclude.includes("Flandre"))
-      f.locations_exclude.push("Flandre");
+    if (!f.locations_exclude.includes("Flandre")) f.locations_exclude.push("Flandre");
   }
 
-  // Build human-readable criteria summary for the scoring AI
-  const motivation = getArr(answers, "motivation");
-  if (motivation.length > 0)
-    summaryParts.push(`Motivations: ${motivation.join(", ")}`);
+  // Soft max_price: remove hard filter, handled by soft penalties
+  // f.max_price is NOT set anymore
 
-  const values = getArr(answers, "core_values");
-  if (values.length > 0)
-    summaryParts.push(`Valeurs: ${values.join(", ")}`);
+  // ─── Soft filter context ───
+  const softContext: SoftFilterContext = {
+    budgetMax: budgetMax,
+    settingPreference: getStr(answers, "setting_preference"),
+    spiritualImportance: spiritual,
+    communitySize: communitySize,
+    projectMaturity: getStr(answers, "project_maturity"),
+    healthProximity: health,
+  };
 
-  const spiritual = getStr(answers, "spiritual_importance");
-  if (spiritual)
-    summaryParts.push(`Spiritualité: ${spiritual}`);
-
-  const communitySize = getStr(answers, "community_size");
-  if (communitySize)
-    summaryParts.push(`Taille communauté: ${communitySize}`);
-
-  const maturity = getStr(answers, "project_maturity");
-  if (maturity)
-    summaryParts.push(`Maturité projet: ${maturity}`);
-
-  const activities = getArr(answers, "community_activities");
-  if (activities.length > 0)
-    summaryParts.push(`Activités: ${activities.join(", ")}`);
-
-  const meals = getStr(answers, "shared_meals_importance");
-  if (meals)
-    summaryParts.push(`Repas partagés: ${meals}`);
-
-  const setting = getStr(answers, "setting_preference");
-  if (setting)
-    summaryParts.push(`Cadre: ${setting}`);
-
-  const unitType = getStr(answers, "unit_type");
-  if (unitType)
-    summaryParts.push(`Type logement: ${unitType}`);
-
-  const parking = getArr(answers, "parking_needs");
-  if (parking.length > 0)
-    summaryParts.push(`Parking: ${parking.join(", ")}`);
-
-  const practical = getArr(answers, "practical_needs");
-  if (practical.length > 0)
-    summaryParts.push(`Besoins: ${practical.join(", ")}`);
-
-  const health = getStr(answers, "health_proximity");
-  if (health)
-    summaryParts.push(`Proximité soins: ${health}`);
-
-  if (dealbreakers.length > 0)
-    summaryParts.push(`Dealbreakers: ${dealbreakers.join(", ")}`);
-
-  const dream = getStr(answers, "dream_vision");
-  if (dream)
-    summaryParts.push(`Vision: ${dream}`);
-
-  if (mostImportant)
-    summaryParts.push(`Priorité n°1: ${mostImportant}`);
-
-  return { filters: f, criteriaSummary: summaryParts.join("\n") };
+  return { filters: f, weights: w, softContext };
 }
 
 // ──────────────────────────────────────────────
-// 4. Apply hard filters
+// 4. Hard filters (only type + location exclude)
 // ──────────────────────────────────────────────
 
-function applyFilters(
-  listing: Listing,
-  eval_: Evaluation | null,
-  filters: RefinementFilters
-): boolean {
-  if (
-    filters.listing_types_include.length > 0 &&
-    (!listing.listing_type ||
-      !filters.listing_types_include.includes(listing.listing_type))
-  ) {
-    // Also allow existing-project and creation-groupe variants
+function applyHardFilters(listing: Listing, filters: RefinementFilters): boolean {
+  // Listing type
+  if (filters.listing_types_include.length > 0) {
     const expandedTypes = [...filters.listing_types_include];
-    if (expandedTypes.includes("creation-groupe"))
-      expandedTypes.push("existing-project");
-    if (
-      !listing.listing_type ||
-      !expandedTypes.includes(listing.listing_type)
-    )
+    if (expandedTypes.includes("creation-groupe")) expandedTypes.push("existing-project");
+    if (!listing.listing_type || !expandedTypes.includes(listing.listing_type))
       return false;
   }
 
-  if (
-    filters.listing_types_exclude.length > 0 &&
-    listing.listing_type &&
-    filters.listing_types_exclude.includes(listing.listing_type)
-  )
-    return false;
-
-  if (filters.locations_include.length > 0) {
-    const loc =
-      `${listing.location ?? ""} ${listing.province ?? ""}`.toLowerCase();
-    if (!filters.locations_include.some((l) => loc.includes(l.toLowerCase())))
-      return false;
-  }
-
+  // Location exclude (hard — language barrier etc.)
   if (filters.locations_exclude.length > 0) {
-    const loc =
-      `${listing.location ?? ""} ${listing.province ?? ""}`.toLowerCase();
+    const loc = `${listing.location ?? ""} ${listing.province ?? ""}`.toLowerCase();
     if (filters.locations_exclude.some((l) => loc.includes(l.toLowerCase())))
       return false;
-  }
-
-  if (filters.max_price !== null && listing.price_amount !== null) {
-    if (listing.price_amount > filters.max_price) return false;
   }
 
   return true;
 }
 
 // ──────────────────────────────────────────────
-// 5. Anthropic API calls (scoring + judge)
+// 5. Weighted scoring (replaces Haiku API calls)
+// ──────────────────────────────────────────────
+
+function calculateWeightedScore(
+  baseScore: number,
+  weights: Record<string, number>,
+  criteriaScores?: Record<string, number>
+): number {
+  if (!criteriaScores || Object.keys(weights).length === 0) return baseScore;
+
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  for (const [key, weight] of Object.entries(weights)) {
+    const score = criteriaScores[key];
+    if (score !== undefined && weight > 0) {
+      weightedSum += (score / 10) * weight;
+      totalWeight += weight;
+    }
+  }
+
+  if (totalWeight === 0) return baseScore;
+  const weightedScore = (weightedSum / totalWeight) * 100;
+  return Math.round(baseScore * 0.4 + weightedScore * 0.6);
+}
+
+// ──────────────────────────────────────────────
+// 6. Soft penalties
+// ──────────────────────────────────────────────
+
+function calculateSoftPenalties(
+  listing: Listing,
+  tags: ListingTags | null,
+  context: SoftFilterContext
+): { penalty: number; reasons: string[] } {
+  let penalty = 0;
+  const reasons: string[] = [];
+
+  // Budget
+  if (context.budgetMax !== null && listing.price_amount !== null) {
+    const ratio = listing.price_amount / context.budgetMax;
+    if (ratio <= 0.7) { penalty += 10; reasons.push("prix très avantageux"); }
+    else if (ratio <= 1.0) { penalty += 5; reasons.push("dans le budget"); }
+    else if (ratio <= 1.15) { penalty -= 10; reasons.push("légèrement au-dessus du budget"); }
+    else if (ratio <= 1.3) { penalty -= 20; reasons.push("au-dessus du budget"); }
+    else { penalty -= 30; reasons.push("très au-dessus du budget"); }
+  }
+
+  // Environment
+  if (context.settingPreference && tags?.environment) {
+    const matchMap: Record<string, string[]> = {
+      rural: ["rural"],
+      semi_rural: ["rural", "suburban"],
+      urban_green: ["suburban", "urban"],
+      urban: ["urban"],
+    };
+    const acceptable = matchMap[context.settingPreference] ?? [];
+    if (acceptable.includes(tags.environment)) {
+      penalty += 5;
+      reasons.push(`cadre ${tags.environment} correspond`);
+    } else {
+      penalty -= 15;
+      reasons.push(`cadre ${tags.environment} ne correspond pas (veut ${context.settingPreference})`);
+    }
+  }
+
+  // Spirituality
+  if (context.spiritualImportance && tags?.values) {
+    const hasSpiritual = tags.values.some((v) =>
+      ["spiritual", "biodanza", "meditation"].includes(v)
+    );
+    if (context.spiritualImportance === "central" && hasSpiritual) {
+      penalty += 8; reasons.push("spiritualité présente");
+    } else if (context.spiritualImportance === "central" && !hasSpiritual) {
+      penalty -= 5; reasons.push("spiritualité absente");
+    } else if (context.spiritualImportance === "prefer_without" && hasSpiritual) {
+      penalty -= 15; reasons.push("spiritualité non souhaitée mais présente");
+    } else if (context.spiritualImportance === "prefer_without" && !hasSpiritual) {
+      penalty += 3; reasons.push("cadre laïque");
+    }
+  }
+
+  // Community size
+  if (context.communitySize && tags?.group_size) {
+    const size = tags.group_size;
+    switch (context.communitySize) {
+      case "small":
+        if (size >= 4 && size <= 8) { penalty += 5; reasons.push(`taille ${size} = petit groupe`); }
+        else if (size > 15) { penalty -= 10; reasons.push(`taille ${size} trop grande`); }
+        break;
+      case "medium":
+        if (size >= 8 && size <= 15) { penalty += 5; reasons.push(`taille ${size} = groupe moyen`); }
+        else if (size < 4 || size > 25) { penalty -= 8; reasons.push(`taille ${size} ne correspond pas`); }
+        break;
+      case "large":
+        if (size >= 15) { penalty += 5; reasons.push(`taille ${size} = grand groupe`); }
+        else if (size < 8) { penalty -= 8; reasons.push(`taille ${size} trop petite`); }
+        break;
+    }
+  }
+
+  // Project maturity
+  if (context.projectMaturity && listing.listing_type) {
+    if (context.projectMaturity === "creation" && listing.listing_type === "creation-groupe") {
+      penalty += 5; reasons.push("projet en création");
+    } else if (context.projectMaturity === "existing_mature" && listing.listing_type === "existing-project") {
+      penalty += 5; reasons.push("projet mature");
+    } else if (context.projectMaturity === "existing_mature" && listing.listing_type === "creation-groupe") {
+      penalty -= 8; reasons.push("projet en création (veut mature)");
+    } else if (context.projectMaturity === "creation" && listing.listing_type === "existing-project") {
+      penalty -= 5; reasons.push("projet déjà existant (veut créer)");
+    }
+  }
+
+  return { penalty: Math.max(-30, Math.min(15, penalty)), reasons };
+}
+
+// ──────────────────────────────────────────────
+// 7. Anthropic API (Haiku scoring + Sonnet judge)
 // ──────────────────────────────────────────────
 
 let totalInputTokens = 0;
 let totalOutputTokens = 0;
+let haikuInputTokens = 0;
+let haikuOutputTokens = 0;
+let sonnetInputTokens = 0;
+let sonnetOutputTokens = 0;
 
 async function callAnthropic(
   model: string,
   system: string,
   userMessage: string,
   maxTokens: number
-): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
+): Promise<{ text: string }> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -553,9 +703,7 @@ async function callAnthropic(
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      system,
+      model, max_tokens: maxTokens, system,
       messages: [{ role: "user", content: userMessage }],
     }),
   });
@@ -566,30 +714,46 @@ async function callAnthropic(
   }
 
   const data = await res.json();
-  const text = data.content[0].text.trim();
-  const inputTokens = data.usage?.input_tokens ?? 0;
-  const outputTokens = data.usage?.output_tokens ?? 0;
-  totalInputTokens += inputTokens;
-  totalOutputTokens += outputTokens;
-  return { text, inputTokens, outputTokens };
+  const inTok = data.usage?.input_tokens ?? 0;
+  const outTok = data.usage?.output_tokens ?? 0;
+  totalInputTokens += inTok;
+  totalOutputTokens += outTok;
+  if (model.includes("haiku")) { haikuInputTokens += inTok; haikuOutputTokens += outTok; }
+  else { sonnetInputTokens += inTok; sonnetOutputTokens += outTok; }
+  return { text: data.content[0].text.trim() };
 }
 
-// Score a batch of listings (same logic as the API route)
-async function scoreBatch(
-  criteria: string,
-  listings: { id: string; title: string; description: string; location: string | null; country: string | null; price: string | null; listing_type: string | null; tags_summary: string }[]
-): Promise<ScoreResult[]> {
-  const listingsText = listings
-    .map(
-      (l, idx) =>
-        `[${idx + 1}] ID: ${l.id}
-Titre: ${l.title}
-Lieu: ${l.location || "Non précisé"}${l.country ? ` (${l.country})` : ""}
-Prix: ${l.price || "Non précisé"}
-Type: ${l.listing_type || "Non précisé"}
-Tags: ${l.tags_summary || "Aucun"}
-Description: ${l.description.slice(0, 500)}`
-    )
+// ──────────────────────────────────────────────
+// 7b. Haiku scoring (semantic refinement of top candidates)
+// ──────────────────────────────────────────────
+
+interface HaikuScoreResult { listing_id: string; score: number; explanation: string; }
+
+async function scoreBatchWithHaiku(
+  criteriaText: string,
+  items: ScoredListing[]
+): Promise<HaikuScoreResult[]> {
+  const listingsText = items
+    .map((r, idx) => {
+      const tagParts: string[] = [];
+      if (r.tags) {
+        if (r.tags.environment) tagParts.push(r.tags.environment);
+        if (r.tags.group_size) tagParts.push(`${r.tags.group_size} pers.`);
+        if (r.tags.shared_spaces?.length) tagParts.push(r.tags.shared_spaces.join(", "));
+        if (r.tags.values?.length) tagParts.push(r.tags.values.join(", "));
+        if (r.tags.shared_meals) tagParts.push(`repas: ${r.tags.shared_meals}`);
+        if (r.tags.pets_allowed) tagParts.push("animaux OK");
+        if (r.tags.accessible_pmr) tagParts.push("PMR");
+        if (r.tags.project_types?.length) tagParts.push(r.tags.project_types.join(", "));
+      }
+      return `[${idx + 1}] ID: ${r.listing.id}
+Titre: ${r.listing.title}
+Lieu: ${r.listing.location || "Non précisé"}${r.listing.country ? ` (${r.listing.country})` : ""}
+Prix: ${r.listing.price || "Non précisé"}
+Type: ${r.listing.listing_type || "Non précisé"}
+Tags: ${tagParts.join(" | ") || "Aucun"}
+Description: ${r.listing.description.slice(0, 500)}`;
+    })
     .join("\n\n---\n\n");
 
   const system = `Tu es un assistant qui evalue la compatibilite entre des annonces d'habitat groupe et les criteres personnels d'un utilisateur.
@@ -606,7 +770,7 @@ Format: [{"listing_id": "...", "score": N, "explanation": "..."}]
 L'explication doit etre courte (1 phrase max, en francais).`;
 
   const user = `CRITERES DE L'UTILISATEUR:
-${criteria}
+${criteriaText}
 
 ANNONCES A EVALUER:
 ${listingsText}
@@ -614,51 +778,51 @@ ${listingsText}
 Evalue chaque annonce selon les criteres. Reponds avec le tableau JSON uniquement.`;
 
   try {
-    const { text } = await callAnthropic(
-      "claude-haiku-4-5-20251001",
-      system,
-      user,
-      2000
-    );
+    const { text } = await callAnthropic("claude-haiku-4-5-20251001", system, user, 2000);
     const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      console.error("  ⚠ Parsing échoué:", text.slice(0, 100));
-      return listings.map((l) => ({
-        listing_id: l.id,
-        score: 0,
-        explanation: "Erreur de parsing",
-      }));
-    }
+    if (!jsonMatch) return items.map((r) => ({ listing_id: r.listing.id, score: 0, explanation: "Erreur parsing" }));
     return JSON.parse(jsonMatch[0]);
   } catch (e: any) {
-    console.error("  ⚠ Erreur scoring:", e.message);
-    return listings.map((l) => ({
-      listing_id: l.id,
-      score: 0,
-      explanation: "Erreur technique",
-    }));
+    return items.map((r) => ({ listing_id: r.listing.id, score: 0, explanation: "Erreur technique" }));
   }
 }
 
+function buildCriteriaText(persona: Persona): string {
+  const a = persona.answers;
+  const parts: string[] = [persona.description];
+  if (a.budget_max) parts.push(`Budget max: ${a.budget_max}€/mois`);
+  if (a.setting_preference) parts.push(`Cadre: ${a.setting_preference}`);
+  if (a.community_size) parts.push(`Taille communauté: ${a.community_size}`);
+  if (a.project_maturity) parts.push(`Maturité: ${a.project_maturity}`);
+  if (a.spiritual_importance) parts.push(`Spiritualité: ${a.spiritual_importance}`);
+  if (a.shared_meals_importance) parts.push(`Repas partagés: ${a.shared_meals_importance}`);
+  if (a.health_proximity) parts.push(`Proximité soins: ${a.health_proximity}`);
+  const db = getArr(a, "dealbreakers");
+  if (db.length > 0) parts.push(`Dealbreakers: ${db.join(", ")}`);
+  if (a.dream_vision) parts.push(`Vision: ${a.dream_vision}`);
+  if (a.single_most_important) parts.push(`Priorité n°1: ${a.single_most_important}`);
+  return parts.join("\n");
+}
+
 // ──────────────────────────────────────────────
-// 6. Judge AI — evaluates how good the suggestions are
+// 8. Judge AI
 // ──────────────────────────────────────────────
 
 interface JudgeResult {
-  overall_grade: string; // A/B/C/D/F
-  overall_score: number; // 0-100
-  relevance_score: number; // 0-100 — how relevant are the top results?
-  diversity_score: number; // 0-100 — variety of suggestions
-  dealbreaker_respect: number; // 0-100 — did it avoid dealbreakers?
-  ranking_quality: number; // 0-100 — are best options ranked first?
+  overall_grade: string;
+  overall_score: number;
+  relevance_score: number;
+  diversity_score: number;
+  dealbreaker_respect: number;
+  ranking_quality: number;
   commentary: string;
-  top3_analysis: string; // analysis of top 3 specifically
-  worst_suggestion: string; // critique of worst suggestion in top 20
+  top3_analysis: string;
+  worst_suggestion: string;
 }
 
 async function judgeResults(
   persona: Persona,
-  topResults: { listing: Listing; score: number; explanation: string; eval_: Evaluation | null; tags: ListingTags | null }[]
+  topResults: ScoredListing[]
 ): Promise<JudgeResult> {
   const system = `Tu es un evaluateur expert en matching immobilier communautaire.
 On te presente un profil utilisateur et les 20 meilleures annonces que l'algorithme lui a suggerees.
@@ -694,13 +858,13 @@ Reponds UNIQUEMENT en JSON valide, format:
   const listingsText = topResults
     .map(
       (r, i) =>
-        `#${i + 1} [Score algo: ${r.score}/100]
+        `#${i + 1} [Score: ${r.finalScore} = base ${r.baseScore} + weighted ${r.weightedScore} + soft ${r.softPenalty > 0 ? "+" : ""}${r.softPenalty}]
 Titre: ${r.listing.title}
 Lieu: ${r.listing.location || "?"} (${r.listing.country || "?"})
 Prix: ${r.listing.price || "Non précisé"}
 Type: ${r.listing.listing_type || "?"}
 Description: ${r.listing.description.slice(0, 400)}
-Explication algo: ${r.explanation}
+Ajustements: ${r.explanation}
 ${r.tags ? `Tags: env=${r.tags.environment || "?"}, group=${r.tags.group_size || "?"}, espaces=${(r.tags.shared_spaces || []).join(",")}, repas=${r.tags.shared_meals || "?"}, valeurs=${(r.tags.values || []).join(",")}, PMR=${r.tags.accessible_pmr ?? "?"}` : "Tags: non disponibles"}`
     )
     .join("\n\n---\n\n");
@@ -720,39 +884,28 @@ Criteres cles:
 - Priorité n°1: ${persona.answers.single_most_important}
 - Vision: ${persona.answers.dream_vision}
 
-LES 20 SUGGESTIONS DE L'ALGORITHME:
+LES 20 SUGGESTIONS DE L'ALGORITHME (V2 — score pondéré + soft penalties):
 ${listingsText}
 
 Evalue la qualite globale de ces suggestions pour ce profil.`;
 
   try {
-    const { text } = await callAnthropic(
-      "claude-sonnet-4-6-20250514",
-      system,
-      user,
-      1500
-    );
+    const { text } = await callAnthropic("claude-sonnet-4-5-20250929", system, user, 1500);
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("JSON not found in judge response");
     return JSON.parse(jsonMatch[0]);
   } catch (e: any) {
-    console.error("  ⚠ Erreur juge:", e.message);
+    console.error(`  ⚠ Erreur juge: ${e.message}`);
     return {
-      overall_grade: "?",
-      overall_score: 0,
-      relevance_score: 0,
-      diversity_score: 0,
-      dealbreaker_respect: 0,
-      ranking_quality: 0,
-      commentary: `Erreur: ${e.message}`,
-      top3_analysis: "",
-      worst_suggestion: "",
+      overall_grade: "?", overall_score: 0, relevance_score: 0,
+      diversity_score: 0, dealbreaker_respect: 0, ranking_quality: 0,
+      commentary: `Erreur: ${e.message}`, top3_analysis: "", worst_suggestion: "",
     };
   }
 }
 
 // ──────────────────────────────────────────────
-// 7. Load data
+// 9. Load data
 // ──────────────────────────────────────────────
 
 function loadJson<T>(path: string): T {
@@ -760,29 +913,23 @@ function loadJson<T>(path: string): T {
 }
 
 // ──────────────────────────────────────────────
-// 8. Main
+// 10. Main
 // ──────────────────────────────────────────────
 
 async function main() {
   console.log("╔══════════════════════════════════════════════════════════════╗");
-  console.log("║   ÉVALUATION DU PIPELINE DE MATCHING — Habitats Groupés    ║");
+  console.log("║   ÉVALUATION MATCHING V2 — Hybride pondéré + Haiku + Soft  ║");
   console.log("╚══════════════════════════════════════════════════════════════╝");
   console.log();
 
-  // Load data
-  console.log("📂 Chargement des données...");
   const listings = loadJson<Listing[]>("data/listings.json");
   const evaluations = loadJson<Evaluation[]>("data/evaluations.json");
   const tags = loadJson<ListingTags[]>("data/tags.json");
-  console.log(
-    `   ${listings.length} annonces, ${evaluations.length} évaluations, ${tags.length} tags`
-  );
+  console.log(`📂 ${listings.length} annonces, ${evaluations.length} évaluations, ${tags.length} tags`);
 
-  // Index by listing_id
   const evalMap = new Map(evaluations.map((e) => [e.listing_id, e]));
   const tagsMap = new Map(tags.map((t) => [t.listing_id, t]));
 
-  const BATCH_SIZE = 10;
   const TOP_N = 20;
   const allJudgeResults: {
     persona: Persona;
@@ -798,151 +945,116 @@ async function main() {
     console.log(`   ${persona.description}`);
     console.log();
 
-    // Step 1: Map answers to filters
-    const { filters, criteriaSummary } = mapAnswersToFilters(persona.answers);
+    // Step 1: Map answers
+    const { filters, weights, softContext } = mapAnswersToFiltersAndWeights(persona.answers);
+
     console.log(`📋 Filtres durs:`);
     if (filters.listing_types_include.length > 0)
-      console.log(
-        `   Types: ${filters.listing_types_include.join(", ")}`
-      );
-    if (filters.locations_include.length > 0)
-      console.log(
-        `   Régions: ${filters.locations_include.join(", ")}`
-      );
+      console.log(`   Types: ${filters.listing_types_include.join(", ")}`);
     if (filters.locations_exclude.length > 0)
-      console.log(
-        `   Exclure: ${filters.locations_exclude.join(", ")}`
-      );
-    if (filters.max_price !== null)
-      console.log(`   Prix max: ${filters.max_price}€`);
+      console.log(`   Exclure: ${filters.locations_exclude.join(", ")}`);
+    console.log(`📊 Soft context: budget=${softContext.budgetMax}€, cadre=${softContext.settingPreference}, spirit=${softContext.spiritualImportance}, taille=${softContext.communitySize}`);
 
-    // Step 2: Apply hard filters
-    const filtered = listings.filter((l) =>
-      applyFilters(l, evalMap.get(l.id) ?? null, filters)
-    );
-    console.log(
-      `🔍 ${filtered.length}/${listings.length} annonces après filtrage`
-    );
+    const topWeights = Object.entries(weights)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([k, v]) => `${k}=${v.toFixed(1)}`);
+    console.log(`⚖️  Top poids: ${topWeights.join(", ")}`);
+
+    // Step 2: Hard filters
+    const filtered = listings.filter((l) => applyHardFilters(l, filters));
+    console.log(`🔍 ${filtered.length}/${listings.length} après filtrage dur`);
 
     if (filtered.length === 0) {
-      console.log("   ⚠ Aucune annonce après filtrage, skip.");
       allJudgeResults.push({
         persona,
         judge: {
-          overall_grade: "F",
-          overall_score: 0,
-          relevance_score: 0,
-          diversity_score: 0,
-          dealbreaker_respect: 0,
-          ranking_quality: 0,
-          commentary: "Aucune annonce ne passe les filtres durs.",
-          top3_analysis: "",
-          worst_suggestion: "",
+          overall_grade: "F", overall_score: 0, relevance_score: 0,
+          diversity_score: 0, dealbreaker_respect: 0, ranking_quality: 0,
+          commentary: "Aucune annonce ne passe les filtres.", top3_analysis: "", worst_suggestion: "",
         },
-        filteredCount: 0,
-        scoredCount: 0,
+        filteredCount: 0, scoredCount: 0,
       });
       continue;
     }
 
-    // Step 3: Prepare for scoring — take a sample if too many
-    const toScore =
-      filtered.length > 100
-        ? (() => {
-            // Sort by quality_score desc, take top 100
-            const withEval = filtered.map((l) => ({
-              listing: l,
-              score: evalMap.get(l.id)?.overall_score ?? evalMap.get(l.id)?.quality_score ?? 0,
-            }));
-            withEval.sort((a, b) => b.score - a.score);
-            return withEval.slice(0, 100).map((w) => w.listing);
-          })()
-        : filtered;
+    // Step 3: Local scoring (instant) — weighted criteria + soft penalties
+    console.log(`🧮 Scoring pondéré local de ${filtered.length} annonces...`);
+    const scored: ScoredListing[] = filtered.map((listing) => {
+      const eval_ = evalMap.get(listing.id) ?? null;
+      const listingTags = tagsMap.get(listing.id) ?? null;
+      const baseScore = eval_?.overall_score ?? eval_?.quality_score ?? 30;
+      const criteriaScores = eval_?.criteria_scores;
 
-    console.log(`🤖 Scoring IA de ${toScore.length} annonces...`);
+      const weightedScore = calculateWeightedScore(baseScore, weights, criteriaScores);
+      const { penalty: softPenalty, reasons } = calculateSoftPenalties(listing, listingTags, softContext);
+      const localScore = Math.max(0, Math.min(100, weightedScore + softPenalty));
 
-    // Build tags summary for each listing
-    const listingSummaries = toScore.map((l) => {
-      const t = tagsMap.get(l.id);
-      const tagParts: string[] = [];
-      if (t) {
-        if (t.environment) tagParts.push(t.environment);
-        if (t.group_size) tagParts.push(`${t.group_size} pers.`);
-        if (t.shared_spaces?.length) tagParts.push(t.shared_spaces.join(", "));
-        if (t.values?.length) tagParts.push(t.values.join(", "));
-        if (t.shared_meals) tagParts.push(`repas: ${t.shared_meals}`);
-        if (t.pets_allowed) tagParts.push("animaux OK");
-        if (t.accessible_pmr) tagParts.push("PMR");
-        if (t.project_types?.length) tagParts.push(t.project_types.join(", "));
-      }
       return {
-        id: l.id,
-        title: l.title,
-        description: l.description,
-        location: l.location,
-        country: l.country,
-        price: l.price,
-        listing_type: l.listing_type,
-        tags_summary: tagParts.join(" | ") || "Aucun tag",
+        listing, eval_, tags: listingTags,
+        baseScore, weightedScore, softPenalty, finalScore: localScore,
+        explanation: reasons.length > 0 ? reasons.join("; ") : "aucun ajustement",
       };
     });
 
-    // Score in batches
-    const allScores: ScoreResult[] = [];
-    for (let i = 0; i < listingSummaries.length; i += BATCH_SIZE) {
-      const batch = listingSummaries.slice(i, i + BATCH_SIZE);
-      process.stdout.write(
-        `   Batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(listingSummaries.length / BATCH_SIZE)}...`
-      );
-      const results = await scoreBatch(criteriaSummary, batch);
-      allScores.push(...results);
+    // Pre-rank by local score
+    scored.sort((a, b) => b.finalScore - a.finalScore);
+
+    const withEval = scored.filter((s) => s.eval_ !== null).length;
+    const withTags = scored.filter((s) => s.tags !== null).length;
+    console.log(`   Couverture: ${withEval}/${filtered.length} évaluations, ${withTags}/${filtered.length} tags`);
+    console.log(`   Top 5 local: ${scored.slice(0, 5).map((r) => r.finalScore).join(", ")}`);
+
+    // Step 4: Semantic refinement — send top 30 to Haiku
+    const HAIKU_POOL = 30;
+    const HAIKU_BATCH = 10;
+    const top30 = scored.slice(0, HAIKU_POOL);
+    const criteriaText = buildCriteriaText(persona);
+
+    console.log(`🤖 Scoring sémantique Haiku des top ${HAIKU_POOL}...`);
+    const haikuScores = new Map<string, HaikuScoreResult>();
+    for (let i = 0; i < top30.length; i += HAIKU_BATCH) {
+      const batch = top30.slice(i, i + HAIKU_BATCH);
+      process.stdout.write(`   Batch ${Math.floor(i / HAIKU_BATCH) + 1}/${Math.ceil(top30.length / HAIKU_BATCH)}...`);
+      const results = await scoreBatchWithHaiku(criteriaText, batch);
+      for (const r of results) haikuScores.set(r.listing_id, r);
       console.log(` ✓`);
     }
 
-    // Sort by score desc
-    allScores.sort((a, b) => b.score - a.score);
-    const top20 = allScores.slice(0, TOP_N);
+    // Step 5: Combine local score + Haiku score
+    for (const item of top30) {
+      const haiku = haikuScores.get(item.listing.id);
+      if (haiku && haiku.score > 0) {
+        // Hybrid: 40% local score + 60% Haiku semantic score
+        item.finalScore = Math.round(item.finalScore * 0.4 + haiku.score * 0.6);
+        item.explanation = `${item.explanation} | Haiku: ${haiku.explanation} (${haiku.score})`;
+      }
+    }
 
-    console.log(
-      `📊 Top 5 scores: ${top20
-        .slice(0, 5)
-        .map((r) => r.score)
-        .join(", ")}`
-    );
+    // Re-sort by final hybrid score
+    top30.sort((a, b) => b.finalScore - a.finalScore);
+    const top20 = top30.slice(0, TOP_N);
+
+    console.log(`📊 Top 5 hybrides: ${top20.slice(0, 5).map((r) => r.finalScore).join(", ")}`);
 
     // Step 4: Judge
     console.log(`⚖️  Évaluation par le juge IA...`);
-    const topWithData = top20.map((r) => {
-      const listing = listings.find((l) => l.id === r.listing_id)!;
-      return {
-        listing,
-        score: r.score,
-        explanation: r.explanation,
-        eval_: evalMap.get(r.listing_id) ?? null,
-        tags: tagsMap.get(r.listing_id) ?? null,
-      };
-    });
-
-    const judgeResult = await judgeResults(persona, topWithData);
-    console.log(
-      `   Note: ${judgeResult.overall_grade} (${judgeResult.overall_score}/100)`
-    );
+    const judgeResult = await judgeResults(persona, top20);
+    console.log(`   Note: ${judgeResult.overall_grade} (${judgeResult.overall_score}/100)`);
 
     allJudgeResults.push({
-      persona,
-      judge: judgeResult,
-      filteredCount: filtered.length,
-      scoredCount: toScore.length,
+      persona, judge: judgeResult,
+      filteredCount: filtered.length, scoredCount: filtered.length,
     });
   }
 
   // ──────────────────────────────────────────────
-  // 9. Summary table
+  // Summary table
   // ──────────────────────────────────────────────
 
   console.log();
   console.log("╔══════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-  console.log("║                                    RÉSULTATS DE L'ÉVALUATION                                          ║");
+  console.log("║                          RÉSULTATS V2 — Hybride pondéré + Haiku + Soft                                ║");
   console.log("╠═════════════════════════════════════╦═══════╦═══════╦═══════════╦═══════════╦══════════════╦════════════╣");
   console.log("║ Persona                             ║ Note  ║ Score ║ Pertinence║ Diversité ║ Dealbreakers ║ Classement ║");
   console.log("╠═════════════════════════════════════╬═══════╬═══════╬═══════════╬═══════════╬══════════════╬════════════╣");
@@ -962,22 +1074,12 @@ async function main() {
 
   console.log("╠═════════════════════════════════════╬═══════╬═══════╬═══════════╬═══════════╬══════════════╬════════════╣");
 
-  // Average
   const avg = (key: keyof JudgeResult) => {
     const vals = allJudgeResults.map((r) => r.judge[key] as number);
     return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
   };
   const avgScore = avg("overall_score");
-  const avgGrade =
-    avgScore >= 85
-      ? "A"
-      : avgScore >= 70
-        ? "B"
-        : avgScore >= 55
-          ? "C"
-          : avgScore >= 40
-            ? "D"
-            : "F";
+  const avgGrade = avgScore >= 85 ? "A" : avgScore >= 70 ? "B" : avgScore >= 55 ? "C" : avgScore >= 40 ? "D" : "F";
   console.log(
     `║ ${"MOYENNE".padEnd(35)} ║ ${avgGrade.padStart(2).padEnd(5)} ║ ${String(avgScore).padStart(3).padEnd(5)} ║ ${String(avg("relevance_score")).padStart(5).padEnd(9)} ║ ${String(avg("diversity_score")).padStart(5).padEnd(9)} ║ ${String(avg("dealbreaker_respect")).padStart(6).padEnd(12)} ║ ${String(avg("ranking_quality")).padStart(5).padEnd(10)} ║`
   );
@@ -994,46 +1096,20 @@ async function main() {
     if (r.judge.top3_analysis)
       console.log(`   Top 3: ${r.judge.top3_analysis}`);
     if (r.judge.worst_suggestion)
-      console.log(`   Pire suggestion: ${r.judge.worst_suggestion}`);
+      console.log(`   Pire: ${r.judge.worst_suggestion}`);
   }
 
-  // Cost estimation
+  // Cost
   console.log();
   console.log("─── COÛT ───");
-  // Haiku pricing: $0.80/MTok input, $4/MTok output
-  // Sonnet pricing: $3/MTok input, $15/MTok output
-  const haikuInputCostPerM = 0.80;
-  const haikuOutputCostPerM = 4.0;
-  const sonnetInputCostPerM = 3.0;
-  const sonnetOutputCostPerM = 15.0;
-
-  // Rough split: 5 judge calls = Sonnet, rest = Haiku
-  // We can't separate perfectly, so estimate
-  const estimatedSonnetInput = PERSONAS.length * 3000; // ~3k tokens per judge call
-  const estimatedSonnetOutput = PERSONAS.length * 800; // ~800 tokens per response
-  const estimatedHaikuInput = totalInputTokens - estimatedSonnetInput;
-  const estimatedHaikuOutput = totalOutputTokens - estimatedSonnetOutput;
-
-  const haikuCost =
-    (Math.max(0, estimatedHaikuInput) / 1_000_000) * haikuInputCostPerM +
-    (Math.max(0, estimatedHaikuOutput) / 1_000_000) * haikuOutputCostPerM;
-  const sonnetCost =
-    (estimatedSonnetInput / 1_000_000) * sonnetInputCostPerM +
-    (estimatedSonnetOutput / 1_000_000) * sonnetOutputCostPerM;
-
-  console.log(`   Tokens totaux: ${totalInputTokens.toLocaleString()} input + ${totalOutputTokens.toLocaleString()} output`);
-  console.log(`   Coût estimé: ~$${(haikuCost + sonnetCost).toFixed(3)}`);
-  console.log(`     Haiku (scoring):  ~$${haikuCost.toFixed(3)}`);
-  console.log(`     Sonnet (juge):    ~$${sonnetCost.toFixed(3)}`);
-  console.log();
-
-  // Per-user cost estimate (if this was production)
-  const scoringCallsPerUser = Math.ceil(100 / BATCH_SIZE);
-  const avgTokensPerScoringCall = totalInputTokens / (PERSONAS.length * scoringCallsPerUser);
-  const perUserCost =
-    (scoringCallsPerUser * avgTokensPerScoringCall / 1_000_000) * haikuInputCostPerM +
-    (scoringCallsPerUser * 500 / 1_000_000) * haikuOutputCostPerM;
-  console.log(`   💡 Coût estimé par utilisateur en prod (scoring seul): ~$${perUserCost.toFixed(4)}`);
+  const haikuCost = (haikuInputTokens / 1_000_000) * 0.80 + (haikuOutputTokens / 1_000_000) * 4.0;
+  const sonnetCost = (sonnetInputTokens / 1_000_000) * 3.0 + (sonnetOutputTokens / 1_000_000) * 15.0;
+  console.log(`   Tokens Haiku (scoring): ${haikuInputTokens.toLocaleString()} in + ${haikuOutputTokens.toLocaleString()} out = ~$${haikuCost.toFixed(3)}`);
+  console.log(`   Tokens Sonnet (juge):   ${sonnetInputTokens.toLocaleString()} in + ${sonnetOutputTokens.toLocaleString()} out = ~$${sonnetCost.toFixed(3)}`);
+  console.log(`   Total test: ~$${(haikuCost + sonnetCost).toFixed(3)}`);
+  // Per user in prod: 3 batches of 10 = 30 listings scored by Haiku
+  const perUserHaiku = (haikuInputTokens / PERSONAS.length / 1_000_000) * 0.80 + (haikuOutputTokens / PERSONAS.length / 1_000_000) * 4.0;
+  console.log(`   💡 Coût par utilisateur en prod: ~$${perUserHaiku.toFixed(4)} (3 batches Haiku sur top 30)`);
 }
 
 main().catch((e) => {

@@ -225,7 +225,7 @@ export function ListingDetailActions({
     if (evaluation) {
       lines.push(`## Évaluation IA — ${evaluation.quality_score}/100`);
       lines.push("");
-      lines.push(evaluation.quality_summary);
+      if (evaluation.quality_summary) lines.push(evaluation.quality_summary);
       lines.push("");
 
       if (evaluation.highlights.length > 0) {

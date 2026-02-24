@@ -39,7 +39,13 @@ const questionsSchema = buildQuestionsSchema();
 const questionMap = buildQuestionMap();
 
 export async function POST(request: NextRequest) {
-  const user = await getAuthenticatedUser();
+  let user;
+  try {
+    user = await getAuthenticatedUser();
+  } catch (err) {
+    console.error("Auth error [voice-creation]:", err);
+    return unauthorizedResponse();
+  }
   if (!user) return unauthorizedResponse();
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -111,8 +117,11 @@ Reponds UNIQUEMENT avec un JSON valide au format:
     }
 
     const data = await response.json();
-    const text = data.content[0].text;
-    const result = JSON.parse(text);
+    let text = data.content[0].text;
+    // Strip markdown code fences if present
+    const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch) text = jsonMatch[1];
+    const result = JSON.parse(text.trim());
 
     const validatedAnswers: Record<string, string | string[] | number> = {};
     for (const [questionId, value] of Object.entries(result.answers)) {

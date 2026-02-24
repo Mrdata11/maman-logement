@@ -41,21 +41,28 @@ export async function PATCH(
 
   const supabase = getSupabase();
 
-  // R\u00e9cup\u00e9rer la candidature avec le projet
+  // Récupérer la candidature
   const { data: application, error: fetchError } = await supabase
     .from("applications")
-    .select("*, projects(user_id)")
+    .select("*")
     .eq("id", id)
     .single();
 
   if (fetchError || !application) {
     return NextResponse.json(
-      { error: "Candidature non trouv\u00e9e" },
+      { error: "Candidature non trouvée" },
       { status: 404 }
     );
   }
 
-  // V\u00e9rifier le profil du user
+  // Récupérer le projet séparément (pas de FK applications→projects)
+  const { data: project } = await supabase
+    .from("projects")
+    .select("user_id")
+    .eq("id", application.project_id)
+    .single();
+
+  // Vérifier le profil du user
   const { data: profile } = await supabase
     .from("profiles")
     .select("id")
@@ -63,7 +70,7 @@ export async function PATCH(
     .single();
 
   const isApplicant = profile && application.profile_id === profile.id;
-  const isCreator = application.projects?.user_id === user.id;
+  const isCreator = project?.user_id === user.id;
 
   // Le candidat ne peut que retirer
   if (isApplicant && status === "withdrawn") {

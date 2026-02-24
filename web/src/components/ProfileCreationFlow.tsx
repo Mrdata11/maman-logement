@@ -195,29 +195,34 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
       setUploadingAvatar(true);
       setError(null);
 
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `avatars/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "avatars");
 
-      const { error: uploadError } = await supabase.storage
-        .from("profile-photos")
-        .upload(path, file, { contentType: file.type });
+      try {
+        const res = await fetch("/api/profiles/upload-photo", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (uploadError) {
-        setError(`Erreur d'upload : ${uploadError.message}`);
-        setUploadingAvatar(false);
-        e.target.value = "";
-        return;
+        if (!res.ok) {
+          const data = await res.json();
+          setError(`Erreur d'upload : ${data.error || "Erreur inconnue"}`);
+          setUploadingAvatar(false);
+          e.target.value = "";
+          return;
+        }
+
+        const { publicUrl } = await res.json();
+        if (publicUrl) setAvatarUrl(publicUrl);
+      } catch {
+        setError("Erreur d'upload : erreur réseau");
       }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("profile-photos").getPublicUrl(path);
-
-      if (publicUrl) setAvatarUrl(publicUrl);
       setUploadingAvatar(false);
       e.target.value = "";
     },
-    [supabase]
+    []
   );
 
   const uploadPhotoFiles = useCallback(
@@ -234,23 +239,26 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
           continue;
         }
 
-        const ext = file.name.split(".").pop() || "jpg";
-        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const formData = new FormData();
+        formData.append("file", file);
 
-        const { error: uploadError } = await supabase.storage
-          .from("profile-photos")
-          .upload(path, file, { contentType: file.type });
+        try {
+          const res = await fetch("/api/profiles/upload-photo", {
+            method: "POST",
+            body: formData,
+          });
 
-        if (uploadError) {
-          setError(`Erreur d'upload : ${uploadError.message}`);
-          continue;
+          if (!res.ok) {
+            const data = await res.json();
+            setError(`Erreur d'upload : ${data.error || "Erreur inconnue"}`);
+            continue;
+          }
+
+          const { publicUrl } = await res.json();
+          if (publicUrl) newUrls.push(publicUrl);
+        } catch {
+          setError("Erreur d'upload : erreur réseau");
         }
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("profile-photos").getPublicUrl(path);
-
-        if (publicUrl) newUrls.push(publicUrl);
       }
 
       if (newUrls.length > 0) {
@@ -258,7 +266,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
       }
       setUploadingPhotos(false);
     },
-    [supabase]
+    []
   );
 
   const handlePhotoUpload = useCallback(
@@ -462,7 +470,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
             </h3>
             <div className="space-y-3">
               <a
-                href="/projets"
+                href="/habitats"
                 className="flex items-center gap-3 p-3 bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] hover:border-[var(--primary)] hover:shadow-sm transition-all group"
               >
                 <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--primary)]/15 transition-colors">
@@ -471,7 +479,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--foreground)]">Explorer les projets</p>
+                  <p className="text-sm font-medium text-[var(--foreground)]">Explorer les habitats</p>
                   <p className="text-xs text-[var(--muted)]">D&eacute;couvre les lieux et communaut&eacute;s qui recrutent</p>
                 </div>
                 <svg className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--primary)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -517,7 +525,7 @@ export function ProfileCreationFlow({ existingProfile }: ProfileCreationFlowProp
         {steps.map((s, i) => (
           <div key={s.id} className="flex items-center">
             <div
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 i < currentStepIndex
                   ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                   : i === currentStepIndex

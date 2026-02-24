@@ -10,6 +10,7 @@ interface ProjectCardData {
   vision: string | null;
   answers: Record<string, string | string[] | number>;
   created_at: string;
+  view_count: number;
   member_count: number;
 }
 
@@ -59,7 +60,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-5 sm:p-6 hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-3">
-        <Link href={`/projets/${project.id}`} className="min-w-0 flex-1 group">
+        <Link href={`/habitats/${project.id}`} className="min-w-0 flex-1 group">
           <h3 className="font-bold text-[var(--foreground)] text-base leading-tight group-hover:text-[var(--primary)] transition-colors line-clamp-1">
             {project.name || "Projet sans nom"}
           </h3>
@@ -84,7 +85,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
       {/* Vision */}
       {project.vision && (
-        <Link href={`/projets/${project.id}`}>
+        <Link href={`/habitats/${project.id}`}>
           <p className="text-sm text-[var(--muted)] italic line-clamp-2 mb-3 leading-relaxed">
             &laquo; {project.vision} &raquo;
           </p>
@@ -126,16 +127,40 @@ export function ProjectCard({ project }: ProjectCardProps) {
         ))}
       </div>
 
-      {/* Footer: date + candidater */}
+      {/* Footer: date + vues + candidater */}
       <div className="flex items-center justify-between pt-3 border-t border-[var(--border-light)]">
-        <span className="text-xs text-[var(--muted-light)]">
-          Cr\u00e9\u00e9 le{" "}
-          {new Date(project.created_at).toLocaleDateString("fr-FR", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          })}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-[var(--muted-light)]">
+            Cr\u00e9\u00e9 le{" "}
+            {new Date(project.created_at).toLocaleDateString("fr-FR", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </span>
+          <span className="flex items-center gap-1 text-xs text-[var(--muted-light)]">
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
+            </svg>
+            {project.view_count}
+          </span>
+        </div>
         <ApplyButton
           projectId={project.id}
           projectName={project.name || "ce projet"}

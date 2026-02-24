@@ -33,7 +33,6 @@ export function Footer() {
               </h3>
               <ul className="space-y-2">
                 <FooterLink href="/habitats">Habitats group&eacute;s</FooterLink>
-                <FooterLink href="/appartements">Appartements</FooterLink>
                 <FooterLink href="/retraites">Retraites</FooterLink>
                 <FooterLink href="/profils">Profils</FooterLink>
               </ul>
@@ -49,7 +48,7 @@ export function Footer() {
                 <FooterLink href="/profils/creer">
                   Cr&eacute;er mon profil
                 </FooterLink>
-                <FooterLink href="/creer">Proposer un projet</FooterLink>
+                <FooterLink href="/creer">Proposer un habitat</FooterLink>
                 <FooterLink href="/favoris">Mes favoris</FooterLink>
               </ul>
             </div>

@@ -600,25 +600,16 @@ export default function ProfilsPage() {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[var(--foreground)]">
-            Qui cherche un habitat group&eacute; ?
+            La perle rare se cache ici
           </h1>
           <p className="text-[var(--muted)] mt-1">
-            D&eacute;couvre les personnes qui, comme toi, r&ecirc;vent de vivre en communaut&eacute;.
+            Ils veulent vivre autrement, ensemble.
           </p>
         </div>
         <div className="shrink-0 flex items-center gap-3">
           <a
-            href="/creer"
-            className="px-5 py-2.5 border-2 border-[var(--primary)] text-[var(--primary)] rounded-xl text-sm font-semibold hover:bg-[var(--primary)] hover:text-white transition-colors inline-flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-            Personnalise tes r&eacute;sultats
-          </a>
-          <a
             href="/profils/creer"
-            className="px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors inline-flex items-center gap-2"
+            className="px-5 py-2.5 border border-[var(--primary)]/40 text-[var(--primary)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/5 transition-colors inline-flex items-center gap-2"
           >
             <svg
               className="w-4 h-4"
@@ -633,7 +624,32 @@ export default function ProfilsPage() {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            Cr&eacute;er mon profil
+            Ajouter mon profil
+          </a>
+        </div>
+      </div>
+
+      {/* CTA Banner — Personnalise tes résultats */}
+      <div className="px-4 py-3 bg-gradient-to-r from-[var(--surface)] to-emerald-50/30 border border-[var(--primary)]/30 rounded-xl">
+        <div className="flex items-center gap-3">
+          <div className="shrink-0 w-8 h-8 bg-[var(--primary)]/10 rounded-full flex items-center justify-center">
+            <svg className="w-4 h-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[var(--foreground)]">
+              Personnalise tes r&eacute;sultats
+            </p>
+            <p className="text-xs text-[var(--muted)] mt-0.5 hidden sm:block">
+              2 min pour voir les profils qui te correspondent le mieux.
+            </p>
+          </div>
+          <a
+            href="/creer"
+            className="shrink-0 px-3.5 py-1.5 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+          >
+            Commencer
           </a>
         </div>
       </div>

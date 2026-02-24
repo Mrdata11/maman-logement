@@ -13,10 +13,10 @@ const VALID_QUESTION_IDS = [
   "additionalInfo",
 ];
 
-function getSupabase() {
+function getSupabaseAdmin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 }
 
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const supabase = getSupabase();
+  const supabase = getSupabaseAdmin();
 
   try {
     const ext = audioFile.type.includes("mp4") ? "m4a" : "webm";

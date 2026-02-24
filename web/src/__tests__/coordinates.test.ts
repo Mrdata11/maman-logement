@@ -1,11 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
   haversineDistance,
   getListingCoordinates,
   getJitteredCoordinates,
-  IXELLES_CENTER,
+  resolveLocationCoordinates,
+  loadReferenceLocation,
+  saveReferenceLocation,
+  getAvailableLocationNames,
   EUROPE_CENTER,
   LOCATION_COORDINATES,
+  REFERENCE_LOCATION_KEY,
 } from "@/lib/coordinates";
 
 describe("haversineDistance", () => {
@@ -104,11 +108,6 @@ describe("getJitteredCoordinates", () => {
 });
 
 describe("constants", () => {
-  it("IXELLES_CENTER is defined with lat/lng", () => {
-    expect(IXELLES_CENTER.lat).toBeCloseTo(50.8306, 2);
-    expect(IXELLES_CENTER.lng).toBeCloseTo(4.3722, 2);
-  });
-
   it("EUROPE_CENTER is defined", () => {
     expect(EUROPE_CENTER.lat).toBe(47.5);
     expect(EUROPE_CENTER.lng).toBe(3.0);
@@ -119,5 +118,189 @@ describe("constants", () => {
     expect(LOCATION_COORDINATES["Namur"]).toBeDefined();
     expect(LOCATION_COORDINATES["Hainaut"]).toBeDefined();
     expect(LOCATION_COORDINATES["Liège"]).toBeDefined();
+  });
+});
+
+describe("resolveLocationCoordinates", () => {
+  it("returns null for null input", () => {
+    expect(resolveLocationCoordinates(null)).toBeNull();
+  });
+
+  it("returns null for empty string", () => {
+    expect(resolveLocationCoordinates("")).toBeNull();
+    expect(resolveLocationCoordinates("   ")).toBeNull();
+  });
+
+  it("resolves a known city name directly", () => {
+    const result = resolveLocationCoordinates("Ixelles");
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("Ixelles");
+    expect(result!.coords).toEqual(LOCATION_COORDINATES["Ixelles"]);
+  });
+
+  it("resolves a city from comma-separated string (e.g. 'Ixelles, Bruxelles')", () => {
+    const result = resolveLocationCoordinates("Ixelles, Bruxelles");
+    expect(result).not.toBeNull();
+    // Should match "Ixelles" (first part tried after full string fails)
+    expect(result!.name).toBe("Ixelles");
+    expect(result!.coords).toEqual(LOCATION_COORDINATES["Ixelles"]);
+  });
+
+  it("resolves second part if first part unknown", () => {
+    const result = resolveLocationCoordinates("Mon quartier, Namur");
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("Namur");
+    expect(result!.coords).toEqual(LOCATION_COORDINATES["Namur"]);
+  });
+
+  it("handles case-insensitive matching", () => {
+    const result = resolveLocationCoordinates("ixelles");
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("Ixelles");
+    expect(result!.coords).toEqual(LOCATION_COORDINATES["Ixelles"]);
+  });
+
+  it("handles case-insensitive matching in comma-separated parts", () => {
+    const result = resolveLocationCoordinates("centre-ville, bruxelles");
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("Bruxelles");
+  });
+
+  it("resolves French cities", () => {
+    const result = resolveLocationCoordinates("Toulouse");
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("Toulouse");
+    expect(result!.coords.lat).toBeCloseTo(43.6047, 2);
+  });
+
+  it("resolves Spanish cities", () => {
+    const result = resolveLocationCoordinates("Pamplona");
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("Pamplona");
+  });
+
+  it("returns null for unknown locations", () => {
+    expect(resolveLocationCoordinates("Narnia")).toBeNull();
+    expect(resolveLocationCoordinates("Springfield, USA")).toBeNull();
+  });
+
+  it("handles extra whitespace gracefully", () => {
+    const result = resolveLocationCoordinates("  Ixelles  ,  Bruxelles  ");
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("Ixelles");
+  });
+
+  it("resolves Belgian provinces", () => {
+    const result = resolveLocationCoordinates("Hainaut");
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("Hainaut");
+  });
+
+  it("resolves accented names", () => {
+    const result = resolveLocationCoordinates("Liège");
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("Liège");
+  });
+});
+
+describe("distance from reference location", () => {
+  it("distance from Ixelles to Namur is ~60 km", () => {
+    const ref = resolveLocationCoordinates("Ixelles");
+    const target = LOCATION_COORDINATES["Namur"];
+    expect(ref).not.toBeNull();
+    const dist = haversineDistance(ref!.coords, target);
+    expect(dist).toBeGreaterThan(50);
+    expect(dist).toBeLessThan(70);
+  });
+
+  it("distance from Namur to Bruxelles is ~60 km", () => {
+    const ref = resolveLocationCoordinates("Namur");
+    const target = LOCATION_COORDINATES["Bruxelles"];
+    expect(ref).not.toBeNull();
+    const dist = haversineDistance(ref!.coords, target);
+    expect(dist).toBeGreaterThan(50);
+    expect(dist).toBeLessThan(70);
+  });
+
+  it("distance from Toulouse to Pamplona is ~250 km", () => {
+    const ref = resolveLocationCoordinates("Toulouse");
+    const target = LOCATION_COORDINATES["Pamplona"];
+    expect(ref).not.toBeNull();
+    const dist = haversineDistance(ref!.coords, target);
+    expect(dist).toBeGreaterThan(200);
+    expect(dist).toBeLessThan(300);
+  });
+
+  it("distance is 0 when reference equals target", () => {
+    const ref = resolveLocationCoordinates("Bruxelles");
+    expect(ref).not.toBeNull();
+    const dist = haversineDistance(ref!.coords, LOCATION_COORDINATES["Bruxelles"]);
+    expect(dist).toBe(0);
+  });
+
+  it("distance changes when reference location changes", () => {
+    const target = LOCATION_COORDINATES["Charleroi"];
+    const fromBruxelles = haversineDistance(LOCATION_COORDINATES["Bruxelles"], target);
+    const fromNamur = haversineDistance(LOCATION_COORDINATES["Namur"], target);
+    // Charleroi is closer to Namur than to Bruxelles
+    expect(fromNamur).toBeLessThan(fromBruxelles);
+  });
+});
+
+describe("loadReferenceLocation / saveReferenceLocation", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it("returns null when nothing saved", () => {
+    expect(loadReferenceLocation()).toBeNull();
+  });
+
+  it("round-trips save/load correctly", () => {
+    const ref = resolveLocationCoordinates("Namur")!;
+    saveReferenceLocation(ref);
+    const loaded = loadReferenceLocation();
+    expect(loaded).not.toBeNull();
+    expect(loaded!.name).toBe("Namur");
+    expect(loaded!.coords.lat).toBeCloseTo(ref.coords.lat, 4);
+    expect(loaded!.coords.lng).toBeCloseTo(ref.coords.lng, 4);
+  });
+
+  it("returns null for corrupted data", () => {
+    localStorage.setItem(REFERENCE_LOCATION_KEY, "not json");
+    expect(loadReferenceLocation()).toBeNull();
+  });
+
+  it("returns null for incomplete data", () => {
+    localStorage.setItem(REFERENCE_LOCATION_KEY, JSON.stringify({ name: "test" }));
+    expect(loadReferenceLocation()).toBeNull();
+  });
+
+  it("returns null for data with wrong types", () => {
+    localStorage.setItem(
+      REFERENCE_LOCATION_KEY,
+      JSON.stringify({ name: 123, coords: { lat: "wrong", lng: true } })
+    );
+    expect(loadReferenceLocation()).toBeNull();
+  });
+});
+
+describe("getAvailableLocationNames", () => {
+  it("returns a sorted array of strings", () => {
+    const names = getAvailableLocationNames();
+    expect(names.length).toBeGreaterThan(0);
+    expect(typeof names[0]).toBe("string");
+    // Check sorting
+    for (let i = 1; i < names.length; i++) {
+      expect(names[i - 1].localeCompare(names[i], "fr")).toBeLessThanOrEqual(0);
+    }
+  });
+
+  it("includes known cities", () => {
+    const names = getAvailableLocationNames();
+    expect(names).toContain("Bruxelles");
+    expect(names).toContain("Namur");
+    expect(names).toContain("Ixelles");
+    expect(names).toContain("Toulouse");
   });
 });

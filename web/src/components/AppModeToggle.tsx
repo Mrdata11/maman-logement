@@ -41,6 +41,7 @@ export function AppModeToggle() {
         </svg>
         Personnes
       </Link>
+
     </div>
   );
 }

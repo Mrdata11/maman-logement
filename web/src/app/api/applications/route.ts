@@ -128,7 +128,7 @@ export async function GET() {
 
   const { data: applications, error } = await supabase
     .from("applications")
-    .select("*, projects(id, name, vision)")
+    .select("*")
     .eq("profile_id", profile.id)
     .order("created_at", { ascending: false });
 
@@ -140,5 +140,31 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json(applications || []);
+  // Charger les projets séparément (pas de FK applications→projects)
+  const projectIds = (applications || [])
+    .map((a: { project_id: string }) => a.project_id)
+    .filter(Boolean);
+
+  let projectsMap: Record<string, Record<string, unknown>> = {};
+  if (projectIds.length > 0) {
+    const { data: projects } = await supabase
+      .from("projects")
+      .select("id, name, vision")
+      .in("id", projectIds);
+
+    if (projects) {
+      for (const p of projects) {
+        projectsMap[p.id] = p;
+      }
+    }
+  }
+
+  const applicationsWithProjects = (applications || []).map(
+    (a: Record<string, unknown>) => ({
+      ...a,
+      projects: projectsMap[a.project_id as string] || null,
+    })
+  );
+
+  return NextResponse.json(applicationsWithProjects);
 }

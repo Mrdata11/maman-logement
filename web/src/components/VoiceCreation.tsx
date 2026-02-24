@@ -12,7 +12,9 @@ interface VoiceCreationProps {
   initialMode: "voice" | "text";
 }
 
-type Phase = "idle" | "recording" | "transcribing" | "reviewing" | "extracting" | "done";
+import { QuestionnaireAnswers } from "@/lib/questionnaire-types";
+
+type Phase = "idle" | "recording" | "transcribing" | "reviewing" | "extracting" | "results" | "done";
 
 function hasMediaRecorderSupport(): boolean {
   if (typeof window === "undefined") return false;
@@ -33,6 +35,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
   const [coverage, setCoverage] = useState(0);
   const [summary, setSummary] = useState("");
   const [voiceFailed, setVoiceFailed] = useState(initialMode === "text");
+  const [extractedAnswers, setExtractedAnswers] = useState<QuestionnaireAnswers>({});
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -187,25 +190,12 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
         return;
       }
 
-      const state: CreationProjectState = {
-        answers: data.answers,
-        currentStep: CREATION_STEPS.length - 1,
-        completedAt: new Date().toISOString(),
-        lastEditedAt: new Date().toISOString(),
-        version: 1,
-        inputMethod: "voice",
-      };
-      localStorage.setItem(CREATION_STORAGE_KEY, JSON.stringify(state));
-
+      setExtractedAnswers(data.answers);
       setCoverage(data.coverage);
       setSummary(data.summary);
-      setPhase("done");
-
-      setTimeout(() => {
-        router.push("/creer/apercu");
-      }, 2500);
+      setPhase("results");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de l’analyse.");
+      setError(err instanceof Error ? err.message : "Erreur lors du traitement.");
       setPhase("reviewing");
     }
   }, [transcript, router]);
@@ -395,7 +385,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
           {phase === "reviewing" && (
             <div className="space-y-4">
               <p className="text-sm text-[var(--muted)]">
-                V&eacute;rifiez et corrigez le texte si besoin, puis lancez l&apos;analyse.
+                V&eacute;rifiez et corrigez le texte si besoin, puis soumettez votre projet.
               </p>
 
               <textarea
@@ -426,7 +416,7 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
                   disabled={transcript.trim().length < 10}
                   className="flex-1 px-4 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  Analyser mon projet
+                  Soumettre
                 </button>
               </div>
             </div>
@@ -447,38 +437,182 @@ export function VoiceCreation({ initialMode }: VoiceCreationProps) {
                 ))}
               </div>
               <p className="text-[var(--foreground)] font-medium">
-                Analyse de votre projet en cours...
+                Traitement de votre projet en cours...
               </p>
               <p className="text-sm text-[var(--muted)]">
-                L&apos;IA structure les informations de votre projet
+                Structuration des informations de votre projet
               </p>
+            </div>
+          )}
+
+          {/* RESULTS phase — show extracted data for review */}
+          {phase === "results" && (
+            <div className="space-y-5">
+              <div className="text-center">
+                <div className="w-12 h-12 mx-auto mb-3 bg-[var(--primary)]/10 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <p className="text-[var(--foreground)] font-semibold">
+                  {coverage} information{coverage !== 1 ? "s" : ""} extraite{coverage !== 1 ? "s" : ""}
+                </p>
+                <p className="text-xs text-[var(--muted)] mt-1">
+                  sur {totalQuestions} champs possibles. V&eacute;rifiez et continuez.
+                </p>
+              </div>
+
+              {summary && (
+                <div className="bg-[var(--surface)] rounded-lg p-3">
+                  <p className="text-sm text-[var(--muted)] italic leading-relaxed">
+                    &laquo; {summary} &raquo;
+                  </p>
+                </div>
+              )}
+
+              {/* Extracted answers grouped by step */}
+              <div className="space-y-4 max-h-[300px] overflow-y-auto">
+                {CREATION_STEPS.map((step) => {
+                  const stepAnswers = step.questions.filter(
+                    (q) => extractedAnswers[q.id] !== undefined
+                  );
+                  if (stepAnswers.length === 0) return null;
+                  return (
+                    <div key={step.id}>
+                      <h4 className="text-xs font-semibold text-[var(--primary)] mb-2 flex items-center gap-1.5">
+                        <span className="w-1 h-1 bg-[var(--primary)] rounded-full" />
+                        {step.title}
+                      </h4>
+                      <div className="space-y-1.5">
+                        {stepAnswers.map((q) => {
+                          const val = extractedAnswers[q.id];
+                          let display = String(val);
+                          if (Array.isArray(val)) {
+                            display = val
+                              .map((v) => q.options?.find((o) => o.id === v)?.label || v)
+                              .join(", ");
+                          } else if (typeof val === "string" && q.options) {
+                            display = q.options.find((o) => o.id === val)?.label || val;
+                          }
+                          return (
+                            <div key={q.id} className="flex items-start gap-2 text-sm">
+                              <svg className="w-3.5 h-3.5 text-[var(--primary)] mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              <div className="min-w-0">
+                                <span className="text-[var(--muted)] text-xs">{q.text}</span>
+                                <p className="text-[var(--foreground)] font-medium text-sm">{display}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Missing fields notice */}
+              {coverage < totalQuestions && (
+                <p className="text-xs text-[var(--muted)] text-center">
+                  Les champs manquants pourront &ecirc;tre compl&eacute;t&eacute;s dans l&apos;aper&ccedil;u.
+                </p>
+              )}
+
+              <button
+                onClick={() => {
+                  // Save to localStorage and go to results
+                  const state: CreationProjectState = {
+                    answers: extractedAnswers,
+                    currentStep: CREATION_STEPS.length - 1,
+                    completedAt: new Date().toISOString(),
+                    lastEditedAt: new Date().toISOString(),
+                    version: 1,
+                    inputMethod: "voice",
+                  };
+                  localStorage.setItem(CREATION_STORAGE_KEY, JSON.stringify(state));
+                  setPhase("done");
+                }}
+                className="w-full px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center justify-center gap-2"
+              >
+                Valider et continuer
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
           )}
 
           {/* DONE phase */}
           {phase === "done" && (
-            <div className="text-center py-6 space-y-4">
-              <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+            <div className="py-6 space-y-6">
+              {/* Animated success icon */}
+              <div className="flex justify-center">
+                <div className="relative success-icon-container" style={{ opacity: 0 }}>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div
+                      className="w-20 h-20 rounded-full border-2 border-[var(--primary)] success-ring"
+                      style={{ opacity: 0 }}
+                    />
+                  </div>
+                  <span className="success-sparkle" style={{ opacity: 0 }} />
+                  <span className="success-sparkle" style={{ opacity: 0 }} />
+                  <span className="success-sparkle" style={{ opacity: 0 }} />
+                  <span className="success-sparkle" style={{ opacity: 0 }} />
+                  <span className="success-sparkle" style={{ opacity: 0 }} />
+                  <span className="success-sparkle" style={{ opacity: 0 }} />
+                  <svg width="64" height="64" viewBox="0 0 52 52">
+                    <circle
+                      className="success-circle-fill"
+                      cx="26" cy="26" r="25"
+                      fill="var(--primary)"
+                    />
+                    <circle
+                      className="success-circle-svg"
+                      cx="26" cy="26" r="25"
+                      fill="none"
+                      stroke="var(--primary)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      className="success-check-svg"
+                      fill="none"
+                      stroke="var(--primary)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 27l6 6 16-16"
+                    />
+                  </svg>
+                </div>
               </div>
-              <div>
-                <p className="text-[var(--foreground)] font-semibold text-lg">
-                  Projet enregistr&eacute; !
+
+              <div className="text-center space-y-2">
+                <p className="text-lg font-bold text-[var(--foreground)] success-text-1">
+                  Projet analys&eacute; !
                 </p>
-                <p className="text-sm text-[var(--primary)] mt-1">
+                <p className="text-sm text-[var(--primary)] success-text-2">
                   {coverage} information{coverage !== 1 ? "s" : ""} extraite{coverage !== 1 ? "s" : ""} sur {totalQuestions} champs
                 </p>
                 {summary && (
-                  <p className="text-sm text-[var(--muted)] mt-2 italic">
+                  <p className="text-sm text-[var(--muted)] italic success-text-3">
                     &laquo; {summary} &raquo;
                   </p>
                 )}
               </div>
-              <p className="text-xs text-[var(--muted)]">
-                Redirection vers l&apos;aper&ccedil;u...
-              </p>
+
+              <div className="success-text-4">
+                <button
+                  onClick={() => router.push("/creer/apercu")}
+                  className="w-full px-5 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center justify-center gap-2"
+                >
+                  Voir l&apos;aper&ccedil;u de mon projet
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
         </div>

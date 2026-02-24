@@ -1,13 +1,13 @@
 import { MetadataRoute } from "next";
-import { getListingsWithEvals, getApartmentsWithEvals } from "@/lib/data";
+import { getListingsWithEvals } from "@/lib/data";
 import { getRetreatVenuesWithEvals } from "@/lib/retreats/data";
+import { createClient } from "@supabase/supabase-js";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://maman-logement.vercel.app";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const listings = getListingsWithEvals();
-  const apartments = getApartmentsWithEvals();
   const retreats = getRetreatVenuesWithEvals();
 
   const staticPages: MetadataRoute.Sitemap = [
@@ -31,12 +31,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/retraites`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/appartements`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.8,
@@ -80,13 +74,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  const apartmentPages: MetadataRoute.Sitemap = apartments.map((item) => ({
-    url: `${BASE_URL}/appartements/listing/${item.listing.id}`,
-    lastModified: safeDate(item.listing.date_published ?? item.listing.date_scraped),
-    changeFrequency: "weekly",
-    priority: 0.6,
-  }));
-
   const retreatPages: MetadataRoute.Sitemap = retreats.map((item) => ({
     url: `${BASE_URL}/retraites/${item.venue.id}`,
     lastModified: new Date(),
@@ -94,5 +81,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...listingPages, ...apartmentPages, ...retreatPages];
+  // Supabase habitats (projects)
+  let habitatPages: MetadataRoute.Sitemap = [];
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (url && key) {
+    const supabase = createClient(url, key);
+    const { data: projects } = await supabase
+      .from("projects")
+      .select("id, created_at")
+      .eq("is_published", true);
+    if (projects) {
+      habitatPages = projects.map((p) => ({
+        url: `${BASE_URL}/habitats/${p.id}`,
+        lastModified: safeDate(p.created_at),
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      }));
+    }
+  }
+
+  return [...staticPages, ...listingPages, ...retreatPages, ...habitatPages];
 }

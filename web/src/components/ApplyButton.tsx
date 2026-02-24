@@ -189,7 +189,7 @@ export function ApplyButton({
       <ProfileRequiredModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
-        returnTo={`/projets/${projectId}`}
+        returnTo={`/habitats/${projectId}`}
       />
       <ApplyModal
         isOpen={showApplyModal}

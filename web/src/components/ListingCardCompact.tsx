@@ -36,7 +36,7 @@ export function ListingCardCompact({ item }: ListingCardCompactProps) {
   );
 
   return (
-    <div className="group/card bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] overflow-hidden hover:shadow-md transition-shadow flex flex-col sm:flex-row">
+    <div className="group/card bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] overflow-hidden hover:shadow-md transition-shadow flex flex-col sm:flex-row sm:h-[210px]">
       {/* Image carousel */}
       <div className="relative group aspect-[16/9] sm:aspect-auto sm:w-56 md:w-64 shrink-0 bg-[var(--surface)]">
         {images.length > 0 ? (
@@ -110,7 +110,7 @@ export function ListingCardCompact({ item }: ListingCardCompactProps) {
       </div>
 
       {/* Content — côté droit */}
-      <Link href={`/listing/${listing.id}`} className="block p-4 flex-1 min-w-0">
+      <Link href={`/listing/${listing.id}`} className="block p-4 flex-1 min-w-0 overflow-hidden">
         {/* Badges */}
         <div className="flex items-center gap-1.5 mb-1 flex-wrap">
           {listing.listing_type && (

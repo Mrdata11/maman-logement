@@ -1,5 +1,14 @@
 import { StepDefinition } from "./questionnaire-types";
 
+// Messages d'encouragement affichés lors des transitions entre étapes
+export const STEP_ENCOURAGEMENTS: Record<string, string> = {
+  "projet->lieu": "Passons \u00e0 la localisation de votre projet.",
+  "lieu->logement": "Le lieu prend forme ! Parlons du logement.",
+  "logement->communaute": "Concret ! Place \u00e0 la communaut\u00e9.",
+  "communaute->recherche": "Les valeurs, c\u2019est la cl\u00e9. Qui cherchez-vous ?",
+  "recherche->contact": "Presque fini ! Derni\u00e8res coordonn\u00e9es.",
+};
+
 export const CREATION_STEPS: StepDefinition[] = [
   {
     id: "projet",
@@ -21,14 +30,16 @@ export const CREATION_STEPS: StepDefinition[] = [
       },
       {
         id: "project_name",
-        text: "Quel est le nom de votre projet ? (optionnel)",
+        text: "Quel est le nom de votre projet ?",
         type: "open_text",
+        required: false,
         placeholder: "Par exemple : La Ferme des Colibris, L\u2019\u00c9co-hameau du Val...",
       },
       {
         id: "project_vision",
         text: "D\u00e9crivez votre vision en quelques phrases",
         type: "open_text",
+        required: false,
         placeholder:
           "Qu\u2019est-ce qui vous motive ? Quel type de vie imaginez-vous ? Qu\u2019est-ce qui rend votre projet unique ?",
       },
@@ -142,8 +153,9 @@ export const CREATION_STEPS: StepDefinition[] = [
       },
       {
         id: "price_range",
-        text: "Fourchette de prix indicative (optionnel)",
+        text: "Fourchette de prix indicative",
         type: "open_text",
+        required: false,
         placeholder:
           "Par exemple : loyers entre 500\u20ac et 800\u20ac/mois, parts coop\u00e9ratives \u00e0 partir de 20 000\u20ac...",
       },
@@ -234,6 +246,7 @@ export const CREATION_STEPS: StepDefinition[] = [
         id: "looking_for",
         text: "Quel type de personnes recherchez-vous ?",
         type: "open_text",
+        required: false,
         placeholder:
           "Par exemple : des personnes engag\u00e9es, ouvertes d\u2019esprit, pr\u00eates \u00e0 s\u2019investir dans le collectif...",
       },
@@ -290,14 +303,16 @@ export const CREATION_STEPS: StepDefinition[] = [
       },
       {
         id: "contact_phone",
-        text: "T\u00e9l\u00e9phone (optionnel)",
+        text: "T\u00e9l\u00e9phone",
         type: "open_text",
+        required: false,
         placeholder: "+32 ...",
       },
       {
         id: "website",
-        text: "Site web ou page Facebook (optionnel)",
+        text: "Site web ou page Facebook",
         type: "open_text",
+        required: false,
         placeholder: "https://...",
       },
     ],

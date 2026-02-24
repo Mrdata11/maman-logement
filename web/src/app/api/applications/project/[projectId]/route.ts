@@ -41,12 +41,10 @@ export async function GET(
     );
   }
 
-  // R\u00e9cup\u00e9rer les candidatures avec les profils
+  // Récupérer les candidatures
   const { data: applications, error } = await supabase
     .from("applications")
-    .select(
-      `*, profiles(id, display_name, avatar_url, location, ai_summary, ai_tags, is_verified, created_at)`
-    )
+    .select("*")
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
 
@@ -58,5 +56,31 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(applications || []);
+  // Charger les profils séparément (pas de FK applications→profiles)
+  const profileIds = (applications || [])
+    .map((a: { profile_id: string }) => a.profile_id)
+    .filter(Boolean);
+
+  let profilesMap: Record<string, Record<string, unknown>> = {};
+  if (profileIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, display_name, avatar_url, location, age, gender, sexuality, ai_summary, ai_tags, is_verified, questionnaire_answers, introduction, created_at")
+      .in("id", profileIds);
+
+    if (profiles) {
+      for (const p of profiles) {
+        profilesMap[p.id] = p;
+      }
+    }
+  }
+
+  const applicationsWithProfiles = (applications || []).map(
+    (a: Record<string, unknown>) => ({
+      ...a,
+      profiles: profilesMap[a.profile_id as string] || null,
+    })
+  );
+
+  return NextResponse.json(applicationsWithProfiles);
 }

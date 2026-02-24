@@ -6,6 +6,7 @@ export interface Project {
   name: string;
   vision: string | null;
   answers: Record<string, string | string[] | number>;
+  images: string[];
   invite_token: string | null;
   is_published: boolean;
   created_at: string;

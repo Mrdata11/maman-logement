@@ -11,11 +11,11 @@ const BASE_URL =
 export const metadata: Metadata = {
   title: "Cohabitat Europe — Trouvez votre habitat groupé en Europe",
   description:
-    "Plateforme de recherche d’habitats groupés en Europe. Annonces évaluées par IA, profils communautaires, questionnaire personnalisé et outils de mise en relation.",
+    "Plateforme de recherche d'habitats groupés en Europe. Annonces évaluées par IA, profils communautaires, questionnaire personnalisé et outils de mise en relation.",
   openGraph: {
     title: "Cohabitat Europe — Trouvez votre habitat groupé en Europe",
     description:
-      "Plateforme de recherche d’habitats groupés en Europe. Annonces évaluées par IA, profils communautaires et outils de mise en relation.",
+      "Plateforme de recherche d'habitats groupés en Europe. Annonces évaluées par IA, profils communautaires et outils de mise en relation.",
     url: BASE_URL,
     type: "website",
   },
@@ -24,7 +24,13 @@ export const metadata: Metadata = {
 export default function Home() {
   const items = getListingsWithEvals();
   const topListings = items
-    .filter((item) => item.evaluation !== null && !item.evaluation.ai_title?.includes("⚠"))
+    .filter(
+      (item) =>
+        item.evaluation !== null &&
+        !item.evaluation.ai_title?.includes("⚠") &&
+        item.listing.images &&
+        item.listing.images.length > 0
+    )
     .sort(
       (a, b) =>
         (b.evaluation?.quality_score ?? 0) -
@@ -42,7 +48,7 @@ export default function Home() {
         url: BASE_URL,
         logo: `${BASE_URL}/logo_alt_living.png`,
         description:
-          "Plateforme de recherche d’habitats groupés en Europe. Annonces évaluées par IA et profils communautaires.",
+          "Plateforme de recherche d'habitats groupés en Europe. Annonces évaluées par IA et profils communautaires.",
       },
       {
         "@type": "WebSite",
@@ -64,7 +70,7 @@ export default function Home() {
         isPartOf: { "@id": `${BASE_URL}/#website` },
         about: { "@id": `${BASE_URL}/#organization` },
         description:
-          "Plateforme de recherche d’habitats groupés en Europe. Annonces évaluées par IA, profils communautaires et outils de mise en relation.",
+          "Plateforme de recherche d'habitats groupés en Europe. Annonces évaluées par IA, profils communautaires et outils de mise en relation.",
       },
     ],
   };
@@ -79,11 +85,11 @@ export default function Home() {
       {/* ── Hero full-bleed ── */}
       <HeroBanner alwaysVisible listingCount={items.length} />
 
-      {/* ── Sélection IA : top listings ── */}
+      {/* ── Sélection IA : top listings avec photos ── */}
       <section className="mt-16 sm:mt-20 max-w-6xl mx-auto">
         <div className="flex items-end justify-between mb-6">
           <div>
-<h2 className="text-2xl font-bold text-[var(--foreground)]">
+            <h2 className="text-2xl font-bold text-[var(--foreground)]">
               Les projets les mieux notés
             </h2>
           </div>
@@ -127,8 +133,18 @@ export default function Home() {
                 href="/profils/creer"
                 className="inline-flex items-center gap-2 px-6 py-3 border border-[var(--border-color)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors bg-[var(--card-bg)]"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
                 </svg>
                 Créer mon profil et rejoindre la communauté
               </Link>
@@ -145,7 +161,8 @@ export default function Home() {
               Vous n&apos;êtes pas seul·e
             </h2>
             <p className="text-white/60 mb-10 max-w-md mx-auto leading-relaxed">
-              Des centaines de personnes cherchent un lieu de vie partagé en Europe. Rejoignez-les.
+              Des centaines de personnes cherchent un lieu de vie partagé en
+              Europe. Rejoignez-les.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
