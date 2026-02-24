@@ -1,24 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
-function getServiceSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
-
-async function getAuthUser() {
+async function getAuthSupabase() {
   const cookieStore = await cookies();
-  const supabase = createServerClient(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     { cookies: { getAll: () => cookieStore.getAll() } }
   );
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
 }
 
 export async function PATCH(
@@ -26,12 +16,12 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const user = await getAuthUser();
+  const supabase = await getAuthSupabase();
+  const { data: { user } } = await supabase.auth.getUser();
+
   if (!user) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
-
-  const supabase = getServiceSupabase();
 
   // Vérifier que l'utilisateur est le créateur du projet
   const { data: project } = await supabase
@@ -51,6 +41,7 @@ export async function PATCH(
   if (body.name !== undefined) updates.name = body.name;
   if (body.answers !== undefined) updates.answers = body.answers;
   if (body.images !== undefined) updates.images = body.images;
+  if (body.is_published !== undefined) updates.is_published = body.is_published;
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "Rien à mettre à jour" }, { status: 400 });
@@ -64,8 +55,8 @@ export async function PATCH(
     .eq("id", id);
 
   if (error) {
-    console.error("Erreur mise à jour projet:", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    console.error("Erreur mise à jour projet:", JSON.stringify(error));
+    return NextResponse.json({ error: "Erreur serveur", details: error.message }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

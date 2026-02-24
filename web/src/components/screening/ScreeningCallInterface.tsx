@@ -354,7 +354,7 @@ export function ScreeningCallInterface({
             </h2>
             <p className="text-[var(--muted)] mb-2">
               {isVerification
-                ? "Votre vérification est terminée. Votre badge vérifié sera visible sous peu."
+                ? "Votre qualification est terminée. Le badge « Profil qualifié » sera visible sous peu."
                 : "Votre entretien a bien été enregistré."}
             </p>
             <p className="text-[var(--muted)] text-sm">

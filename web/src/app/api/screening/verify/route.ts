@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/api-auth";
+import { getAuthenticatedClient, unauthorizedResponse } from "@/lib/api-auth";
 import { verificationStartSchema } from "@/lib/api-schemas";
-import { createClient } from "@supabase/supabase-js";
-
-function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
+import {
+  VERIFICATION_PROFILE_QUESTIONS,
+  VERIFICATION_PROJECT_QUESTIONS,
+} from "@/lib/screening/types";
 
 export async function POST(request: NextRequest) {
-  const user = await getAuthenticatedUser();
+  const { user, supabase } = await getAuthenticatedClient();
   if (!user) return unauthorizedResponse();
 
   let body;
@@ -23,8 +19,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-
-  const supabase = getSupabaseAdmin();
 
   // Vérifier que l'utilisateur possède le profil
   if (body.type === "profile") {
@@ -79,18 +73,43 @@ export async function POST(request: NextRequest) {
   const configTitle =
     body.type === "profile" ? "Vérification Profil" : "Vérification Projet";
 
-  const { data: config } = await supabase
+  let { data: config } = await supabase
     .from("screening_configs")
     .select("id")
-    .eq("is_system", true)
     .eq("title", configTitle)
     .single();
 
+  // Créer la config système automatiquement si elle n'existe pas
   if (!config) {
-    return NextResponse.json(
-      { error: "Configuration de vérification non trouvée. Contactez l'administrateur." },
-      { status: 500 }
-    );
+    const questions =
+      body.type === "profile"
+        ? VERIFICATION_PROFILE_QUESTIONS
+        : VERIFICATION_PROJECT_QUESTIONS;
+
+    const { data: newConfig, error: configError } = await supabase
+      .from("screening_configs")
+      .insert({
+        title: configTitle,
+        description:
+          body.type === "profile"
+            ? "Vérification automatique des profils"
+            : "Vérification automatique des projets",
+        questions,
+        voice_id: "cgSgspJ2msm6clMCkdW9",
+        language: "fr",
+        created_by: user.id,
+      })
+      .select("id")
+      .single();
+
+    if (configError || !newConfig) {
+      console.error("Error creating system screening config:", configError);
+      return NextResponse.json(
+        { error: "Erreur lors de la création de la configuration de vérification." },
+        { status: 500 }
+      );
+    }
+    config = newConfig;
   }
 
   // Récupérer le nom du candidat

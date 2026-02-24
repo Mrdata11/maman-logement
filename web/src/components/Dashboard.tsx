@@ -105,22 +105,29 @@ export function Dashboard({
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
   const toolbarSentinelRef = useRef<HTMLDivElement>(null);
+  const [headerH, setHeaderH] = useState(49);
+
+  // Measure actual header height on mount
+  useEffect(() => {
+    const el = document.querySelector('[role="banner"]')?.parentElement;
+    if (el) setHeaderH(el.getBoundingClientRect().height);
+  }, []);
 
   useEffect(() => {
     const sentinel = toolbarSentinelRef.current;
     if (!sentinel) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        document.documentElement.dataset.toolbarSticky = entry.isIntersecting ? "false" : "true";
-      },
-      { threshold: 0 }
-    );
-    observer.observe(sentinel);
-    return () => {
-      observer.disconnect();
-      delete document.documentElement.dataset.toolbarSticky;
+    const onScroll = () => {
+      const top = sentinel.getBoundingClientRect().top;
+      const offset = Math.max(0, Math.min(headerH, headerH - top));
+      document.documentElement.style.setProperty("--header-offset", `-${offset}px`);
     };
-  }, []);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.documentElement.style.removeProperty("--header-offset");
+    };
+  }, [headerH]);
 
   // Refinement state (driven by questionnaire)
   const [filters, setFilters] = useState<RefinementFilters>({ ...DEFAULT_FILTERS });
@@ -902,7 +909,7 @@ export function Dashboard({
       <div ref={toolbarSentinelRef} className="h-0" />
 
       {/* Sticky toolbar — single row */}
-      <div className="sticky top-0 z-50 -mx-4 px-4 py-2 sm:py-3 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 print:hidden">
+      <div className="sticky z-40 -mx-4 px-4 py-2 sm:py-3 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border-color)]/80 print:hidden" style={{ top: `calc(${headerH}px + var(--header-offset, 0px))` }}>
         <div className="flex items-center gap-2">
           {/* Status tabs (scrollable) */}
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide min-w-0 pb-0.5">

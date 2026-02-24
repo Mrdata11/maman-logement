@@ -132,6 +132,7 @@ export function CreationPreview() {
 
       localStorage.removeItem(CREATION_STORAGE_KEY);
       setSaved(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setSaveError("Erreur lors de la sauvegarde. Veuillez réessayer.");
     }

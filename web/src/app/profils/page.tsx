@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 import {
   ProfileCard as ProfileCardType,
   deriveProfileCardData,
@@ -211,7 +212,48 @@ export default function ProfilsPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
+  // Invitation state
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userProject, setUserProject] = useState<{ id: string; name: string } | null>(null);
+  const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
+
   const supabase = createClient();
+
+  // Charger l'utilisateur et son projet
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setCurrentUser(user);
+      if (user) {
+        supabase
+          .from("projects")
+          .select("id, name")
+          .eq("user_id", user.id)
+          .eq("is_published", true)
+          .limit(1)
+          .then(({ data: projects }) => {
+            if (projects && projects.length > 0) {
+              setUserProject(projects[0]);
+            }
+          });
+      }
+    });
+  }, [supabase]);
+
+  const handleInvite = useCallback(async (profileId: string) => {
+    if (!userProject) return;
+    try {
+      const res = await fetch("/api/projects/invite-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: userProject.id, profile_id: profileId }),
+      });
+      if (res.ok) {
+        setInvitedIds((prev) => new Set(prev).add(profileId));
+      }
+    } catch {
+      // Silently fail
+    }
+  }, [userProject]);
 
   // Load profile states from localStorage
   useEffect(() => {
@@ -252,13 +294,13 @@ export default function ProfilsPage() {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "id, display_name, avatar_url, location, age, gender, sexuality, ai_summary, ai_tags, questionnaire_answers, introduction, created_at"
+          "id, display_name, avatar_url, location, age, gender, sexuality, ai_summary, ai_tags, questionnaire_answers, introduction, is_verified, created_at"
         )
         .eq("is_published", true)
         .order("created_at", { ascending: false });
 
-      if (!error && data && data.length > 0) {
-        const cards: ProfileCardType[] = data.map((row) => {
+      const realCards: ProfileCardType[] = (!error && data && data.length > 0)
+        ? data.map((row) => {
           const derived = deriveProfileCardData(
             row.questionnaire_answers || {}
           );
@@ -284,14 +326,13 @@ export default function ProfilsPage() {
             ai_tags: row.ai_tags || [],
             ...derived,
             intro_snippet,
+            is_verified: row.is_verified ?? false,
             created_at: row.created_at,
             questionnaire_answers: row.questionnaire_answers || undefined,
           };
-        });
-        setProfiles(cards);
-      } else {
-        setProfiles(DEMO_PROFILES);
-      }
+        })
+        : [];
+      setProfiles([...realCards, ...DEMO_PROFILES]);
       setLoading(false);
     }
     load();
@@ -914,6 +955,8 @@ export default function ProfilsPage() {
                 profile={profile}
                 isFavorite={profileStates[profile.id] === "favorite"}
                 onToggleFavorite={toggleFavorite}
+                onInvite={userProject ? handleInvite : undefined}
+                invitedIds={invitedIds}
               />
             ))}
           </div>

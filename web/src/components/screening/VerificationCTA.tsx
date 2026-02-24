@@ -58,10 +58,10 @@ export function VerificationCTA({
           </div>
           <div className="flex-1">
             <h3 className="font-medium text-[var(--foreground)] mb-1">
-              Obtenez le badge vérifié
+              Obtenez le badge « Profil qualifié »
             </h3>
             <p className="text-sm text-[var(--muted)] mb-3">
-              Passez un court entretien vocal avec notre IA pour certifier
+              Passez un court entretien vocal pour certifier
               l&apos;authenticité de votre{" "}
               {type === "profile" ? "profil" : "projet"}.
               Cela renforce la confiance des autres membres.
@@ -71,7 +71,7 @@ export function VerificationCTA({
               className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
             >
               <ShieldCheck size={16} />
-              Vérifier mon {type === "profile" ? "profil" : "projet"} — {price}
+              Qualifier mon {type === "profile" ? "profil" : "projet"} — {price}
             </button>
           </div>
         </div>
@@ -99,7 +99,7 @@ export function VerificationCTA({
             <div className="bg-[var(--surface)] rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-[var(--foreground)]">
-                  Vérification{" "}
+                  Qualification{" "}
                   {type === "profile" ? "de profil" : "de projet"}
                 </span>
                 <span className="font-semibold text-[var(--foreground)]">
@@ -107,7 +107,7 @@ export function VerificationCTA({
                 </span>
               </div>
               <p className="text-xs text-[var(--muted)]">
-                Entretien vocal IA (~5 min) + badge vérifié permanent
+                Entretien vocal (~5 min) + badge qualifié permanent
               </p>
             </div>
 

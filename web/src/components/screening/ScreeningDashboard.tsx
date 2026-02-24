@@ -108,7 +108,7 @@ export function ScreeningDashboard() {
           </h2>
           <p className="text-[var(--muted)] mb-6 max-w-md mx-auto">
             Créez votre première configuration de screening pour commencer à
-            interviewer des candidats par IA.
+            pré-sélectionner des candidats par IA.
           </p>
           <Link
             href="/screening/configurer"

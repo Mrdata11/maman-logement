@@ -1,20 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { screeningAgentSchema } from "@/lib/api-schemas";
-import { createClient } from "@supabase/supabase-js";
+import { getAuthenticatedClient } from "@/lib/api-auth";
 import {
   createScreeningAgent,
   getConversationToken,
 } from "@/lib/screening/elevenlabs";
 
-function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
-
 export async function POST(request: NextRequest) {
-  // Route PUBLIQUE - pas d'auth Supabase, validé par token
+  // Route validée par token — utilise le client authentifié si disponible
 
   let body;
   try {
@@ -26,7 +19,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const supabase = getSupabaseAdmin();
+  const { supabase } = await getAuthenticatedClient();
 
   // Vérifier le lien
   const { data: link } = await supabase

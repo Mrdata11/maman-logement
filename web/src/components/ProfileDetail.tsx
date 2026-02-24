@@ -16,7 +16,6 @@ import type { User } from "@supabase/supabase-js";
 import { AuthButton } from "./AuthButton";
 import { ProfilePhotoGallery } from "./ProfilePhotoGallery";
 import { VerificationBadge } from "./screening/VerificationBadge";
-import { VerificationCTA } from "./screening/VerificationCTA";
 
 interface ProfileDetailProps {
   profile: Profile;
@@ -28,18 +27,60 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
   const [user, setUser] = useState<User | null>(null);
   const [emailRevealed, setEmailRevealed] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [userProject, setUserProject] = useState<{ id: string; name: string } | null>(null);
+  const [inviteStatus, setInviteStatus] = useState<"idle" | "loading" | "sent" | "error">("idle");
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const supabase = createClient();
   const intro = profile.introduction;
   const display = deriveProfileCardData(profile.questionnaire_answers);
   const photos = profile.photos || [];
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u);
+      if (u) {
+        // Charger le projet publié du user
+        supabase
+          .from("projects")
+          .select("id, name")
+          .eq("user_id", u.id)
+          .eq("is_published", true)
+          .limit(1)
+          .then(({ data: projects }) => {
+            if (projects && projects.length > 0) {
+              setUserProject(projects[0]);
+            }
+          });
+      }
+    });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
   }, [supabase]);
+
+  const handleInviteProfile = async () => {
+    if (!userProject) return;
+    setInviteStatus("loading");
+    setInviteError(null);
+    try {
+      const res = await fetch("/api/projects/invite-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: userProject.id, profile_id: profile.id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setInviteStatus("sent");
+      } else {
+        setInviteStatus("error");
+        setInviteError(data.error || "Erreur");
+      }
+    } catch {
+      setInviteStatus("error");
+      setInviteError("Erreur réseau");
+    }
+  };
 
   const handleContactClick = () => {
     if (user) {
@@ -352,14 +393,6 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
 
         {/* Right column: sticky contact card */}
         <div className="lg:sticky lg:top-6 space-y-4">
-          {/* Verification CTA - only for own profile */}
-          {user && user.id === profile.user_id && !profile.is_verified && (
-            <VerificationCTA
-              type="profile"
-              targetId={profile.id}
-              isVerified={profile.is_verified}
-            />
-          )}
 
           <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-5 sm:p-6 shadow-[var(--card-shadow)] space-y-4">
             <h3 className="font-semibold text-[var(--foreground)]">
@@ -414,6 +447,36 @@ export function ProfileDetail({ profile }: ProfileDetailProps) {
               </>
             )}
           </div>
+
+          {/* Invite button — visible si le user a un projet et ce n'est pas son propre profil */}
+          {userProject && user && user.id !== profile.user_id && (
+            <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-5 sm:p-6 shadow-[var(--card-shadow)]">
+              {inviteStatus === "sent" ? (
+                <div className="flex items-center gap-2 text-green-600">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm font-medium">Invitation envoy&eacute;e !</span>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={handleInviteProfile}
+                    disabled={inviteStatus === "loading"}
+                    className="w-full px-5 py-3 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    {inviteStatus === "loading" ? "Envoi..." : `Inviter dans ${userProject.name}`}
+                  </button>
+                  {inviteStatus === "error" && inviteError && (
+                    <p className="text-xs text-red-500 mt-2">{inviteError}</p>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           {/* Quick stats under contact card */}
           <div className="mt-4 grid grid-cols-2 gap-2">

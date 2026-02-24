@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Plus,
   Trash2,
-  ChevronUp,
-  ChevronDown,
   GripVertical,
   Save,
 } from "lucide-react";
@@ -69,16 +67,41 @@ export function ScreeningConfigForm({ configId }: ScreeningConfigFormProps) {
     if (isEditing) fetchConfig();
   }, [isEditing, fetchConfig]);
 
-  const moveQuestion = (index: number, direction: -1 | 1) => {
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= questions.length) return;
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const dragNode = useRef<HTMLDivElement | null>(null);
+
+  function handleDragStart(e: React.DragEvent<HTMLDivElement>, index: number) {
+    setDragIndex(index);
+    dragNode.current = e.currentTarget;
+    e.dataTransfer.effectAllowed = "move";
+    requestAnimationFrame(() => {
+      if (dragNode.current) dragNode.current.style.opacity = "0.4";
+    });
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLDivElement>, index: number) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragIndex === null || dragIndex === index) return;
+    setDragOverIndex(index);
+  }
+
+  function handleDrop(e: React.DragEvent<HTMLDivElement>, index: number) {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === index) return;
     const newQuestions = [...questions];
-    [newQuestions[index], newQuestions[newIndex]] = [
-      newQuestions[newIndex],
-      newQuestions[index],
-    ];
+    const [moved] = newQuestions.splice(dragIndex, 1);
+    newQuestions.splice(index, 0, moved);
     setQuestions(newQuestions.map((q, i) => ({ ...q, order: i })));
-  };
+  }
+
+  function handleDragEnd() {
+    if (dragNode.current) dragNode.current.style.opacity = "1";
+    setDragIndex(null);
+    setDragOverIndex(null);
+    dragNode.current = null;
+  }
 
   const addQuestion = () => {
     setQuestions([
@@ -249,28 +272,23 @@ export function ScreeningConfigForm({ configId }: ScreeningConfigFormProps) {
             {questions.map((question, index) => (
               <div
                 key={question.id}
-                className="p-4 rounded-lg border border-[var(--border-color)] bg-[var(--surface)]"
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`p-4 rounded-lg border bg-[var(--surface)] transition-colors ${
+                  dragOverIndex === index && dragIndex !== index
+                    ? "border-[var(--primary)] bg-[var(--primary)]/5"
+                    : "border-[var(--border-color)]"
+                }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex flex-col items-center gap-1 mt-2">
+                  <div className="flex flex-col items-center gap-1 mt-2 cursor-grab active:cursor-grabbing">
                     <GripVertical
                       size={16}
-                      className="text-[var(--muted-light)]"
+                      className="text-[var(--muted)] hover:text-[var(--primary)] transition-colors"
                     />
-                    <button
-                      onClick={() => moveQuestion(index, -1)}
-                      disabled={index === 0}
-                      className="p-0.5 text-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-30 transition-colors"
-                    >
-                      <ChevronUp size={14} />
-                    </button>
-                    <button
-                      onClick={() => moveQuestion(index, 1)}
-                      disabled={index === questions.length - 1}
-                      className="p-0.5 text-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-30 transition-colors"
-                    >
-                      <ChevronDown size={14} />
-                    </button>
                   </div>
 
                   <div className="flex-1 space-y-3">

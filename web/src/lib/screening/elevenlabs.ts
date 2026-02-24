@@ -37,6 +37,7 @@ export async function createScreeningAgent(config: {
           language: config.language,
         },
         tts: {
+          model_id: "eleven_flash_v2_5",
           voice_id: config.voice_id,
         },
       },

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import { AuthButton } from "@/components/AuthButton";
+import { HowItWorksModal } from "@/components/screening/HowItWorksModal";
+import { TestCallOverlay } from "@/components/screening/TestCallOverlay";
 
 interface InterviewConfig {
   enabled: boolean;
@@ -27,7 +29,7 @@ const TONE_OPTIONS = [
   { id: "exigeant" as const, label: "Exigeant", description: "Questions approfondies et précises" },
 ];
 
-export default function InterviewIAPage() {
+export default function PreSelectionIAPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProject, setUserProject] = useState<{ id: string; name: string } | null>(null);
@@ -40,8 +42,14 @@ export default function InterviewIAPage() {
     duration: 15,
     autoScreen: false,
   });
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [testToken, setTestToken] = useState<string | null>(null);
+  const [testLoading, setTestLoading] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<number | null>(null);
   const [newQuestion, setNewQuestion] = useState("");
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const dragNode = useRef<HTMLDivElement | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -102,6 +110,66 @@ export default function InterviewIAPage() {
     setEditingQuestion(null);
   }
 
+  function handleDragStart(e: React.DragEvent<HTMLDivElement>, index: number) {
+    setDragIndex(index);
+    dragNode.current = e.currentTarget;
+    e.dataTransfer.effectAllowed = "move";
+    // Rendre l'élément semi-transparent après un tick
+    requestAnimationFrame(() => {
+      if (dragNode.current) dragNode.current.style.opacity = "0.4";
+    });
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLDivElement>, index: number) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragIndex === null || dragIndex === index) return;
+    setDragOverIndex(index);
+  }
+
+  function handleDrop(e: React.DragEvent<HTMLDivElement>, index: number) {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === index) return;
+    setConfig((prev) => {
+      const questions = [...prev.questions];
+      const [moved] = questions.splice(dragIndex, 1);
+      questions.splice(index, 0, moved);
+      return { ...prev, questions };
+    });
+  }
+
+  async function handleStartTest() {
+    if (!userProject || config.questions.length === 0) return;
+    setTestLoading(true);
+    try {
+      const res = await fetch("/api/screening/test-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questions: config.questions,
+          tone: config.tone,
+          duration: config.duration,
+          project_name: userProject.name,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setTestToken(data.token);
+      setShowHowItWorks(false);
+    } catch (err) {
+      console.error("Erreur création session test:", err);
+    } finally {
+      setTestLoading(false);
+    }
+  }
+
+  function handleDragEnd() {
+    if (dragNode.current) dragNode.current.style.opacity = "1";
+    setDragIndex(null);
+    setDragOverIndex(null);
+    dragNode.current = null;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
@@ -121,7 +189,7 @@ export default function InterviewIAPage() {
           </div>
           <h1 className="text-xl font-bold text-[var(--foreground)] mb-2">Connexion requise</h1>
           <p className="text-sm text-[var(--muted)] mb-6">
-            Connectez-vous pour configurer l&apos;interview IA de votre projet.
+            Connectez-vous pour configurer la pré-sélection IA de votre projet.
           </p>
           <AuthButton onAuthChange={() => window.location.reload()} />
         </div>
@@ -140,7 +208,7 @@ export default function InterviewIAPage() {
           </div>
           <h1 className="text-xl font-bold text-[var(--foreground)] mb-2">Projet requis</h1>
           <p className="text-sm text-[var(--muted)] mb-6">
-            Vous devez d&apos;abord créer et publier un projet d&apos;habitat pour pouvoir configurer l&apos;interview IA des candidats.
+            Vous devez d&apos;abord créer et publier un projet d&apos;habitat pour pouvoir configurer la pré-sélection IA des candidats.
           </p>
           <a
             href="/creer"
@@ -163,17 +231,26 @@ export default function InterviewIAPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">Interview IA</h1>
+          <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">Pré-sélection IA</h1>
           <p className="text-sm text-[var(--muted)] max-w-md mx-auto leading-relaxed">
             Configurez un agent IA qui mènera automatiquement un entretien avec les candidats qui postulent à votre projet <strong>{userProject.name}</strong>.
           </p>
+          <button
+            onClick={() => setShowHowItWorks(true)}
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors mt-3"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+            </svg>
+            Comment ça marche ?
+          </button>
         </div>
 
         {/* Activation */}
         <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-5 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-semibold text-[var(--foreground)]">Activer l&apos;interview IA</h2>
+              <h2 className="text-sm font-semibold text-[var(--foreground)]">Activer la pré-sélection IA</h2>
               <p className="text-xs text-[var(--muted)] mt-0.5">
                 Les candidats passeront un entretien automatique après leur candidature
               </p>
@@ -195,7 +272,7 @@ export default function InterviewIAPage() {
 
         {config.enabled && (
           <>
-            {/* Ton de l'interview */}
+            {/* Ton de la pré-sélection */}
             <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-color)] p-5 mb-4">
               <h2 className="text-sm font-semibold text-[var(--foreground)] mb-3">Ton de l&apos;entretien</h2>
               <div className="grid grid-cols-3 gap-2">
@@ -246,8 +323,26 @@ export default function InterviewIAPage() {
               </div>
               <div className="divide-y divide-[var(--border-light)]">
                 {config.questions.map((q, i) => (
-                  <div key={i} className="flex items-start gap-3 px-5 py-3 group">
-                    <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--surface)] text-[var(--muted)] text-xs flex items-center justify-center mt-0.5">
+                  <div
+                    key={i}
+                    draggable={editingQuestion !== i}
+                    onDragStart={(e) => handleDragStart(e, i)}
+                    onDragOver={(e) => handleDragOver(e, i)}
+                    onDrop={(e) => handleDrop(e, i)}
+                    onDragEnd={handleDragEnd}
+                    className={`flex items-center gap-3 px-5 py-3 group transition-colors ${
+                      dragOverIndex === i && dragIndex !== i
+                        ? "bg-[var(--primary)]/5 border-l-2 border-l-[var(--primary)]"
+                        : ""
+                    }`}
+                  >
+                    {/* Poignée drag */}
+                    <span className="shrink-0 cursor-grab active:cursor-grabbing text-[var(--muted)] hover:text-[var(--primary)] transition-colors" title="Glisser pour réordonner">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+                      </svg>
+                    </span>
+                    <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--surface)] text-[var(--muted)] text-xs flex items-center justify-center">
                       {i + 1}
                     </span>
                     {editingQuestion === i ? (
@@ -359,6 +454,20 @@ export default function InterviewIAPage() {
           </button>
         </div>
       </div>
+
+      <HowItWorksModal
+        isOpen={showHowItWorks}
+        onClose={() => setShowHowItWorks(false)}
+        onTestClick={handleStartTest}
+        testLoading={testLoading}
+      />
+
+      {testToken && (
+        <TestCallOverlay
+          token={testToken}
+          onClose={() => setTestToken(null)}
+        />
+      )}
     </div>
   );
 }

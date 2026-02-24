@@ -70,18 +70,22 @@ export async function middleware(request: NextRequest) {
   requestCounter++;
   if (requestCounter % 100 === 0) cleanupRateLimitMap();
 
-  // Rate limiting: stricter for AI-backed routes
+  // Rate limiting: stricter for AI-backed routes, désactivé en dev local
   const ip = getClientIP(request);
+  const isLocalhost = ip === "unknown" || ip === "127.0.0.1" || ip === "::1";
   const isAiRoute = AUTH_REQUIRED_ROUTES.some((route) =>
     pathname.startsWith(route)
   );
-  const limit = isAiRoute ? RATE_LIMIT_MAX_AI : RATE_LIMIT_MAX_GENERAL;
 
-  if (isRateLimited(ip, limit)) {
-    return NextResponse.json(
-      { error: "Trop de requ\u00eates. Veuillez r\u00e9essayer dans une minute." },
-      { status: 429 }
-    );
+  if (!isLocalhost) {
+    const limit = isAiRoute ? RATE_LIMIT_MAX_AI : RATE_LIMIT_MAX_GENERAL;
+
+    if (isRateLimited(ip, limit)) {
+      return NextResponse.json(
+        { error: "Trop de requ\u00eates. Veuillez r\u00e9essayer dans une minute." },
+        { status: 429 }
+      );
+    }
   }
 
   // Auth check with real JWT validation for protected routes
